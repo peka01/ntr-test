@@ -103,8 +103,8 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
   }
   
   try {
-    // Fetch from the external help documentation repository
-    const repoUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${language}/${sectionId}.md`;
+    // Fetch from the external help documentation repository using a CORS proxy
+    const repoUrl = `https://corsproxy.io/?${encodeURIComponent(`https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${language}/${sectionId}.md`)}`;
     
     console.log(`Fetching content from: ${repoUrl}`);
     
@@ -112,7 +112,8 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       method: 'GET',
       headers: {
         'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
+        'Pragma': 'no-cache',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       }
     });
     
