@@ -23,7 +23,29 @@ let contentCache: { [key: string]: string } = {};
 let lastCacheTime = 0;
 const CACHE_DURATION = 2000; // 2 seconds cache
 
-// Dynamic content loading from repository
+// Fallback content for when GitHub is not accessible
+const fallbackContent: { [key: string]: { [key: string]: string } } = {
+  sv: {
+    overview: `# Översikt\n\nVälkommen till utbildningshanteringssystemet. Detta system hjälper dig att hantera utbildningar, användare och närvaro.`,
+    vouchers: `# Kuponger\n\nKuponger används för att hantera betalningar och rabatter för utbildningar.`,
+    'user-management': `# Användarhantering\n\nHantera användare och deras roller i systemet.`,
+    'training-management': `# Utbildningshantering\n\nSkapa och hantera utbildningar i systemet.`,
+    subscriptions: `# Prenumerationer\n\nHantera användares prenumerationer på utbildningar.`,
+    attendance: `# Närvaro\n\nRegistrera och hantera närvaro för utbildningar.`,
+    troubleshooting: `# Felsökning\n\nHjälp med vanliga problem och lösningar.`
+  },
+  en: {
+    overview: `# Overview\n\nWelcome to the training management system. This system helps you manage trainings, users, and attendance.`,
+    vouchers: `# Vouchers\n\nVouchers are used to handle payments and discounts for trainings.`,
+    'user-management': `# User Management\n\nManage users and their roles in the system.`,
+    'training-management': `# Training Management\n\nCreate and manage trainings in the system.`,
+    subscriptions: `# Subscriptions\n\nManage user subscriptions to trainings.`,
+    attendance: `# Attendance\n\nRegister and manage attendance for trainings.`,
+    troubleshooting: `# Troubleshooting\n\nHelp with common problems and solutions.`
+  }
+};
+
+// Dynamic content loading from GitHub repository with fallback
 async function loadMarkdownContent(sectionId: string, language: string): Promise<string> {
   const cacheKey = `${sectionId}-${language}`;
   const now = Date.now();
@@ -34,7 +56,7 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
   }
   
   try {
-    // Fetch from the repository
+    // Try to fetch from GitHub repository
     const repoUrl = `https://raw.githubusercontent.com/peka01/ntr-test/main/docs/help/${language}/${sectionId}.md`;
     
     console.log(`Fetching content from: ${repoUrl}`);
@@ -58,7 +80,21 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     }
   } catch (error) {
     console.error(`Error loading content for ${sectionId} in ${language}:`, error);
-    // Return a fallback message
+    
+    // Try fallback to local files first
+    try {
+      const localContent = fallbackContent[language]?.[sectionId];
+      if (localContent) {
+        console.log(`Using fallback content for ${sectionId} in ${language}`);
+        contentCache[cacheKey] = localContent;
+        lastCacheTime = now;
+        return localContent;
+      }
+    } catch (fallbackError) {
+      console.error(`Fallback content also failed for ${sectionId}:`, fallbackError);
+    }
+    
+    // Final fallback message
     return `# Content not available\n\nThis help content is currently not available.\n\nError: ${error}\n\nPlease check your internet connection and try refreshing.`;
   }
 }
