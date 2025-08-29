@@ -326,7 +326,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
               </svg>
             </button>
             <a
-              href={`https://github.com/peka01/ntr-test/edit/main/docs/help/${language}/${selectedSection}.md`}
+                              href={`https://github.com/peka01/helpdoc/edit/main/ntr-test/${language}/${selectedSection}.md`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors"
