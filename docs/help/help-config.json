@@ -1,0 +1,67 @@
+{
+  "sections": [
+    {
+      "id": "overview",
+      "title": {
+        "sv": "Systemöversikt",
+        "en": "System Overview"
+      },
+      "keywords": ["overview", "system", "features", "architecture"],
+      "category": "general"
+    },
+    {
+      "id": "vouchers",
+      "title": {
+        "sv": "Klippkortssystem",
+        "en": "Voucher System"
+      },
+      "keywords": ["voucher", "credits", "balance", "cost", "refund"],
+      "category": "general"
+    },
+    {
+      "id": "user-management",
+      "title": {
+        "sv": "Användarhantering (Admin)",
+        "en": "User Management (Admin)"
+      },
+      "keywords": ["create user", "add user", "manage vouchers", "admin", "user list"],
+      "category": "admin"
+    },
+    {
+      "id": "training-management",
+      "title": {
+        "sv": "Träningshantering (Admin)",
+        "en": "Training Management (Admin)"
+      },
+      "keywords": ["create training", "edit training", "admin training", "training management"],
+      "category": "admin"
+    },
+    {
+      "id": "subscriptions",
+      "title": {
+        "sv": "Träningsanmälningar (Användare)",
+        "en": "Training Subscriptions (User)"
+      },
+      "keywords": ["subscribe", "unsubscribe", "subscription", "public view", "user subscription"],
+      "category": "user"
+    },
+    {
+      "id": "attendance",
+      "title": {
+        "sv": "Närvarohantering (Användare)",
+        "en": "Attendance Management (User)"
+      },
+      "keywords": ["mark attendance", "cancel attendance", "attendance view", "voucher deduction", "refund"],
+      "category": "user"
+    },
+    {
+      "id": "troubleshooting",
+      "title": {
+        "sv": "Felsökning",
+        "en": "Troubleshooting"
+      },
+      "keywords": ["error", "problem", "issue", "cannot mark", "not appearing", "balance not updating"],
+      "category": "general"
+    }
+  ]
+}

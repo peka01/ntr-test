@@ -60,6 +60,7 @@ const sv = {
   "helpNoResults": "Inga hjälpämnen hittades som matchar din sökning.",
   "helpContactAdmin": "Behöver mer hjälp? Kontakta din systemadministratör.",
   "helpSystemVersion": "System för Träningshantering v1.0",
+  "helpEditButton": "Redigera hjälpinnehåll på GitHub",
   // Help Content - Overview
   "helpOverviewTitle": "Systemöversikt",
   "helpOverviewContent": `# Systemöversikt för Träningshantering
@@ -315,6 +316,7 @@ const en = {
   "helpNoResults": "No help topics found matching your search.",
   "helpContactAdmin": "Need more help? Contact your system administrator.",
   "helpSystemVersion": "Training Management System v1.0",
+  "helpEditButton": "Edit help content on GitHub",
   // Help Content - Overview
   "helpOverviewTitle": "System Overview",
   "helpOverviewContent": `# Training Management System Overview

@@ -220,6 +220,7 @@ const App: React.FC = () => {
                 isOpen={helpOpen}
                 onClose={() => setHelpOpen(false)}
                 context={helpContext}
+                isAdmin={view === 'admin'}
             />
         </div>
     );
