@@ -5,7 +5,7 @@ services:
     image: node:18-alpine
     working_dir: /app
     ports:
-      - "5173:5173"
+      - "5173:3000"
     environment:
       - NODE_ENV=development
       - GEMINI_API_KEY=${GEMINI_API_KEY}
