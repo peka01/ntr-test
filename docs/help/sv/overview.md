@@ -1,4 +1,4 @@
-# Välkommen till Träningshanteringssystemet
+# Välkommen hit!
 
 Träningshanteringssystemet är ett flexibelt och användarvänligt verktyg för att organisera och hantera träningsaktiviteter. Systemet bygger på ett enkelt men effektivt klippkortssystem som gör det möjligt för deltagare att boka och delta i träningar på ett smidigt sätt.
 
