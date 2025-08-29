@@ -1,0 +1,199 @@
+import { useState, useEffect, useCallback } from 'react';
+import type { User, Training } from '../types';
+import { userService, trainingService, subscriptionService, attendanceService } from '../services/dataService';
+
+export const useData = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [trainings, setTrainings] = useState<Training[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Map<string, Set<string>>>(new Map());
+  const [attendance, setAttendance] = useState<Map<string, Set<string>>>(new Map());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load all data on component mount
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const [usersData, trainingsData, subscriptionsData, attendanceData] = await Promise.all([
+        userService.getAll(),
+        trainingService.getAll(),
+        subscriptionService.getAll(),
+        attendanceService.getAll()
+      ]);
+
+      setUsers(usersData);
+      setTrainings(trainingsData);
+      setSubscriptions(subscriptionsData);
+      setAttendance(attendanceData);
+    } catch (err) {
+      console.error('Error loading data:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  // Load data on mount
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  // User operations
+  const createUser = useCallback(async (name: string, email: string) => {
+    try {
+      const newUser = await userService.create(name, email);
+      setUsers(prev => [...prev, newUser]);
+      return newUser;
+    } catch (err) {
+      console.error('Error creating user:', err);
+      throw err;
+    }
+  }, []);
+
+  const updateUserVoucherBalance = useCallback(async (userId: string, newBalance: number) => {
+    try {
+      await userService.updateVoucherBalance(userId, newBalance);
+      setUsers(prev => prev.map(user => 
+        user.id === userId ? { ...user, voucherBalance: newBalance } : user
+      ));
+    } catch (err) {
+      console.error('Error updating user voucher balance:', err);
+      throw err;
+    }
+  }, []);
+
+  // Training operations
+  const createTraining = useCallback(async (name: string, description: string) => {
+    try {
+      const newTraining = await trainingService.create(name, description);
+      setTrainings(prev => [...prev, newTraining]);
+      setSubscriptions(prev => {
+        const newSubs = new Map(prev);
+        newSubs.set(newTraining.id, new Set());
+        return newSubs;
+      });
+      return newTraining;
+    } catch (err) {
+      console.error('Error creating training:', err);
+      throw err;
+    }
+  }, []);
+
+  const updateTraining = useCallback(async (trainingId: string, name: string, description: string) => {
+    try {
+      await trainingService.update(trainingId, name, description);
+      setTrainings(prev => prev.map(training => 
+        training.id === trainingId ? { ...training, name, description } : training
+      ));
+    } catch (err) {
+      console.error('Error updating training:', err);
+      throw err;
+    }
+  }, []);
+
+  // Subscription operations
+  const subscribe = useCallback(async (trainingId: string, userId: string) => {
+    try {
+      await subscriptionService.subscribe(trainingId, userId);
+      setSubscriptions(prev => {
+        const newSubs = new Map(prev);
+        const userIds = newSubs.get(trainingId) || new Set();
+        userIds.add(userId);
+        newSubs.set(trainingId, userIds);
+        return newSubs;
+      });
+    } catch (err) {
+      console.error('Error subscribing:', err);
+      throw err;
+    }
+  }, []);
+
+  const unsubscribe = useCallback(async (trainingId: string, userId: string) => {
+    try {
+      await subscriptionService.unsubscribe(trainingId, userId);
+      setSubscriptions(prev => {
+        const newSubs = new Map(prev);
+        const userIds = newSubs.get(trainingId);
+        if (userIds) {
+          userIds.delete(userId);
+          newSubs.set(trainingId, userIds);
+        }
+        return newSubs;
+      });
+    } catch (err) {
+      console.error('Error unsubscribing:', err);
+      throw err;
+    }
+  }, []);
+
+  // Attendance operations
+  const markAttendance = useCallback(async (trainingId: string, userId: string) => {
+    try {
+      const user = users.find(u => u.id === userId);
+      if (user && user.voucherBalance > 0) {
+        // Deduct voucher
+        await updateUserVoucherBalance(userId, user.voucherBalance - 1);
+        // Mark attendance
+        await attendanceService.markAttendance(trainingId, userId);
+        setAttendance(prev => {
+          const newAttendance = new Map(prev);
+          const attendees = newAttendance.get(trainingId) || new Set();
+          attendees.add(userId);
+          newAttendance.set(trainingId, attendees);
+          return newAttendance;
+        });
+      }
+    } catch (err) {
+      console.error('Error marking attendance:', err);
+      throw err;
+    }
+  }, [users, updateUserVoucherBalance]);
+
+  const unmarkAttendance = useCallback(async (trainingId: string, userId: string) => {
+    try {
+      const user = users.find(u => u.id === userId);
+      if (user) {
+        // Refund voucher
+        await updateUserVoucherBalance(userId, user.voucherBalance + 1);
+        // Unmark attendance
+        await attendanceService.unmarkAttendance(trainingId, userId);
+        setAttendance(prev => {
+          const newAttendance = new Map(prev);
+          const attendees = newAttendance.get(trainingId);
+          if (attendees) {
+            attendees.delete(userId);
+            newAttendance.set(trainingId, attendees);
+          }
+          return newAttendance;
+        });
+      }
+    } catch (err) {
+      console.error('Error unmarking attendance:', err);
+      throw err;
+    }
+  }, [users, updateUserVoucherBalance]);
+
+  return {
+    // Data
+    users,
+    trainings,
+    subscriptions,
+    attendance,
+    loading,
+    error,
+    
+    // Operations
+    loadData,
+    createUser,
+    updateUserVoucherBalance,
+    createTraining,
+    updateTraining,
+    subscribe,
+    unsubscribe,
+    markAttendance,
+    unmarkAttendance
+  };
+};
+

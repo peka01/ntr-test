@@ -1,111 +1,106 @@
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import type { User, Training } from './types';
 import { AdminDashboard } from './components/AdminDashboard';
 import { SubscriptionPage } from './components/SubscriptionPage';
 import { AttendancePage } from './components/AttendancePage';
 import { useTranslations } from './hooks/useTranslations';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
-
-const initialUsers: User[] = [
-    { id: 'u1', name: 'Alice Johnson', email: 'alice@example.com', voucherBalance: 5 },
-    { id: 'u2', name: 'Bob Williams', email: 'bob@example.com', voucherBalance: 3 },
-];
-
-const initialTrainings: Training[] = [
-    { id: 't1', name: 'React Fundamentals', description: 'Learn the basics of React.' },
-    { id: 't2', name: 'Advanced TailwindCSS', description: 'Master utility-first CSS.' },
-];
+import { useData } from './hooks/useData';
+import { LoadingSpinner } from './components/LoadingSpinner';
 
 type View = 'admin' | 'public' | 'attendance';
 
 const App: React.FC = () => {
     const { t } = useTranslations();
     const [view, setView] = useState<View>('public');
-    const [users, setUsers] = useState<User[]>(initialUsers);
-    const [trainings, setTrainings] = useState<Training[]>(initialTrainings);
-    const [subscriptions, setSubscriptions] = useState<Map<string, Set<string>>>(new Map([
-        ['t1', new Set(['u1', 'u2'])]
-    ]));
-    const [attendance, setAttendance] = useState<Map<string, Set<string>>>(new Map());
-
-    const handleCreateUser = useCallback((name: string, email: string) => {
-        const newUser: User = { id: crypto.randomUUID(), name, email, voucherBalance: 0 };
-        setUsers(prev => [...prev, newUser]);
-    }, []);
-
-    const handleCreateTraining = useCallback((name: string, description: string) => {
-        const newTraining: Training = { id: crypto.randomUUID(), name, description };
-        setTrainings(prev => [...prev, newTraining]);
-        setSubscriptions(prev => {
-            const newSubs = new Map(prev);
-            newSubs.set(newTraining.id, new Set());
-            return newSubs;
-        });
-    }, []);
     
-    const handleUpdateTraining = useCallback((trainingId: string, name: string, description: string) => {
-        setTrainings(prev => prev.map(t => 
-            t.id === trainingId ? { ...t, name, description } : t
-        ));
-    }, []);
+    const {
+        users,
+        trainings,
+        subscriptions,
+        attendance,
+        loading,
+        error,
+        createUser,
+        updateUserVoucherBalance,
+        createTraining,
+        updateTraining,
+        subscribe,
+        unsubscribe,
+        markAttendance,
+        unmarkAttendance
+    } = useData();
 
-    const handleSubscribe = useCallback((trainingId: string, userId: string) => {
-        setSubscriptions(prev => {
-            const newSubs = new Map(prev);
-            const userIds = newSubs.get(trainingId) || new Set();
-            userIds.add(userId);
-            newSubs.set(trainingId, userIds);
-            return newSubs;
-        });
-    }, []);
-
-    const handleMarkAttendance = useCallback((trainingId: string, userId: string) => {
-        const user = users.find(u => u.id === userId);
-        if (user && user.voucherBalance > 0) {
-            // Deduct voucher
-            setUsers(prevUsers => prevUsers.map(u => 
-                u.id === userId ? { ...u, voucherBalance: u.voucherBalance - 1 } : u
-            ));
-            // Mark attendance
-            setAttendance(prev => {
-                const newAttendance = new Map(prev);
-                const attendees = newAttendance.get(trainingId) || new Set();
-                attendees.add(userId);
-                newAttendance.set(trainingId, attendees);
-                return newAttendance;
-            });
+    const handleCreateUser = async (name: string, email: string) => {
+        try {
+            await createUser(name, email);
+        } catch (err) {
+            console.error('Failed to create user:', err);
         }
-    }, [users]);
+    };
 
-    const handleUnmarkAttendance = useCallback((trainingId: string, userId: string) => {
-        // Refund voucher
-        setUsers(prevUsers => prevUsers.map(u =>
-            u.id === userId ? { ...u, voucherBalance: u.voucherBalance + 1 } : u
-        ));
-        // Unmark attendance
-        setAttendance(prev => {
-            const newAttendance = new Map(prev);
-            const attendees = newAttendance.get(trainingId);
-            if (attendees) {
-                attendees.delete(userId);
-                newAttendance.set(trainingId, attendees);
+    const handleCreateTraining = async (name: string, description: string) => {
+        try {
+            await createTraining(name, description);
+        } catch (err) {
+            console.error('Failed to create training:', err);
+        }
+    };
+    
+    const handleUpdateTraining = async (trainingId: string, name: string, description: string) => {
+        try {
+            await updateTraining(trainingId, name, description);
+        } catch (err) {
+            console.error('Failed to update training:', err);
+        }
+    };
+
+    const handleSubscribe = async (trainingId: string, userId: string) => {
+        try {
+            await subscribe(trainingId, userId);
+        } catch (err) {
+            console.error('Failed to subscribe:', err);
+        }
+    };
+
+    const handleMarkAttendance = async (trainingId: string, userId: string) => {
+        try {
+            await markAttendance(trainingId, userId);
+        } catch (err) {
+            console.error('Failed to mark attendance:', err);
+        }
+    };
+
+    const handleUnmarkAttendance = async (trainingId: string, userId: string) => {
+        try {
+            await unmarkAttendance(trainingId, userId);
+        } catch (err) {
+            console.error('Failed to unmark attendance:', err);
+        }
+    };
+
+    const handleAddVoucher = async (userId: string) => {
+        try {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                await updateUserVoucherBalance(userId, user.voucherBalance + 1);
             }
-            return newAttendance;
-        });
-    }, []);
+        } catch (err) {
+            console.error('Failed to add voucher:', err);
+        }
+    };
 
-    const handleAddVoucher = useCallback((userId: string) => {
-        setUsers(prevUsers => prevUsers.map(u => 
-            u.id === userId ? { ...u, voucherBalance: u.voucherBalance + 1 } : u
-        ));
-    }, []);
-
-    const handleRemoveVoucher = useCallback((userId: string) => {
-        setUsers(prevUsers => prevUsers.map(u => 
-            u.id === userId && u.voucherBalance > 0 ? { ...u, voucherBalance: u.voucherBalance - 1 } : u
-        ));
-    }, []);
+    const handleRemoveVoucher = async (userId: string) => {
+        try {
+            const user = users.find(u => u.id === userId);
+            if (user && user.voucherBalance > 0) {
+                await updateUserVoucherBalance(userId, user.voucherBalance - 1);
+            }
+        } catch (err) {
+            console.error('Failed to remove voucher:', err);
+        }
+    };
 
     const NavButton: React.FC<{ currentView: View; targetView: View; setView: (view: View) => void; children: React.ReactNode }> = ({ currentView, targetView, setView, children }) => (
         <button
@@ -151,6 +146,33 @@ const App: React.FC = () => {
             default:
                 return null;
         }
+    }
+
+    // Show loading spinner while data is loading
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+                <LoadingSpinner />
+            </div>
+        );
+    }
+
+    // Show error message if there's an error
+    if (error) {
+        return (
+            <div className="min-h-screen bg-slate-100 flex items-center justify-center">
+                <div className="bg-white rounded-lg p-8 shadow-lg max-w-md w-full mx-4">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Data</h2>
+                    <p className="text-slate-600 mb-4">{error}</p>
+                    <button
+                        onClick={() => window.location.reload()}
+                        className="w-full px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
+                    >
+                        Retry
+                    </button>
+                </div>
+            </div>
+        );
     }
 
     return (
