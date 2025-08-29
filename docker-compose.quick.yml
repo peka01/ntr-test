@@ -12,6 +12,6 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: sh -c "npm install --silent && npm run dev -- --host 0.0.0.0"
+    command: sh -c "npm install --silent && npm run dev -- --host"
     restart: unless-stopped
 

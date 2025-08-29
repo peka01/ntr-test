@@ -18,50 +18,104 @@ export interface HelpSectionConfig {
   category: 'admin' | 'user' | 'general';
 }
 
-// Import all help content files
-const helpContent = {
-  // Swedish content
+// Cache for help content to avoid repeated file loads
+let contentCache: { [key: string]: string } = {};
+let lastCacheTime = 0;
+const CACHE_DURATION = 2000; // 2 seconds cache
+
+// Static imports for all help content files
+import overviewSv from '../docs/help/sv/overview.md?raw';
+import vouchersSv from '../docs/help/sv/vouchers.md?raw';
+import userManagementSv from '../docs/help/sv/user-management.md?raw';
+import trainingManagementSv from '../docs/help/sv/training-management.md?raw';
+import subscriptionsSv from '../docs/help/sv/subscriptions.md?raw';
+import attendanceSv from '../docs/help/sv/attendance.md?raw';
+import troubleshootingSv from '../docs/help/sv/troubleshooting.md?raw';
+
+import overviewEn from '../docs/help/en/overview.md?raw';
+import vouchersEn from '../docs/help/en/vouchers.md?raw';
+import userManagementEn from '../docs/help/en/user-management.md?raw';
+import trainingManagementEn from '../docs/help/en/training-management.md?raw';
+import subscriptionsEn from '../docs/help/en/subscriptions.md?raw';
+import attendanceEn from '../docs/help/en/attendance.md?raw';
+import troubleshootingEn from '../docs/help/en/troubleshooting.md?raw';
+
+// Content map for static imports
+const helpContentMap = {
   sv: {
-    overview: () => import('../docs/help/overview.md?raw'),
-    vouchers: () => import('../docs/help/vouchers.md?raw'),
-    'user-management': () => import('../docs/help/user-management.md?raw'),
-    'training-management': () => import('../docs/help/training-management.md?raw'),
-    subscriptions: () => import('../docs/help/subscriptions.md?raw'),
-    attendance: () => import('../docs/help/attendance.md?raw'),
-    troubleshooting: () => import('../docs/help/troubleshooting.md?raw'),
+    overview: overviewSv,
+    vouchers: vouchersSv,
+    'user-management': userManagementSv,
+    'training-management': trainingManagementSv,
+    subscriptions: subscriptionsSv,
+    attendance: attendanceSv,
+    troubleshooting: troubleshootingSv
   },
-  // English content
   en: {
-    overview: () => import('../docs/help/en/overview.md?raw'),
-    vouchers: () => import('../docs/help/en/vouchers.md?raw'),
-    'user-management': () => import('../docs/help/en/user-management.md?raw'),
-    'training-management': () => import('../docs/help/en/training-management.md?raw'),
-    subscriptions: () => import('../docs/help/en/subscriptions.md?raw'),
-    attendance: () => import('../docs/help/en/attendance.md?raw'),
-    troubleshooting: () => import('../docs/help/en/troubleshooting.md?raw'),
+    overview: overviewEn,
+    vouchers: vouchersEn,
+    'user-management': userManagementEn,
+    'training-management': trainingManagementEn,
+    subscriptions: subscriptionsEn,
+    attendance: attendanceEn,
+    troubleshooting: troubleshootingEn
+  }
+};
+
+// Load content from static imports
+async function loadMarkdownContent(sectionId: string, language: string): Promise<string> {
+  const cacheKey = `${sectionId}-${language}`;
+  const now = Date.now();
+  
+  // Check if we have a valid cached version
+  if (contentCache[cacheKey] && (now - lastCacheTime) < CACHE_DURATION) {
+    return contentCache[cacheKey];
+  }
+  
+  try {
+    const content = helpContentMap[language as keyof typeof helpContentMap]?.[sectionId as keyof typeof helpContentMap[typeof language]];
+    if (content) {
+      contentCache[cacheKey] = content;
+      lastCacheTime = now;
+      return content;
+    } else {
+      throw new Error(`Content not found for section ${sectionId} in language ${language}`);
+    }
+  } catch (error) {
+    console.error(`Error loading markdown file for ${sectionId} in ${language}:`, error);
+    // Return a fallback message
+    return `# Content not available\n\nThis help content is currently not available.\n\nError: ${error}`;
   }
 };
 
 export const helpService = {
+  // Clear cache to force reload
+  clearCache(): void {
+    contentCache = {};
+    lastCacheTime = 0;
+  },
+
+  // Force reload by clearing cache and reloading content
+  async forceReload(language: string = 'sv'): Promise<HelpSection[]> {
+    this.clearCache();
+    return this.getAllSections(language);
+  },
+
   // Get all help sections for a specific language
   async getAllSections(language: string = 'sv'): Promise<HelpSection[]> {
     const sections: HelpSection[] = [];
     
     for (const sectionConfig of helpConfig.sections) {
       try {
-        const contentModule = helpContent[language as keyof typeof helpContent];
-        const contentLoader = contentModule[sectionConfig.id as keyof typeof contentModule];
+        const content = await loadMarkdownContent(sectionConfig.id, language);
         
-        if (contentLoader) {
-          const content = await contentLoader();
-          sections.push({
-            id: sectionConfig.id,
-            title: sectionConfig.title[language as keyof typeof sectionConfig.title],
-            content: content.default || content,
-            keywords: sectionConfig.keywords,
-            category: sectionConfig.category
-          });
-        }
+        sections.push({
+          id: sectionConfig.id,
+          title: sectionConfig.title[language as keyof typeof sectionConfig.title],
+          content: content,
+          keywords: sectionConfig.keywords,
+          category: sectionConfig.category
+        });
       } catch (error) {
         console.error(`Error loading help content for section ${sectionConfig.id}:`, error);
         // Fallback to empty content
@@ -84,19 +138,15 @@ export const helpService = {
       const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
       if (!sectionConfig) return null;
 
-      const contentModule = helpContent[language as keyof typeof helpContent];
-      const contentLoader = contentModule[sectionId as keyof typeof contentModule];
+      const content = await loadMarkdownContent(sectionId, language);
       
-      if (contentLoader) {
-        const content = await contentLoader();
-        return {
-          id: sectionConfig.id,
-          title: sectionConfig.title[language as keyof typeof sectionConfig.title],
-          content: content.default || content,
-          keywords: sectionConfig.keywords,
-          category: sectionConfig.category
-        };
-      }
+      return {
+        id: sectionConfig.id,
+        title: sectionConfig.title[language as keyof typeof sectionConfig.title],
+        content: content,
+        keywords: sectionConfig.keywords,
+        category: sectionConfig.category
+      };
     } catch (error) {
       console.error(`Error loading help content for section ${sectionId}:`, error);
     }

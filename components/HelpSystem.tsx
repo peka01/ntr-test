@@ -19,10 +19,20 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [size, setSize] = useState({ width: 1200, height: 800 });
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [resizeDirection, setResizeDirection] = useState<string>('');
   const searchInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+
+  // Bring window to front when clicked
+  const handleWindowClick = () => {
+    if (modalRef.current) {
+      modalRef.current.style.zIndex = '9999';
+    }
+  };
 
   // Load help content from Markdown files
   useEffect(() => {
@@ -44,6 +54,35 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
       loadHelpContent();
     }
   }, [isOpen, language]);
+
+  // Auto-refresh help content every 5 seconds when help window is open
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const refreshInterval = setInterval(async () => {
+      try {
+        const sections = await helpService.forceReload(language);
+        setHelpSections(sections);
+      } catch (error) {
+        console.error('Error refreshing help content:', error);
+      }
+    }, 5000); // Refresh every 5 seconds
+
+    return () => clearInterval(refreshInterval);
+  }, [isOpen, language]);
+
+  // Manual refresh function
+  const handleManualRefresh = async () => {
+    try {
+      setLoading(true);
+      const sections = await helpService.forceReload(language);
+      setHelpSections(sections);
+    } catch (error) {
+      console.error('Error manually refreshing help content:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Filter sections based on search and category
   const filteredSections = helpSections.filter(section => {
@@ -98,12 +137,18 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
     }
   }, [context, helpSections]);
 
-  // Focus search input when modal opens
+  // Center modal when it opens
   useEffect(() => {
-    if (isOpen && searchInputRef.current) {
-      searchInputRef.current.focus();
+    if (isOpen) {
+      const centerX = (window.innerWidth - size.width) / 2;
+      const centerY = (window.innerHeight - size.height) / 2;
+      setPosition({ x: centerX, y: centerY });
+      
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, size.width, size.height]);
 
   // Handle ESC key to close modal
   useEffect(() => {
@@ -144,44 +189,137 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
     setIsDragging(false);
   };
 
+  // Handle resizing
+  const handleResizeStart = (e: React.MouseEvent, direction: string) => {
+    e.stopPropagation();
+    setResizeDirection(direction);
+    setIsResizing(true);
+  };
+
+  const handleResizeMove = (e: MouseEvent) => {
+    if (isResizing && modalRef.current) {
+      const rect = modalRef.current.getBoundingClientRect();
+      let newWidth = size.width;
+      let newHeight = size.height;
+      let newX = position.x;
+      let newY = position.y;
+
+      if (resizeDirection.includes('e')) {
+        newWidth = e.clientX - rect.left;
+      }
+      if (resizeDirection.includes('w')) {
+        const deltaX = e.clientX - rect.left;
+        newWidth = size.width - deltaX;
+        newX = position.x + deltaX;
+      }
+      if (resizeDirection.includes('s')) {
+        newHeight = e.clientY - rect.top;
+      }
+      if (resizeDirection.includes('n')) {
+        const deltaY = e.clientY - rect.top;
+        newHeight = size.height - deltaY;
+        newY = position.y + deltaY;
+      }
+
+      // Minimum size constraints
+      newWidth = Math.max(800, newWidth);
+      newHeight = Math.max(600, newHeight);
+
+      setSize({ width: newWidth, height: newHeight });
+      setPosition({ x: newX, y: newY });
+    }
+  };
+
+  const handleResizeEnd = () => {
+    setIsResizing(false);
+    setResizeDirection('');
+  };
+
   useEffect(() => {
-    if (isDragging) {
-      document.addEventListener('mousemove', handleMouseMove);
-      document.addEventListener('mouseup', handleMouseUp);
+    if (isDragging || isResizing) {
+      const moveHandler = isDragging ? handleMouseMove : handleResizeMove;
+      const upHandler = isDragging ? handleMouseUp : handleResizeEnd;
+      
+      document.addEventListener('mousemove', moveHandler);
+      document.addEventListener('mouseup', upHandler);
       return () => {
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('mousemove', moveHandler);
+        document.removeEventListener('mouseup', upHandler);
       };
     }
-  }, [isDragging, dragOffset]);
+  }, [isDragging, isResizing, dragOffset, resizeDirection, size.width, size.height, position.x, position.y]);
 
   const selectedSectionData = helpSections.find(section => section.id === selectedSection);
 
   const renderContent = (content: string) => {
-    return content
-      .replace(/\n/g, '<br>')
-      .replace(/# (.*?)\n/g, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
-      .replace(/## (.*?)\n/g, '<h2 class="text-xl font-semibold mb-3 mt-6">$1</h2>')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/- (.*?)(?=\n|$)/g, '<li class="ml-4">$1</li>')
-      .replace(/(<li.*?<\/li>)/g, '<ul class="list-disc mb-4">$1</ul>')
-      .replace(/\n\n/g, '<br><br>');
+    let html = content;
+    
+    // Process headers first (before other replacements)
+    html = html.replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mb-2 mt-4">$1</h3>');
+    html = html.replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mb-3 mt-6">$1</h2>');
+    html = html.replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mb-4">$1</h1>');
+    
+    // Process bold and italic
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    
+    // Process lists
+    const lines = html.split('\n');
+    let inList = false;
+    let listItems = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      if (line.trim().startsWith('- ')) {
+        if (!inList) {
+          inList = true;
+          listItems = [];
+        }
+        listItems.push(line.replace(/^- (.*)/, '<li class="ml-4">$1</li>'));
+      } else {
+        if (inList && listItems.length > 0) {
+          lines[i - listItems.length] = `<ul class="list-disc mb-4">${listItems.join('')}</ul>`;
+          // Remove the individual list item lines
+          for (let j = i - listItems.length + 1; j < i; j++) {
+            lines[j] = '';
+          }
+          inList = false;
+          listItems = [];
+        }
+      }
+    }
+    
+    // Handle any remaining list at the end
+    if (inList && listItems.length > 0) {
+      lines[lines.length - listItems.length] = `<ul class="list-disc mb-4">${listItems.join('')}</ul>`;
+      for (let j = lines.length - listItems.length + 1; j < lines.length; j++) {
+        lines[j] = '';
+      }
+    }
+    
+    html = lines.join('\n');
+    
+    // Convert remaining newlines to breaks
+    html = html.replace(/\n/g, '<br>');
+    
+    return html;
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center z-50 p-4">
-      <div 
-        ref={modalRef}
-        className="bg-white rounded-2xl shadow-2xl max-w-6xl w-full max-h-[90vh] flex flex-col absolute"
-        style={{
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          cursor: isDragging ? 'grabbing' : 'default'
-        }}
-      >
+    <div 
+      ref={modalRef}
+      className="fixed bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 z-50"
+      style={{
+        left: `${position.x}px`,
+        top: `${position.y}px`,
+        width: `${size.width}px`,
+        height: `${size.height}px`,
+        cursor: isDragging ? 'grabbing' : 'default'
+      }}
+      onClick={handleWindowClick}
+    >
         {/* Header */}
         <div 
           className="flex items-center justify-between p-6 border-b border-slate-200 cursor-grab active:cursor-grabbing"
@@ -189,9 +327,18 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
         >
           <h2 className="text-2xl font-bold text-slate-900">{t('helpSystemTitle')}</h2>
           <div className="flex items-center gap-2">
+            <button
+              onClick={handleManualRefresh}
+              className="p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
+              title="Refresh help content"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+            </button>
             {isAdmin && (
               <a
-                href="https://github.com/peka01/ntr-test/tree/main/docs/help"
+                href={`https://github.com/peka01/ntr-test/edit/main/docs/help/${language}/${selectedSection}.md`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors"
@@ -295,7 +442,40 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
             <span>{t('helpSystemVersion')}</span>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
+
+        {/* Resize handles */}
+        <div 
+          className="absolute top-0 right-0 w-4 h-4 cursor-se-resize"
+          onMouseDown={(e) => handleResizeStart(e, 'se')}
+        />
+        <div 
+          className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize"
+          onMouseDown={(e) => handleResizeStart(e, 'sw')}
+        />
+        <div 
+          className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize"
+          onMouseDown={(e) => handleResizeStart(e, 'nw')}
+        />
+        <div 
+          className="absolute bottom-0 right-0 w-4 h-4 cursor-ne-resize"
+          onMouseDown={(e) => handleResizeStart(e, 'ne')}
+        />
+        <div 
+          className="absolute top-0 left-1/2 transform -translate-x-1/2 w-4 h-4 cursor-n-resize"
+          onMouseDown={(e) => handleResizeStart(e, 'n')}
+        />
+        <div 
+          className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-4 h-4 cursor-s-resize"
+          onMouseDown={(e) => handleResizeStart(e, 's')}
+        />
+        <div 
+          className="absolute left-0 top-1/2 transform -translate-y-1/2 w-4 h-4 cursor-w-resize"
+          onMouseDown={(e) => handleResizeStart(e, 'w')}
+        />
+        <div 
+          className="absolute right-0 top-1/2 transform -translate-y-1/2 w-4 h-4 cursor-e-resize"
+          onMouseDown={(e) => handleResizeStart(e, 'e')}
+                 />
+     </div>
+   );
+ };

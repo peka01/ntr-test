@@ -1,17 +1,16 @@
 version: '3.8'
 
 services:
-  training-management-app-dev:
-    build:
-      context: .
-      dockerfile: Dockerfile.dev
+  app:
+    image: node:18-alpine
+    working_dir: /app
     ports:
-      - "5173:5173"
+      - "3000:3000"
     environment:
       - NODE_ENV=development
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
     volumes:
       - .:/app
       - /app/node_modules
+    command: sh -c "npm install --silent && npm run dev"
     restart: unless-stopped
 
