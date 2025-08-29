@@ -8,12 +8,16 @@ import { useTranslations } from './hooks/useTranslations';
 import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { useData } from './hooks/useData';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { HelpSystem } from './components/HelpSystem';
+import { HelpButton } from './components/HelpButton';
 
 type View = 'admin' | 'public' | 'attendance';
 
 const App: React.FC = () => {
     const { t } = useTranslations();
     const [view, setView] = useState<View>('public');
+    const [helpOpen, setHelpOpen] = useState(false);
+    const [helpContext, setHelpContext] = useState<string>('');
     
     const {
         users,
@@ -31,6 +35,11 @@ const App: React.FC = () => {
         markAttendance,
         unmarkAttendance
     } = useData();
+
+    const handleHelpClick = (context?: string) => {
+        setHelpContext(context || '');
+        setHelpOpen(true);
+    };
 
     const handleCreateUser = async (name: string, email: string) => {
         try {
@@ -126,6 +135,7 @@ const App: React.FC = () => {
                     onUpdateTraining={handleUpdateTraining}
                     onAddVoucher={handleAddVoucher}
                     onRemoveVoucher={handleRemoveVoucher}
+                    onHelpClick={handleHelpClick}
                 />;
             case 'public':
                 return <SubscriptionPage
@@ -133,6 +143,7 @@ const App: React.FC = () => {
                     trainings={trainings}
                     subscriptions={subscriptions}
                     onSubscribe={handleSubscribe}
+                    onHelpClick={handleHelpClick}
                 />;
             case 'attendance':
                 return <AttendancePage
@@ -142,6 +153,7 @@ const App: React.FC = () => {
                     attendance={attendance}
                     onMarkAttendance={handleMarkAttendance}
                     onUnmarkAttendance={handleUnmarkAttendance}
+                    onHelpClick={handleHelpClick}
                 />;
             default:
                 return null;
@@ -179,7 +191,13 @@ const App: React.FC = () => {
         <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
             <div className="w-full max-w-7xl mx-auto">
                 <header className="text-center mb-8 relative">
-                    <div className="absolute top-0 right-0 z-10">
+                    <div className="absolute top-0 right-0 z-10 flex items-center gap-2">
+                        <HelpButton 
+                            onClick={handleHelpClick}
+                            variant="icon"
+                            size="sm"
+                            className="bg-white shadow-sm"
+                        />
                         <LanguageSwitcher />
                     </div>
                     <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-600">
@@ -196,6 +214,13 @@ const App: React.FC = () => {
                     {renderContent()}
                 </main>
             </div>
+
+            {/* Help System */}
+            <HelpSystem 
+                isOpen={helpOpen}
+                onClose={() => setHelpOpen(false)}
+                context={helpContext}
+            />
         </div>
     );
 };

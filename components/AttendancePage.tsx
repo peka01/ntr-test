@@ -3,6 +3,7 @@ import React, { useMemo, useState } from 'react';
 import type { User, Training } from '../types';
 import { KioskModeView } from './KioskModeView';
 import { useTranslations } from '../hooks/useTranslations';
+import { HelpButton } from './HelpButton';
 
 interface AttendancePageProps {
     users: User[];
@@ -11,6 +12,7 @@ interface AttendancePageProps {
     attendance: Map<string, Set<string>>;
     onMarkAttendance: (trainingId: string, userId: string) => void;
     onUnmarkAttendance: (trainingId: string, userId: string) => void;
+    onHelpClick?: (context?: string) => void;
 }
 
 const AttendanceCard: React.FC<{
@@ -81,7 +83,7 @@ const AttendanceCard: React.FC<{
 };
 
 
-export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings, subscriptions, attendance, onMarkAttendance, onUnmarkAttendance }) => {
+export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings, subscriptions, attendance, onMarkAttendance, onUnmarkAttendance, onHelpClick }) => {
     const { t } = useTranslations();
     const [kioskModeTraining, setKioskModeTraining] = useState<Training | null>(null);
 
@@ -108,6 +110,17 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings
 
     return (
         <div className="animate-fade-in">
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold text-slate-800">{t('navAttendance')}</h1>
+                {onHelpClick && (
+                    <HelpButton 
+                        onClick={onHelpClick}
+                        context="mark attendance cancel attendance attendance view voucher deduction refund"
+                        variant="text"
+                    />
+                )}
+            </div>
+            
             {trainings.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {trainings.map(training => (

@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import type { User, Training } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { HelpButton } from './HelpButton';
 
 interface AdminDashboardProps {
     users: User[];
@@ -11,11 +12,27 @@ interface AdminDashboardProps {
     onUpdateTraining: (trainingId: string, name: string, description: string) => void;
     onAddVoucher: (userId: string) => void;
     onRemoveVoucher: (userId: string) => void;
+    onHelpClick?: (context?: string) => void;
 }
 
-const AdminCard: React.FC<{ title: string; children: React.ReactNode }> = ({ title, children }) => (
+const AdminCard: React.FC<{ 
+    title: string; 
+    children: React.ReactNode;
+    helpContext?: string;
+    onHelpClick?: (context?: string) => void;
+}> = ({ title, children, helpContext, onHelpClick }) => (
     <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md flex flex-col">
-        <h2 className="text-2xl font-bold text-slate-800 mb-4">{title}</h2>
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
+            {onHelpClick && (
+                <HelpButton 
+                    onClick={onHelpClick}
+                    context={helpContext}
+                    variant="icon"
+                    size="sm"
+                />
+            )}
+        </div>
         {children}
     </div>
 );
@@ -46,7 +63,7 @@ const FormInput: React.FC<{ id: string; label: string; value: string; onChange: 
 );
 
 
-export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, trainings, onCreateUser, onCreateTraining, onUpdateTraining, onAddVoucher, onRemoveVoucher }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, trainings, onCreateUser, onCreateTraining, onUpdateTraining, onAddVoucher, onRemoveVoucher, onHelpClick }) => {
     const { t } = useTranslations();
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
@@ -97,7 +114,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, trainings
 
     return (
         <div className="grid md:grid-cols-2 gap-8 animate-fade-in">
-            <AdminCard title={isEditing ? t('adminUpdateTrainingTitle') : t('adminManageTrainings')}>
+            <AdminCard 
+                title={isEditing ? t('adminUpdateTrainingTitle') : t('adminManageTrainings')}
+                helpContext="create training edit training admin training training management"
+                onHelpClick={onHelpClick}
+            >
                 <div className="space-y-4 mb-6">
                     <FormInput id="training-name" label={t('adminTrainingNameLabel')} value={trainingName} onChange={(e) => setTrainingName(e.target.value)} />
                     <FormInput id="training-desc" label={t('adminDescriptionLabel')} value={trainingDesc} onChange={(e) => setTrainingDesc(e.target.value)} isTextArea />
@@ -153,7 +174,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, trainings
                 </div>
             </AdminCard>
 
-            <AdminCard title={t('adminManageUsers')}>
+            <AdminCard 
+                title={t('adminManageUsers')}
+                helpContext="create user add user manage vouchers admin user list"
+                onHelpClick={onHelpClick}
+            >
                  <div className="space-y-4 mb-6">
                     <FormInput id="user-name" label={t('adminUserNameLabel')} value={userName} onChange={(e) => setUserName(e.target.value)} />
                     <FormInput id="user-email" label={t('adminEmailLabel')} value={userEmail} onChange={(e) => setUserEmail(e.target.value)} type="email" />

@@ -2,12 +2,14 @@
 import React, { useState, useMemo } from 'react';
 import type { User, Training } from '../types';
 import { useTranslations } from '../hooks/useTranslations';
+import { HelpButton } from './HelpButton';
 
 interface SubscriptionPageProps {
     users: User[];
     trainings: Training[];
     subscriptions: Map<string, Set<string>>;
     onSubscribe: (trainingId: string, userId: string) => void;
+    onHelpClick?: (context?: string) => void;
 }
 
 const TrainingCard: React.FC<{
@@ -80,7 +82,7 @@ const TrainingCard: React.FC<{
     );
 };
 
-export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, trainings, subscriptions, onSubscribe }) => {
+export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, trainings, subscriptions, onSubscribe, onHelpClick }) => {
     const { t } = useTranslations();
     const [searchQuery, setSearchQuery] = useState('');
 
@@ -91,6 +93,17 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
 
     return (
         <div className="animate-fade-in">
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-3xl font-bold text-slate-800">{t('navPublic')}</h1>
+                {onHelpClick && (
+                    <HelpButton 
+                        onClick={onHelpClick}
+                        context="subscribe unsubscribe subscription public view user subscription"
+                        variant="text"
+                    />
+                )}
+            </div>
+            
             {trainings.length > 0 && (
                 <div className="mb-6 max-w-lg mx-auto">
                     <input
