@@ -1,57 +1,51 @@
-# Vouchers - Your Key to Trainings
+# Vouchers - Your ticket to trainings
 
 ## What are vouchers?
 
-Vouchers work as a digital currency in the system. Think of them as tickets to trainings - each training costs one voucher. This system makes it easy to keep track of who participates in what, and gives administrators control over training usage.
+Think of vouchers as tickets to trainings – simple and clear. Each training costs one card. It makes it easy to keep track of who's joining what, and gives you control over training usage.
 
-## How it works in practice
+## How it works
 
-### For new users
-When you are created as a user, you start with 0 vouchers. This is normal - you need to have vouchers assigned by an administrator before you can attend trainings.
+### When you start
+As a new user, you start with 0 vouchers. That's completely normal! You get cards from an administrator before you can participate in trainings.
 
 ### Registration vs attendance
-- **Registration is free**: You can register for as many trainings as you want without using vouchers
-- **Attendance costs**: A voucher is only deducted when you actually mark attendance for a training
+- **Register for free**: Sign up for as many trainings as you want – no card is used
+- **Attendance costs**: One card is deducted only when you actually mark attendance
 
-### Refunds
-If you cancel your attendance to a training, you get your voucher back immediately. This gives you flexibility to change your mind without losing vouchers.
+### Get cards back
+Cancel your attendance and you get the card back immediately. It's that simple!
 
-## Important rules to remember
+## Important rules
 
-### You need vouchers to participate
-- Without vouchers, you cannot mark attendance
+### You need cards to participate
+- Without cards you can't mark attendance
 - Always check your balance before marking attendance
-- If you don't have enough vouchers, contact an administrator
+- Need more cards? Contact an administrator
 
-### Vouchers cannot go below 0
-- The system prevents your balance from becoming negative
-- You cannot mark attendance if you don't have at least one voucher
+### Balance can't go negative
+- The platform prevents the balance from going below 0
+- You can't mark attendance without at least one card
 
-### Administrators manage vouchers
-- Only administrators can add or remove vouchers
-- Contact your administrator if you need more vouchers
-- Administrators can see all users' voucher balances
+### Administrators manage cards
+- Only administrators can add or remove cards
+- Ask for more cards when you need them
+- Administrators see all users' balances
 
-## Tips for using vouchers effectively
+## Tips for using cards smartly
 
-1. **Plan your trainings**: Register for trainings in advance, but mark attendance only when you're sure you can attend
-2. **Keep track of balance**: Check your voucher balance regularly
-3. **Cancel in time**: If you can't attend, cancel attendance as soon as possible to get the voucher back
-4. **Contact administrator**: Ask for more vouchers before you run out, not after
+1. **Plan ahead**: Sign up for trainings early, but mark attendance only when you're sure
+2. **Keep track**: Check your balance regularly
+3. **Cancel in time**: Can't make it? Cancel attendance as soon as possible
+4. **Ask for more**: Contact administrator before you run out, not after
 
-## Frequently asked questions
+## Common questions
 
-**Can I use vouchers from another user?**
-No, vouchers are personal and cannot be transferred between users.
+**Can I use someone else's vouchers?**
+No, vouchers are personal and cannot be shared.
 
 **What happens if I mark attendance by mistake?**
-You can cancel attendance immediately and get the voucher back.
+Cancel attendance immediately and you'll get the card back.
 
-**Can I get vouchers back if I miss a training?**
-Only if you marked attendance and then cancel it. If you never marked attendance, no voucher is consumed.
-
-**Do I need to mark attendance right when the training starts?**
-No, you can mark attendance anytime, but it's good to do it in advance so the trainer knows you're coming.
-
-**What happens if I forget to mark attendance?**
-If you don't mark attendance, no voucher is consumed, but the trainer won't know you participated.
+**Do I get cards back if I miss a training?**
+Only if you marked attendance and then cancel it. Did you never mark attendance? Then no card is consumed.

@@ -2,7 +2,7 @@
 
 ## Översikt
 
-Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du använder systemet. De flesta problem kan lösas enkelt genom att följa stegen nedan.
+Här får du hjälp att lösa vanliga problem som kan uppstå när du använder plattformen. De flesta problem kan lösas enkelt genom att följa stegen nedan.
 
 ## Vanliga problem och lösningar
 
@@ -14,19 +14,19 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 - Du har inte tillräckligt med klippkort
 - Du är inte anmäld till träningen
 - Du har redan markerat närvaro för denna träning
-- Systemet laddar fortfarande
+- Plattformen laddar fortfarande
 
-**Steg-för-steg lösning:**
-1. **Kontrollera ditt klippkortssaldo**
-   - Gå till Admin-vyn eller kontrollera din profil
+**Så här löser du det:**
+1. **Kolla ditt klippkortssaldo**
+   - Gå till Admin-vyn eller kolla din profil
    - Du behöver minst 1 klippkort för att markera närvaro
 
-2. **Kontrollera din anmälning**
+2. **Kolla din anmälning**
    - Gå till Anmälningssidan
    - Se till att du är anmäld till träningen
    - Anmäl dig först om du inte är det
 
-3. **Kontrollera tidigare närvaro**
+3. **Kolla tidigare närvaro**
    - Gå till Närvarovyn
    - Se om du redan har markerat närvaro för denna träning
    - Avbryt tidigare närvaro om du vill markera igen
@@ -42,21 +42,21 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 **Möjliga orsaker:**
 - Träningen har tagits bort av administratören
 - Träningen har flyttats eller bytt namn
-- Systemet laddar fortfarande
+- Plattformen laddar fortfarande
 - Nätverksproblem
 
-**Steg-för-steg lösning:**
+**Så här löser du det:**
 1. **Uppdatera sidan**
    - Tryck F5 eller klicka på uppdateringsknappen
    - Vänta några sekunder
 
-2. **Kontrollera nätverksanslutningen**
+2. **Kolla nätverksanslutningen**
    - Se till att du har internetanslutning
    - Prova att ladda om sidan
 
 3. **Kontrollera med administratör**
    - Fråga administratören om träningen fortfarande finns
-   - Be dem kontrollera om den har tagits bort eller flyttats
+   - Be dem kolla om den har tagits bort eller flyttats
 
 ### "Klippkortssaldo uppdateras inte"
 
@@ -65,10 +65,10 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 **Möjliga orsaker:**
 - Nätverksfördröjning
 - Webbläsarcache-problem
-- Systemfel
+- Plattformsfel
 - Synkroniseringsproblem
 
-**Steg-för-steg lösning:**
+**Så här löser du det:**
 1. **Vänta och uppdatera**
    - Vänta 10-15 sekunder
    - Uppdatera sidan (F5)
@@ -79,12 +79,12 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
    - Detta tvingar webbläsaren att ladda om allt
 
 3. **Prova annan webbläsare**
-   - Öppna systemet i en annan webbläsare
-   - Kontrollera om problemet kvarstår
+   - Öppna plattformen i en annan webbläsare
+   - Kolla om problemet kvarstår
 
 4. **Kontrollera med administratör**
-   - Be administratören kontrollera ditt saldo
-   - De kan se det faktiska värdet i systemet
+   - Be administratören kolla ditt saldo
+   - De kan se det faktiska värdet i plattformen
 
 ### "Kan inte anmäla mig till träning"
 
@@ -94,12 +94,12 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 - Träningen är full
 - Träningen har redan börjat
 - Du är redan anmäld
-- Systemfel
+- Plattformsfel
 
-**Steg-för-steg lösning:**
-1. **Kontrollera träningens status**
+**Så här löser du det:**
+1. **Kolla träningens status**
    - Se om träningen är full
-   - Kontrollera datum och tid
+   - Kolla datum och tid
    - Se om du redan är anmäld
 
 2. **Uppdatera och försök igen**
@@ -108,7 +108,7 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
    - Försök igen
 
 3. **Kontakta administratör**
-   - Be dem kontrollera träningens inställningar
+   - Be dem kolla träningens inställningar
    - De kan se om det finns tekniska problem
 
 ### "Hjälpsystemet fungerar inte"
@@ -120,7 +120,7 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 - Webbläsarcache
 - JavaScript-fel
 
-**Steg-för-steg lösning:**
+**Så här löser du det:**
 1. **Uppdatera sidan**
    - Tryck F5
    - Vänta tills sidan är helt laddad
@@ -129,7 +129,7 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
    - Tryck Ctrl+F5
    - Detta tvingar omstart av alla resurser
 
-3. **Kontrollera JavaScript**
+3. **Kolla JavaScript**
    - Se till att JavaScript är aktiverat i webbläsaren
    - Prova att inaktivera och återaktivera JavaScript
 
@@ -138,8 +138,8 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 ### Kontakta administratör om:
 - Du har följt alla steg ovan men problemet kvarstår
 - Du får felmeddelanden som du inte förstår
-- Systemet fungerar helt annorlunda än förväntat
-- Du misstänker att det är ett systemfel
+- Plattformen fungerar helt annorlunda än förväntat
+- Du misstänker att det är ett plattformsfel
 
 ### Vad du ska inkludera när du kontaktar administratör:
 - **Din e-postadress**: Så de kan identifiera ditt konto
@@ -152,7 +152,7 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 
 ### För att undvika problem:
 1. **Uppdatera regelbundet**: Ladda om sidan när du märker att något verkar konstigt
-2. **Kontrollera saldo**: Håll koll på ditt klippkortssaldo regelbundet
+2. **Kolla saldo**: Håll koll på ditt klippkortssaldo regelbundet
 3. **Anmäl dig i tid**: Anmäl dig till träningar så snart du vet att du är intresserad
 4. **Markera närvaro när du är säker**: Vänta med att markera närvaro tills du är säker på att du kan delta
 
@@ -160,7 +160,7 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 - **Använd modern webbläsare**: Chrome, Firefox, Safari eller Edge
 - **Håll webbläsaren uppdaterad**: Installera uppdateringar regelbundet
 - **Rensa cache regelbundet**: Detta kan lösa många problem
-- **Kontrollera internetanslutning**: Se till att du har stabil anslutning
+- **Kolla internetanslutning**: Se till att du har stabil anslutning
 
 ## Snabbguide för vanliga åtgärder
 
@@ -173,12 +173,12 @@ Detta avsnitt hjälper dig att lösa vanliga problem som kan uppstå när du anv
 - **Windows/Linux**: Tryck Ctrl+F5
 - **Mac**: Tryck Cmd+Shift+R
 
-### Kontrollera JavaScript
+### Kolla JavaScript
 - **Chrome**: Inställningar → Avancerat → Sekretess och säkerhet → Innehållsinställningar → JavaScript
 - **Firefox**: Inställningar → Sekretess och säkerhet → Behörigheter → JavaScript
 - **Safari**: Inställningar → Sekretess → Blockera alla cookies → Avmarkera
 
-### Kontrollera nätverksanslutning
+### Kolla nätverksanslutning
 - Prova att öppna en annan webbsida
-- Kontrollera att du inte är offline
+- Kolla att du inte är offline
 - Prova att starta om routern om problemet kvarstår

@@ -2,12 +2,12 @@
 
 ## Översikt
 
-Anmälningssystemet låter dig enkelt anmäla dig till träningar som intresserar dig. Detta är första steget i processen - anmälan är gratis och ger dig möjlighet att delta i träningen när det är dags.
+Anmäl dig enkelt till träningar som intresserar dig. Det är första steget – anmälan är gratis och ger dig möjlighet att delta när det är dags.
 
-## Så fungerar anmälningssystemet
+## Så fungerar det
 
 ### Vad är en anmälning?
-En anmälning är din intention att delta i en träning. Det är som att "reservera en plats" - du visar intresse men förbinder dig inte till att faktiskt delta.
+En anmälning är din intention att delta i en träning. Det är som att "reservera en plats" – du visar intresse men förbinder dig inte till att faktiskt delta.
 
 ### Fördelar med att anmäla dig
 - **Gratis**: Anmälan kostar inga klippkort
@@ -17,14 +17,14 @@ En anmälning är din intention att delta i en träning. Det är som att "reserv
 
 ## Anmäl dig till träningar
 
-### Steg-för-steg guide
-1. Gå till **Anmälningssidan** i systemet
+### Så här gör du
+1. Gå till **Anmälningssidan**
 2. Bläddra bland de tillgängliga träningarna
 3. Läs beskrivningen för varje träning
-4. Klicka på **"Anmäl"**-knappen bredvid träningar du vill delta i
+4. Klicka **"Anmäl"** bredvid träningar du vill delta i
 5. Bekräfta din anmälning
 
-### Vad du kan se för varje träning
+### Vad du ser för varje träning
 - **Titel och beskrivning**: Vad träningen handlar om
 - **Datum och tid**: När träningen äger rum
 - **Plats**: Var träningen hålls
@@ -41,7 +41,7 @@ En anmälning är din intention att delta i en träning. Det är som att "reserv
 ### Avanmäl dig från träningar
 1. Gå till **Anmälningssidan**
 2. Hitta träningen du vill avanmäla dig från
-3. Klicka på **"Avanmäl"**-knappen
+3. Klicka **"Avanmäl"**
 4. Bekräfta att du vill avanmäla dig
 
 ### Vad händer när du avanmäler dig?
@@ -50,7 +50,7 @@ En anmälning är din intention att delta i en träning. Det är som att "reserv
 - Du kan anmäla dig igen om du vill
 - Platsen blir tillgänglig för andra
 
-## Viktiga regler att komma ihåg
+## Viktiga regler
 
 ### Anmälning vs närvaro
 - **Anmälning är gratis**: Du kan anmäla dig till så många träningar du vill
@@ -62,7 +62,7 @@ En anmälning är din intention att delta i en träning. Det är som att "reserv
 - **Avanmäl i tid**: Avanmäl dig om du vet att du inte kan delta
 - **Ingen tidsgräns**: Du kan avanmäla dig när som helst
 
-## Tips för effektiv anmälningshantering
+## Tips för smart anmälningshantering
 
 ### Planera dina träningar
 1. **Anmäl dig till intressanta träningar**: Anmäl dig till träningar som verkar intressanta
@@ -85,7 +85,7 @@ En anmälning är din intention att delta i en träning. Det är som att "reserv
 Ja, du kan anmäla dig till så många träningar du vill.
 
 **Vad händer om jag anmäler mig till en träning som är full?**
-Du kommer att få ett meddelande om att träningen är full och kan inte anmäla dig.
+Du får ett meddelande om att träningen är full och kan inte anmäla dig.
 
 **Kan jag anmäla mig till träningar som redan har börjat?**
 Nej, du kan bara anmäla dig till framtida träningar.
@@ -94,19 +94,19 @@ Nej, du kan bara anmäla dig till framtida träningar.
 Ja, du måste anmäla dig först, sedan markera närvaro när det är dags.
 
 **Vad händer om jag glömmer att avanmäla mig?**
-Inget allvarligt - du kan fortfarande avanmäla dig senare, och inga klippkort förbrukas förrän du markerar närvaro.
+Inget allvarligt – du kan fortfarande avanmäla dig senare, och inga klippkort förbrukas förrän du markerar närvaro.
 
 **Kan jag se vilka andra som är anmälda till en träning?**
-Det beror på systemets inställningar - fråga administratören om detta.
+Det beror på plattformens inställningar – fråga administratören om detta.
 
 ## Felsökning
 
 **Kan inte anmäla mig**
-- Kontrollera att träningen inte är full
+- Kolla att träningen inte är full
 - Se till att träningen inte redan har börjat
 - Uppdatera sidan och försök igen
 
 **Anmälningen visas inte**
-- Kontrollera att du är inloggad med rätt konto
+- Kolla att du är inloggad med rätt konto
 - Uppdatera sidan för att se senaste ändringar
 - Kontakta administratör om problemet kvarstår

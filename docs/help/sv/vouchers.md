@@ -1,51 +1,51 @@
-# Klippkort - Din nyckel till träningar
+# Klippkort - Din biljett till träningar
 
 ## Vad är klippkort?
 
-Klippkort fungerar som en digital valuta i systemet. Tänk på dem som biljetter till träningar - varje träning kostar ett klippkort. Detta system gör det enkelt att hålla koll på vem som deltar i vad, och ger administratörer kontroll över träningsanvändningen.
+Tänk på klippkort som biljetter till träningar – enkelt och tydligt. Varje träning kostar ett kort. Det gör det enkelt att hålla koll på vem som kommer med på vad, och ger dig kontroll över träningsanvändningen.
 
-## Så fungerar det i praktiken
+## Så fungerar det
 
-### För nya användare
-När du skapas som användare börjar du med 0 klippkort. Detta är normalt - du behöver få klippkort tilldelade av en administratör innan du kan delta i träningar.
+### När du börjar
+Som ny användare börjar du med 0 klippkort. Det är helt normalt! Du får kort från en administratör innan du kan delta i träningar.
 
 ### Anmälning vs närvaro
-- **Anmälning är gratis**: Du kan anmäla dig till så många träningar du vill utan att använda klippkort
-- **Närvaro kostar**: Ett klippkort dras först när du faktiskt markerar närvaro till en träning
+- **Anmäl dig gratis**: Anmäl dig till så många träningar du vill – inget kort används
+- **Närvaro kostar**: Ett kort dras först när du faktiskt markerar närvaro
 
-### Återbetalning
-Om du avbryter din närvaro till en träning får du ditt klippkort tillbaka omedelbart. Detta ger dig flexibilitet att ändra dig utan att förlora klippkort.
+### Få tillbaka kort
+Avbryter du närvaron får du kortet tillbaka direkt. Så enkelt är det!
 
-## Viktiga regler att komma ihåg
+## Viktiga regler
 
-### Du behöver klippkort för att delta
-- Utan klippkort kan du inte markera närvaro
-- Kontrollera alltid ditt saldo innan du markerar närvaro
-- Om du inte har tillräckligt med klippkort, kontakta en administratör
+### Du behöver kort för att delta
+- Utan kort kan du inte markera närvaro
+- Kolla alltid ditt saldo innan du markerar närvaro
+- Behöver du fler kort? Kontakta en administratör
 
-### Klippkort kan inte gå under 0
-- Systemet förhindrar att ditt saldo blir negativt
-- Du kan inte markera närvaro om du inte har minst ett klippkort
+### Saldo kan inte bli negativt
+- Plattformen förhindrar att saldot går under 0
+- Du kan inte markera närvaro utan minst ett kort
 
-### Administratörer hanterar klippkort
-- Endast administratörer kan lägga till eller ta bort klippkort
-- Kontakta din administratör om du behöver fler klippkort
-- Administratörer kan se alla användares klippkortssaldo
+### Administratörer hanterar kort
+- Endast administratörer kan lägga till eller ta bort kort
+- Be om fler kort när du behöver dem
+- Administratörer ser alla användares saldo
 
-## Tips för att använda klippkort effektivt
+## Tips för att använda kort smart
 
-1. **Planera dina träningar**: Anmäl dig till träningar i förväg, men markera närvaro först när du är säker på att du kan delta
-2. **Håll koll på saldot**: Kontrollera regelbundet ditt klippkortssaldo
-3. **Avbryt i tid**: Om du inte kan delta, avbryt närvaron så snart som möjligt för att få tillbaka klippkortet
-4. **Kontakta administratör**: Be om fler klippkort innan du tar slut, inte efter
+1. **Planera i förväg**: Anmäl dig till träningar tidigt, men markera närvaro först när du är säker
+2. **Håll koll**: Kolla ditt saldo regelbundet
+3. **Avbryt i tid**: Kan du inte komma? Avbryt närvaron så snart som möjligt
+4. **Be om fler**: Kontakta administratör innan du tar slut, inte efter
 
 ## Vanliga frågor
 
-**Kan jag använda klippkort från en annan användare?**
-Nej, klippkort är personliga och kan inte överföras mellan användare.
+**Kan jag använda någon annans klippkort?**
+Nej, klippkort är personliga och kan inte delas.
 
 **Vad händer om jag markerar närvaro av misstag?**
-Du kan avbryta närvaron omedelbart och få tillbaka klippkortet.
+Avbryt närvaron direkt så får du kortet tillbaka.
 
-**Kan jag få tillbaka klippkort om jag missar en träning?**
-Endast om du markerade närvaro och sedan avbryter den. Om du aldrig markerade närvaro förbrukas inget klippkort.
+**Får jag tillbaka kort om jag missar en träning?**
+Endast om du markerade närvaro och sedan avbryter den. Markerade du aldrig närvaro? Då förbrukas inget kort.

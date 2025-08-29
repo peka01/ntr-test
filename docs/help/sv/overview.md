@@ -1,36 +1,36 @@
-# Välkommen till Träningshanteringssystemet
+# Välkommen till träningshanteringen
 
-Träningshanteringssystemet är ett flexibelt och användarvänligt verktyg för att organisera och hantera träningsaktiviteter. Systemet bygger på ett enkelt men effektivt klippkortssystem som gör det möjligt för deltagare att boka och delta i träningar på ett smidigt sätt.
+Glöm komplicerade system och pappersarbete. Här får du en enkel och smidig lösning för att organisera träningar – så att du kan fokusera på det som verkligen betyder något.
 
-## Vad kan systemet göra?
+## Vad får du ut av det?
 
-### För deltagare:
-- **Enkel anmälning**: Anmäl dig till träningar med några klick
-- **Klippkortshantering**: Använd dina klippkort för att delta i träningar
-- **Närvarospårning**: Markera närvaro direkt i systemet
-- **Översikt**: Se alla dina anmälningar och närvaro på ett ställe
+### Som deltagare:
+- **Enkelt att komma med**: Anmäl dig till träningar på några sekunder
+- **Klippkort som fungerar**: Använd dina kort för att delta i träningar
+- **Markera närvaro enkelt**: Klicka och klart – inget krångel
+- **Allt på ett ställe**: Se dina anmälningar och närvaro direkt
 
-### För administratörer:
-- **Användarhantering**: Skapa och hantera användarkonton
-- **Träningsadministration**: Skapa, redigera och organisera träningar
-- **Klippkortsdistribution**: Hantera klippkort för alla användare
-- **Statistik och rapporter**: Följ användning och närvaro
+### Som administratör:
+- **Hantera användare enkelt**: Skapa och uppdatera konton utan problem
+- **Organisera träningar smidigt**: Skapa, ändra och planera aktiviteter
+- **Dela ut klippkort**: Hantera kort för alla användare
+- **Följ vad som händer**: Se statistik och rapporter
 
-## Hur fungerar det?
+## Så här fungerar det
 
-Systemet är uppbyggt kring tre huvudkomponenter:
+Det är enkelt! Vi har tre huvuddelar:
 
-1. **Användare** - Deltagare som kan anmäla sig till träningar
+1. **Användare** - Deltagare som vill komma med på träningar
 2. **Träningar** - Kurser och aktiviteter som användare kan delta i
-3. **Klippkort** - Valuta som används för att delta i träningar
+3. **Klippkort** - Det som används för att delta i träningar
 
 ## Teknisk grund
 
-- **Webbbaserat**: Fungerar i alla moderna webbläsare
-- **Realtid**: Uppdateringar sker direkt utan att ladda om sidan
-- **Säker**: All data lagras säkert i molnet
-- **Skalbar**: Kan hantera från små grupper till stora organisationer
+- **Fungerar överallt**: Öppna i vilken webbläsare som helst
+- **Uppdateras direkt**: Ändringar syns direkt utan att ladda om
+- **Säkert**: All information sparas säkert
+- **Växer med dig**: Fungerar lika bra för små som stora grupper
 
 ## Kom igång
 
-Börja med att utforska de olika sektionerna i hjälpsystemet för att lära dig hur du använder systemet effektivt. Varje sektion innehåller detaljerade instruktioner och tips för att få ut mesta möjliga av systemet.
+Utforska hjälpsektionerna för att lära dig hur du använder plattformen på bästa sätt. Varje sektion har tydliga instruktioner och tips så att du får ut mesta möjliga av din tid.

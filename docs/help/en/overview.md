@@ -1,36 +1,36 @@
-# Welcome to the Training Management System
+# Welcome to training management
 
-The Training Management System is a flexible and user-friendly tool for organizing and managing training activities. The system is built on a simple but effective voucher system that allows participants to book and attend trainings in a smooth way.
+Forget complicated systems and paperwork. Here you get a simple and smooth solution for organizing trainings – so you can focus on what really matters.
 
-## What can the system do?
+## What do you get out of it?
 
-### For participants:
-- **Easy registration**: Sign up for trainings with just a few clicks
-- **Voucher management**: Use your vouchers to attend trainings
-- **Attendance tracking**: Mark attendance directly in the system
-- **Overview**: See all your registrations and attendance in one place
+### As a participant:
+- **Easy to join**: Sign up for trainings in seconds
+- **Vouchers that work**: Use your cards to participate in trainings
+- **Mark attendance easily**: Click and done – no hassle
+- **Everything in one place**: See your registrations and attendance directly
 
-### For administrators:
-- **User management**: Create and manage user accounts
-- **Training administration**: Create, edit, and organize trainings
-- **Voucher distribution**: Manage vouchers for all users
-- **Statistics and reports**: Track usage and attendance
+### As an administrator:
+- **Manage users easily**: Create and update accounts without problems
+- **Organize trainings smoothly**: Create, change and plan activities
+- **Distribute vouchers**: Manage cards for all users
+- **Follow what happens**: See statistics and reports
 
-## How does it work?
+## How it works
 
-The system is built around three main components:
+It's simple! We have three main parts:
 
-1. **Users** - Participants who can register for trainings
-2. **Trainings** - Courses and activities that users can attend
-3. **Vouchers** - Currency used to attend trainings
+1. **Users** - Participants who want to join trainings
+2. **Trainings** - Courses and activities that users can participate in
+3. **Vouchers** - What's used to participate in trainings
 
 ## Technical foundation
 
-- **Web-based**: Works in all modern browsers
-- **Real-time**: Updates happen directly without reloading the page
-- **Secure**: All data is stored safely in the cloud
-- **Scalable**: Can handle from small groups to large organizations
+- **Works everywhere**: Open in any browser
+- **Updates directly**: Changes appear immediately without reloading
+- **Secure**: All information is saved securely
+- **Grows with you**: Works just as well for small as large groups
 
-## Getting started
+## Get started
 
-Start by exploring the different sections in the help system to learn how to use the system effectively. Each section contains detailed instructions and tips to get the most out of the system.
+Explore the help sections to learn how to use the platform in the best way. Each section has clear instructions and tips so you get the most out of your time.
