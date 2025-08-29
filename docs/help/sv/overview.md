@@ -1,4 +1,4 @@
-# Välkommen till träningshanteringen
+# Välkommen hit!
 
 Glöm komplicerade system och pappersarbete. Här får du en enkel och smidig lösning för att organisera träningar – så att du kan fokusera på det som verkligen betyder något.
 
