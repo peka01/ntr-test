@@ -1,0 +1,5 @@
+{
+  "name": "Training Management System",
+  "description": "An application for admins to manage trainings and users, and for users to subscribe to trainings.",
+  "requestFramePermissions": []
+}
