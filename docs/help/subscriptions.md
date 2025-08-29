@@ -20,7 +20,7 @@
 - Klicka **"Avanmäl"** för att ta bort dig från en träning
 - Detta påverkar inte ditt klippkortssaldo
 
-## Bästa Praktiker:
+## Så här jobbar du på bästa sätt:
 - Anmäl dig till träningar du verkligen är intresserad av
 - Anmäl dig inte till träningar du inte kan delta i
 - Håll din anmälningslista hanterbar
