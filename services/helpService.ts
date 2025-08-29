@@ -23,46 +23,7 @@ let contentCache: { [key: string]: string } = {};
 let lastCacheTime = 0;
 const CACHE_DURATION = 2000; // 2 seconds cache
 
-// Static imports for all help content files
-import overviewSv from '../docs/help/sv/overview.md?raw';
-import vouchersSv from '../docs/help/sv/vouchers.md?raw';
-import userManagementSv from '../docs/help/sv/user-management.md?raw';
-import trainingManagementSv from '../docs/help/sv/training-management.md?raw';
-import subscriptionsSv from '../docs/help/sv/subscriptions.md?raw';
-import attendanceSv from '../docs/help/sv/attendance.md?raw';
-import troubleshootingSv from '../docs/help/sv/troubleshooting.md?raw';
-
-import overviewEn from '../docs/help/en/overview.md?raw';
-import vouchersEn from '../docs/help/en/vouchers.md?raw';
-import userManagementEn from '../docs/help/en/user-management.md?raw';
-import trainingManagementEn from '../docs/help/en/training-management.md?raw';
-import subscriptionsEn from '../docs/help/en/subscriptions.md?raw';
-import attendanceEn from '../docs/help/en/attendance.md?raw';
-import troubleshootingEn from '../docs/help/en/troubleshooting.md?raw';
-
-// Content map for static imports
-const helpContentMap = {
-  sv: {
-    overview: overviewSv,
-    vouchers: vouchersSv,
-    'user-management': userManagementSv,
-    'training-management': trainingManagementSv,
-    subscriptions: subscriptionsSv,
-    attendance: attendanceSv,
-    troubleshooting: troubleshootingSv
-  },
-  en: {
-    overview: overviewEn,
-    vouchers: vouchersEn,
-    'user-management': userManagementEn,
-    'training-management': trainingManagementEn,
-    subscriptions: subscriptionsEn,
-    attendance: attendanceEn,
-    troubleshooting: troubleshootingEn
-  }
-};
-
-// Load content from static imports
+// Dynamic content loading from repository
 async function loadMarkdownContent(sectionId: string, language: string): Promise<string> {
   const cacheKey = `${sectionId}-${language}`;
   const now = Date.now();
@@ -73,36 +34,53 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
   }
   
   try {
-    const content = helpContentMap[language as keyof typeof helpContentMap]?.[sectionId as keyof typeof helpContentMap[typeof language]];
-    if (content) {
+    // Fetch from the repository
+    const repoUrl = `https://raw.githubusercontent.com/peka01/ntr-test/main/docs/help/${language}/${sectionId}.md`;
+    
+    console.log(`Fetching content from: ${repoUrl}`);
+    
+    const response = await fetch(repoUrl, {
+      method: 'GET',
+      headers: {
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      }
+    });
+    
+    if (response.ok) {
+      const content = await response.text();
+      console.log(`Successfully fetched content for ${sectionId} in ${language}`);
       contentCache[cacheKey] = content;
       lastCacheTime = now;
       return content;
     } else {
-      throw new Error(`Content not found for section ${sectionId} in language ${language}`);
+      throw new Error(`Failed to fetch from repository: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
-    console.error(`Error loading markdown file for ${sectionId} in ${language}:`, error);
+    console.error(`Error loading content for ${sectionId} in ${language}:`, error);
     // Return a fallback message
-    return `# Content not available\n\nThis help content is currently not available.\n\nError: ${error}`;
+    return `# Content not available\n\nThis help content is currently not available.\n\nError: ${error}\n\nPlease check your internet connection and try refreshing.`;
   }
-};
+}
 
 export const helpService = {
   // Clear cache to force reload
   clearCache(): void {
     contentCache = {};
     lastCacheTime = 0;
+    console.log('Help content cache cleared');
   },
 
   // Force reload by clearing cache and reloading content
   async forceReload(language: string = 'sv'): Promise<HelpSection[]> {
+    console.log(`Force reloading help content for language: ${language}`);
     this.clearCache();
     return this.getAllSections(language);
   },
 
   // Get all help sections for a specific language
   async getAllSections(language: string = 'sv'): Promise<HelpSection[]> {
+    console.log(`Loading all help sections for language: ${language}`);
     const sections: HelpSection[] = [];
     
     for (const sectionConfig of helpConfig.sections) {
@@ -129,6 +107,7 @@ export const helpService = {
       }
     }
     
+    console.log(`Loaded ${sections.length} help sections`);
     return sections;
   },
 

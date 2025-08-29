@@ -55,28 +55,16 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
     }
   }, [isOpen, language]);
 
-  // Auto-refresh help content every 5 seconds when help window is open
-  useEffect(() => {
-    if (!isOpen) return;
 
-    const refreshInterval = setInterval(async () => {
-      try {
-        const sections = await helpService.forceReload(language);
-        setHelpSections(sections);
-      } catch (error) {
-        console.error('Error refreshing help content:', error);
-      }
-    }, 5000); // Refresh every 5 seconds
-
-    return () => clearInterval(refreshInterval);
-  }, [isOpen, language]);
 
   // Manual refresh function
   const handleManualRefresh = async () => {
     try {
       setLoading(true);
+      console.log('Refreshing help content from repository...');
       const sections = await helpService.forceReload(language);
       setHelpSections(sections);
+      console.log('Help content refreshed successfully');
     } catch (error) {
       console.error('Error manually refreshing help content:', error);
     } finally {
@@ -329,8 +317,9 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
           <div className="flex items-center gap-2">
             <button
               onClick={handleManualRefresh}
-              className="p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-              title="Refresh help content"
+              className={`p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors ${loading ? 'animate-spin' : ''}`}
+              title="Refresh help content from repository"
+              disabled={loading}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -389,12 +378,12 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
 
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto p-4">
-              {loading ? (
-                <div className="text-center text-slate-500 py-8">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
-                  <p className="mt-2">Loading help content...</p>
-                </div>
-              ) : (
+                          {loading ? (
+              <div className="text-center text-slate-500 py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
+                <p className="mt-2">Loading help content from repository...</p>
+              </div>
+            ) : (
                 <nav className="space-y-2">
                   {filteredSections.map((section) => (
                     <button
