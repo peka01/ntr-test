@@ -88,7 +88,7 @@ export interface HelpSectionConfig {
 // Cache for help content to avoid repeated file loads
 let contentCache: { [key: string]: string } = {};
 let lastCacheTime = 0;
-const CACHE_DURATION = 2000; // 2 seconds cache
+const CACHE_DURATION = 500; // 0.5 seconds cache for more responsive updates
 
 
 
@@ -103,8 +103,9 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
   }
   
   try {
-    // Fetch from the external help documentation repository using a CORS proxy
-    const repoUrl = `https://corsproxy.io/?${encodeURIComponent(`https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${language}/${sectionId}.md`)}`;
+    // Fetch from the external help documentation repository using a CORS proxy with cache busting
+    const timestamp = Date.now();
+    const repoUrl = `https://corsproxy.io/?${encodeURIComponent(`https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${language}/${sectionId}.md?t=${timestamp}`)}`;
     
     console.log(`Fetching content from: ${repoUrl}`);
     
@@ -146,6 +147,8 @@ export const helpService = {
   async forceReload(language: string = 'sv'): Promise<HelpSection[]> {
     console.log(`Force reloading help content for language: ${language}`);
     this.clearCache();
+    // Force a fresh timestamp for all cache keys
+    lastCacheTime = 0;
     return this.getAllSections(language);
   },
 
