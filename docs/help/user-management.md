@@ -1,4 +1,4 @@
-# Användarhantering för administratörer
+# Användarhantering för admins
 ## Skapa användare
 1. Navigera till **Admin**-vyn
 2. I "Skapa Användare"-sektionen:
