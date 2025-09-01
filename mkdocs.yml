@@ -1,0 +1,128 @@
+site_name: Training Management System Documentation
+site_description: Comprehensive documentation for the Training Management System
+site_author: Training Management Team
+site_url: https://your-username.github.io/ntr-test/
+
+# Repository
+repo_name: ntr-test
+repo_url: https://github.com/your-username/ntr-test
+edit_uri: edit/main/docs/
+
+# Theme
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - search.share
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.tooltips
+    - toc.follow
+    - toc.integrate
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off-outline
+        name: Switch to light mode
+
+# Plugins
+plugins:
+  - search
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - minify:
+      minify_html: true
+
+# Extensions
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.snippets:
+      check_paths: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# Navigation structure
+nav:
+  - Home: index.md
+  - User Guide:
+    - Overview: user-guide/overview.md
+    - Getting Started: user-guide/getting-started.md
+    - Features: user-guide/features.md
+  - Admin Guide:
+    - User Management: admin-guide/user-management.md
+    - Training Management: admin-guide/training-management.md
+    - Voucher System: admin-guide/voucher-system.md
+    - Subscriptions: admin-guide/subscriptions.md
+    - Attendance: admin-guide/attendance.md
+  - Help System:
+    - Content Guidelines: help/content-guidelines.md
+    - Writing Checklist: help/writing-checklist.md
+    - Tone and Voice: help/tone-and-voice.md
+  - API Reference:
+    - Data Service: api/data-service.md
+    - Help Service: api/help-service.md
+    - Gemini Service: api/gemini-service.md
+  - Deployment:
+    - Setup: deployment/setup.md
+    - Docker: deployment/docker.md
+    - Supabase: deployment/supabase.md
+
+# Extra
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/your-username/ntr-test
+  version:
+    provider: mike
+
