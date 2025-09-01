@@ -200,7 +200,7 @@ const App: React.FC = () => {
                         />
                         <LanguageSwitcher />
                     </div>
-                    <h1 className="text-4xl sm:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-600">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight sm:leading-tight md:leading-tight break-words text-balance text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-600">
                         {t('appTitle')}
                     </h1>
                     <nav className="mt-6 flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4">

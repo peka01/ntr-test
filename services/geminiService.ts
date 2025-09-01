@@ -2,12 +2,6 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import type { ProjectPlan } from '../types';
 
-if (!process.env.API_KEY) {
-    throw new Error("API_KEY environment variable is not set");
-}
-
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-
 const projectPlanSchema = {
     type: Type.OBJECT,
     properties: {
@@ -60,6 +54,13 @@ const projectPlanSchema = {
 
 export const generateProjectPlan = async (idea: string): Promise<ProjectPlan> => {
     try {
+        const apiKey = (process.env.API_KEY as string) || (process.env.GEMINI_API_KEY as string) || '';
+        if (!apiKey) {
+            throw new Error("Gemini API key is not configured.");
+        }
+
+        const ai = new GoogleGenAI({ apiKey });
+
         const response = await ai.models.generateContent({
             model: "gemini-2.5-flash",
             contents: `Based on the following project idea, generate a structured project plan. Idea: "${idea}"`,

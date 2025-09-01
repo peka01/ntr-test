@@ -75,6 +75,15 @@ export interface HelpSection {
   category: 'admin' | 'user' | 'general';
 }
 
+interface GithubCommitInfo {
+  sha: string;
+  commit: {
+    author: { date: string };
+    committer: { date: string };
+    message: string;
+  };
+}
+
 export interface HelpSectionConfig {
   id: string;
   title: {
@@ -87,8 +96,11 @@ export interface HelpSectionConfig {
 
 // Cache for help content to avoid repeated file loads
 let contentCache: { [key: string]: string } = {};
+let metadataCache: { [key: string]: any } = {};
 let lastCacheTime = 0;
-const CACHE_DURATION = 500; // 0.5 seconds cache for more responsive updates
+let lastMetadataCacheTime = 0;
+const CACHE_DURATION = 0; // Always fetch fresh content
+const METADATA_CACHE_DURATION = 5 * 60 * 1000; // Cache metadata for 5 minutes to avoid rate limits
 
 
 
@@ -110,8 +122,9 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
 
     const response = await fetch(internalUrl, {
       method: 'GET',
+      cache: 'no-store',
       headers: {
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
         'Pragma': 'no-cache'
       }
     });
@@ -146,8 +159,10 @@ export const helpService = {
   // Clear cache to force reload
   clearCache(): void {
     contentCache = {};
+    metadataCache = {};
     lastCacheTime = 0;
-    console.log('Help content cache cleared');
+    lastMetadataCacheTime = 0;
+    console.log('Help content and metadata cache cleared');
   },
 
   // Force reload by clearing cache and reloading content
@@ -217,5 +232,116 @@ export const helpService = {
   // Get help configuration
   getConfig(): HelpSectionConfig[] {
     return helpConfig.sections;
+  },
+
+  // Compare last update times between sv and en for a section
+  async isEnglishOutdated(sectionId: string): Promise<boolean> {
+    const cacheKey = `outdated-${sectionId}`;
+    const now = Date.now();
+    
+    // Check if we have cached metadata to avoid hitting rate limits
+    if (metadataCache[cacheKey] && (now - lastMetadataCacheTime) < METADATA_CACHE_DURATION) {
+      return metadataCache[cacheKey];
+    }
+    
+    try {
+      const [svCommitsRes, enCommitsRes] = await Promise.all([
+        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/sv/${sectionId}.md&per_page=1`, { cache: 'no-store' }),
+        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/en/${sectionId}.md&per_page=1`, { cache: 'no-store' })
+      ]);
+
+      // If either request fails due to rate limiting, return false and cache the result
+      if (!svCommitsRes.ok || !enCommitsRes.ok) {
+        console.warn(`GitHub API request failed (${svCommitsRes.status}/${enCommitsRes.status}). Caching negative result to avoid rate limits.`);
+        metadataCache[cacheKey] = false;
+        lastMetadataCacheTime = now;
+        return false;
+      }
+
+      const svCommits = await svCommitsRes.json() as GithubCommitInfo[];
+      const enCommits = await enCommitsRes.json() as GithubCommitInfo[];
+
+      if (!svCommits.length || !enCommits.length) {
+        metadataCache[cacheKey] = false;
+        lastMetadataCacheTime = now;
+        return false;
+      }
+
+      const svDate = new Date(svCommits[0].commit.committer.date).getTime();
+      const enDate = new Date(enCommits[0].commit.committer.date).getTime();
+      const isOutdated = enDate < svDate; // English older than Swedish
+      
+      // Cache the result
+      metadataCache[cacheKey] = isOutdated;
+      lastMetadataCacheTime = now;
+      
+      return isOutdated;
+    } catch (e) {
+      console.error('Error checking translation freshness (likely rate limited):', e);
+      // Cache a negative result to prevent repeated failed requests
+      metadataCache[cacheKey] = false;
+      lastMetadataCacheTime = now;
+      return false;
+    }
+  },
+
+  // Get last updated timestamps for sv and en docs
+  async getLastUpdatedTimes(sectionId: string): Promise<{ sv?: string; en?: string }> {
+    const cacheKey = `times-${sectionId}`;
+    const now = Date.now();
+    
+    // Check if we have cached metadata to avoid hitting rate limits
+    if (metadataCache[cacheKey] && (now - lastMetadataCacheTime) < METADATA_CACHE_DURATION) {
+      return metadataCache[cacheKey];
+    }
+    
+    try {
+      const [svCommitsRes, enCommitsRes] = await Promise.all([
+        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/sv/${sectionId}.md&per_page=1`, { cache: 'no-store' }),
+        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/en/${sectionId}.md&per_page=1`, { cache: 'no-store' })
+      ]);
+      
+      const result: { sv?: string; en?: string } = {};
+      
+      // Handle rate limiting gracefully
+      if (svCommitsRes.ok) {
+        try {
+          const svCommits = await svCommitsRes.json() as GithubCommitInfo[];
+          if (svCommits.length) {
+            result.sv = svCommits[0].commit.committer.date;
+          }
+        } catch (e) {
+          console.warn('Error parsing Swedish commit data:', e);
+        }
+      } else {
+        console.warn(`GitHub API request for Swedish docs failed: ${svCommitsRes.status}`);
+      }
+      
+      if (enCommitsRes.ok) {
+        try {
+          const enCommits = await enCommitsRes.json() as GithubCommitInfo[];
+          if (enCommits.length) {
+            result.en = enCommits[0].commit.committer.date;
+          }
+        } catch (e) {
+          console.warn('Error parsing English commit data:', e);
+        }
+      } else {
+        console.warn(`GitHub API request for English docs failed: ${enCommitsRes.status}`);
+      }
+      
+      // Cache the result even if partially successful
+      metadataCache[cacheKey] = result;
+      lastMetadataCacheTime = now;
+      
+      return result;
+    } catch (e) {
+      console.error('Error fetching last updated times (likely rate limited):', e);
+      // Return empty result and cache it to prevent repeated failed requests
+      const emptyResult = {};
+      metadataCache[cacheKey] = emptyResult;
+      lastMetadataCacheTime = now;
+      return emptyResult;
+    }
   }
 };
