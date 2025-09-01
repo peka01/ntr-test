@@ -18,6 +18,15 @@ export default defineConfig(({ mode }) => {
       server: {
         host: '0.0.0.0',
         port: 3000,
+        proxy: {
+          // Dev-time proxy so /helpdocs/ works in Vite too (no third-party proxies)
+          '/helpdocs': {
+            target: 'https://raw.githubusercontent.com/peka01/helpdoc/main',
+            changeOrigin: true,
+            secure: true,
+            rewrite: (path) => path.replace(/^\/helpdocs/, ''),
+          }
+        },
         watch: {
           usePolling: true
         }

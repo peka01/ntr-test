@@ -103,35 +103,42 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
   }
   
   try {
-    // Fetch from the external help documentation repository using a CORS proxy with cache busting
+    // Use first-party Nginx reverse proxy to fetch centralized docs (no browser CORS, robust)
     const timestamp = Date.now();
-    const repoUrl = `https://corsproxy.io/?${encodeURIComponent(`https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${language}/${sectionId}.md?t=${timestamp}`)}`;
-    
-    console.log(`Fetching content from: ${repoUrl}`);
-    
-    const response = await fetch(repoUrl, {
+    const internalUrl = `/helpdocs/ntr-test/${language}/${sectionId}.md?t=${timestamp}`;
+    console.log(`Fetching help content via internal proxy: ${internalUrl}`);
+
+    const response = await fetch(internalUrl, {
       method: 'GET',
       headers: {
         'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'Pragma': 'no-cache'
       }
     });
-    
+
     if (response.ok) {
       const content = await response.text();
-      console.log(`Successfully fetched content for ${sectionId} in ${language}`);
       contentCache[cacheKey] = content;
       lastCacheTime = now;
       return content;
-    } else {
-      throw new Error(`Failed to fetch from repository: ${response.status} ${response.statusText}`);
     }
+    
+    throw new Error(`Internal proxy failed: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.error(`Error loading content for ${sectionId} in ${language}:`, error);
     
+    // Log detailed error information for debugging
+    if (error instanceof Error) {
+      console.error(`Error details:`, {
+        message: error.message,
+        stack: error.stack,
+        sectionId,
+        language
+      });
+    }
+    
     // Return error message when external repository is not accessible
-    return `# Content not available\n\nThis help content is currently not available.\n\nError: ${error}\n\nPlease check your internet connection and try refreshing.`;
+    return `# Content not available\n\nThis help content is currently not available.\n\nError: ${error}\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`;
   }
 }
 
