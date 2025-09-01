@@ -18,6 +18,11 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   const [filter, setFilter] = useState<'all' | 'admin' | 'user' | 'general'>('all');
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [documentInfo, setDocumentInfo] = useState<{
+    source: string;
+    lastUpdated: string;
+    cacheStatus: 'fresh' | 'cached' | 'error';
+  } | null>(null);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 1200, height: 800 });
   const [isDragging, setIsDragging] = useState(false);
@@ -41,10 +46,22 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
         setLoading(true);
         const sections = await helpService.getAllSections(language);
         setHelpSections(sections);
+        
+        // Update document info
+        setDocumentInfo({
+          source: `https://github.com/peka01/helpdoc/tree/main/ntr-test/${language}`,
+          lastUpdated: new Date().toLocaleString(),
+          cacheStatus: 'fresh'
+        });
       } catch (error) {
         console.error('Error loading help content:', error);
         // Fallback to empty sections
         setHelpSections([]);
+        setDocumentInfo({
+          source: 'Error loading content',
+          lastUpdated: new Date().toLocaleString(),
+          cacheStatus: 'error'
+        });
       } finally {
         setLoading(false);
       }
@@ -64,9 +81,22 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
       console.log('Refreshing help content from repository...');
       const sections = await helpService.forceReload(language);
       setHelpSections(sections);
+      
+      // Update document info for fresh content
+      setDocumentInfo({
+        source: `https://github.com/peka01/helpdoc/tree/main/ntr-test/${language}`,
+        lastUpdated: new Date().toLocaleString(),
+        cacheStatus: 'fresh'
+      });
+      
       console.log('Help content refreshed successfully');
     } catch (error) {
       console.error('Error manually refreshing help content:', error);
+      setDocumentInfo({
+        source: 'Error refreshing content',
+        lastUpdated: new Date().toLocaleString(),
+        cacheStatus: 'error'
+      });
     } finally {
       setLoading(false);
     }
@@ -239,6 +269,16 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
 
   const selectedSectionData = helpSections.find(section => section.id === selectedSection);
 
+  // Update document info when section changes
+  useEffect(() => {
+    if (selectedSectionData && documentInfo) {
+      setDocumentInfo({
+        ...documentInfo,
+        source: `https://github.com/peka01/helpdoc/tree/main/ntr-test/${language}/${selectedSectionData.id}.md`
+      });
+    }
+  }, [selectedSection, selectedSectionData, language]);
+
   const renderContent = (content: string) => {
     let html = content;
     
@@ -407,13 +447,53 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
             {selectedSectionData ? (
-              <div className="prose prose-slate max-w-none">
-                <div 
-                  dangerouslySetInnerHTML={{ 
-                    __html: renderContent(selectedSectionData.content)
-                  }} 
-                />
-              </div>
+              <>
+                {/* Document Information */}
+                {documentInfo && (
+                  <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+                    <div className="flex items-center justify-between text-sm">
+                      <div className="space-y-1">
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-slate-700">Document:</span>
+                          <span className="text-slate-600">{selectedSectionData.id}.md</span>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            documentInfo.cacheStatus === 'fresh' ? 'bg-green-100 text-green-800' :
+                            documentInfo.cacheStatus === 'cached' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-red-100 text-red-800'
+                          }`}>
+                            {documentInfo.cacheStatus === 'fresh' ? 'Fresh' :
+                             documentInfo.cacheStatus === 'cached' ? 'Cached' : 'Error'}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-slate-700">Source:</span>
+                          <a 
+                            href={documentInfo.source} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-cyan-600 hover:text-cyan-700 underline"
+                          >
+                            External Repository
+                          </a>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium text-slate-700">Last Updated:</span>
+                          <span className="text-slate-600">{documentInfo.lastUpdated}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Content */}
+                <div className="prose prose-slate max-w-none">
+                  <div 
+                    dangerouslySetInnerHTML={{ 
+                      __html: renderContent(selectedSectionData.content)
+                    }} 
+                  />
+                </div>
+              </>
             ) : (
               <div className="text-center text-slate-500 py-8">
                 <p>{t('helpNoResults')}</p>
