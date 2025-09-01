@@ -19,11 +19,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   const [filter, setFilter] = useState<'all' | 'admin' | 'user' | 'general'>('all');
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [documentInfo, setDocumentInfo] = useState<{
-    source: string;
-    lastUpdated: string;
-    cacheStatus: 'fresh' | 'cached' | 'error';
-  } | null>(null);
+
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 1200, height: 800 });
   const [isDragging, setIsDragging] = useState(false);
@@ -52,19 +48,11 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
         const sections = await helpService.forceReload(language);
         setHelpSections(sections);
         
-        setDocumentInfo({
-          source: `https://github.com/peka01/helpdoc/tree/main/ntr-test/${language}`,
-          lastUpdated: new Date().toLocaleString(),
-          cacheStatus: 'fresh'
-        });
+
       } catch (error) {
         console.error('Error loading help content:', error);
         setHelpSections([]);
-        setDocumentInfo({
-          source: 'Error loading content',
-          lastUpdated: new Date().toLocaleString(),
-          cacheStatus: 'error'
-        });
+
       } finally {
         setLoading(false);
       }
@@ -85,21 +73,12 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
       const sections = await helpService.forceReload(language);
       setHelpSections(sections);
       
-      // Update document info for fresh content
-      setDocumentInfo({
-        source: `https://github.com/peka01/helpdoc/tree/main/ntr-test/${language}`,
-        lastUpdated: new Date().toLocaleString(),
-        cacheStatus: 'fresh'
-      });
+
       
       console.log('Help content refreshed successfully');
     } catch (error) {
       console.error('Error manually refreshing help content:', error);
-      setDocumentInfo({
-        source: 'Error refreshing content',
-        lastUpdated: new Date().toLocaleString(),
-        cacheStatus: 'error'
-      });
+
     } finally {
       setLoading(false);
     }
@@ -327,57 +306,11 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   }, [isDragging, isResizing, resizeDirection]);
 
   const selectedSectionData = helpSections.find(section => section.id === selectedSection);
-  const [enOutdated, setEnOutdated] = useState<boolean>(false);
-  const [useSvFallback, setUseSvFallback] = useState<boolean>(false);
   const [svFallbackContent, setSvFallbackContent] = useState<string | null>(null);
-  const [lastUpdated, setLastUpdated] = useState<{ sv?: string; en?: string }>({});
   const [showToc, setShowToc] = useState<boolean>(false);
 
   // Update document info when section changes
-  useEffect(() => {
-    if (selectedSectionData && documentInfo) {
-      setDocumentInfo({
-        ...documentInfo,
-        source: `https://github.com/peka01/helpdoc/tree/main/ntr-test/${language}/${selectedSectionData.id}.md`
-      });
-    }
-  }, [selectedSection, selectedSectionData, language]);
 
-  // Check if English translation is outdated compared to Swedish and fetch commit times
-  useEffect(() => {
-    const checkOutdated = async () => {
-      if (!selectedSectionData) return;
-      try {
-        const [outdated, times] = await Promise.all([
-          helpService.isEnglishOutdated(selectedSectionData.id),
-          helpService.getLastUpdatedTimes(selectedSectionData.id)
-        ]);
-        setEnOutdated(outdated);
-        setLastUpdated(times);
-      } catch {
-        setEnOutdated(false);
-        setLastUpdated({});
-      }
-    };
-    checkOutdated();
-  }, [selectedSectionData?.id]);
-
-  // When English is outdated, optionally use Swedish content as fallback
-  useEffect(() => {
-    const loadSvFallback = async () => {
-      if (!selectedSectionData || language !== 'en' || !enOutdated || !useSvFallback) {
-        setSvFallbackContent(null);
-        return;
-      }
-      try {
-        const svSection = await helpService.getSection(selectedSectionData.id, 'sv');
-        setSvFallbackContent(svSection?.content || null);
-      } catch {
-        setSvFallbackContent(null);
-      }
-    };
-    loadSvFallback();
-  }, [selectedSectionData?.id, language, enOutdated, useSvFallback]);
 
   const renderContent = (content: string) => {
     let html = content;
@@ -511,16 +444,16 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
                 }
               }}
               className="p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-              title={isCompact ? 'Expand to full view with TOC' : 'Dock to right without TOC'}
+              title={isCompact ? 'Maximize to full view with sidebar' : 'Minimize to docked view'}
               onMouseDown={(e) => e.stopPropagation()}
             >
               {isCompact ? (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12h16M12 4v16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 3v3a2 2 0 01-2 2H3m18 0h-3a2 2 0 01-2-2V3m0 18v-3a2 2 0 012-2h3M3 16h3a2 2 0 012 2v3" />
                 </svg>
               ) : (
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4m8-8v16" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2" />
                 </svg>
               )}
             </button>
@@ -536,7 +469,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
               </svg>
             </button>
             <a
-                              href={`https://github.com/peka01/helpdoc/edit/main/ntr-test/${language}/${selectedSection}.md`}
+                              href={`https://github.com/peka01/helpdoc/edit/main/ntr-test/docs/${language}/${selectedSection}.md`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors"
@@ -620,7 +553,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
 
           {/* Compact TOC overlay */}
           {isCompact && showToc && (
-            <div className="absolute left-0 top-0 bottom-0 w-80 bg-white border-r border-slate-200 shadow-lg z-10 flex flex-col">
+            <div className="absolute left-0 top-0 bottom-0 w-80 bg-white border-r border-slate-200 shadow-lg z-30 flex flex-col">
               <div className="p-4 border-b border-slate-200 flex items-center justify-between">
                 <span className="font-semibold text-slate-800">Contents</span>
                 <button className="text-slate-500 hover:text-slate-700" onClick={() => setShowToc(false)}>✕</button>
@@ -667,76 +600,23 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
           <div className="flex-1 overflow-y-auto p-6">
             {selectedSectionData ? (
               <>
-                {/* Document Information */}
-                {documentInfo && (
-                  <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="space-y-1">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-slate-700">Document:</span>
-                          <span className="text-slate-600">{selectedSectionData.id}.md</span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            documentInfo.cacheStatus === 'fresh' ? 'bg-green-100 text-green-800' :
-                            documentInfo.cacheStatus === 'cached' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {documentInfo.cacheStatus === 'fresh' ? 'Fresh' :
-                             documentInfo.cacheStatus === 'cached' ? 'Cached' : 'Error'}
-                          </span>
-                          {enOutdated && (
-                            <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-100 text-amber-800">
-                              EN behind SV
-                            </span>
-                          )}
-                        </div>
-                        {(lastUpdated.sv || lastUpdated.en) && (
-                          <div className="flex items-center gap-3 text-xs text-slate-600 mt-1">
-                            {lastUpdated.sv && (
-                              <span>SV updated: {new Date(lastUpdated.sv).toLocaleString()}</span>
-                            )}
-                            {lastUpdated.en && (
-                              <span>EN updated: {new Date(lastUpdated.en).toLocaleString()}</span>
-                            )}
-                          </div>
-                        )}
-                        {language === 'en' && enOutdated && (
-                          <div className="flex items-center gap-2">
-                            <span className="text-slate-700">English doc is older than Swedish.</span>
-                            <button
-                              className="px-2 py-1 text-xs rounded-md bg-cyan-100 text-cyan-800 hover:bg-cyan-200"
-                              onClick={() => setUseSvFallback(!useSvFallback)}
-                            >
-                              {useSvFallback ? 'Show English anyway' : 'Use latest Swedish'}
-                            </button>
-                            <a
-                              href={`https://github.com/peka01/helpdoc/edit/main/ntr-test/en/${selectedSection}.md`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="px-2 py-1 text-xs rounded-md bg-amber-100 text-amber-800 hover:bg-amber-200"
-                            >
-                              Update English
-                            </a>
-                          </div>
-                        )}
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-slate-700">Source:</span>
-                          <a 
-                            href={documentInfo.source} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="text-cyan-600 hover:text-cyan-700 underline"
-                          >
-                            External Repository
-                          </a>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <span className="font-medium text-slate-700">Last Updated:</span>
-                          <span className="text-slate-600">{documentInfo.lastUpdated}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                {/* Breadcrumb Navigation */}
+                <div className="mb-6 flex items-center space-x-2 text-sm text-slate-600">
+                  <button
+                    onClick={() => setFilter('all')}
+                    className="hover:text-slate-800 hover:underline transition-colors"
+                  >
+                    Help
+                  </button>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span className="capitalize">{selectedSectionData.category}</span>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  <span className="font-medium text-slate-800">{selectedSectionData.title}</span>
+                </div>
                 
                 {/* Content */}
                 <div className="prose prose-slate max-w-none">

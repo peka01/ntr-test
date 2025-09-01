@@ -78,10 +78,10 @@ The nginx configuration includes reverse proxies to:
    - Supports different directory structures
    - Language-specific file paths
 
-3. **Backward Compatibility**
-   - Falls back to static configuration if external repo is unavailable
-   - Maintains existing help system functionality
-   - Preserves metadata and categorization
+3. **External-Only Content**
+   - All help content is loaded from external repository
+   - No local documentation files
+   - Clear error messages when external content is unavailable
 
 4. **Error Handling**
    - Comprehensive error handling for network issues
@@ -103,9 +103,9 @@ The nginx configuration includes reverse proxies to:
    - No application deployment required
 
 3. **Testing Integration**
-   - Use the provided test script: `node test-help-integration.js`
    - Check browser console for integration logs
    - Verify content loading and error handling
+   - Test with different languages and sections
 
 ### For Content Managers
 
@@ -124,32 +124,27 @@ The nginx configuration includes reverse proxies to:
 The system handles various error scenarios:
 
 1. **Network Issues**
-   - Falls back to static configuration
    - Shows appropriate error messages
    - Continues to function with cached content
+   - No fallback to local content
 
 2. **Missing Files**
    - Logs warnings for missing content
-   - Shows fallback content
+   - Shows error messages
    - Maintains system stability
 
 3. **Configuration Errors**
    - Validates configuration structure
-   - Uses fallback paths when needed
    - Provides detailed error logging
+   - No fallback to local configuration
 
 ## Testing
 
-Run the integration test:
-```bash
-node test-help-integration.js
-```
-
-The test verifies:
-- Configuration loading
-- Content fetching
-- Integration script pattern
-- Error handling
+The integration can be tested by:
+- Checking browser console for integration logs
+- Verifying content loading from external repository
+- Testing error handling when external repository is unavailable
+- Testing different languages and sections
 
 ## Future Enhancements
 

@@ -94,10 +94,7 @@ export interface HelpSectionConfig {
   category: 'admin' | 'user' | 'general';
 }
 
-// Cache for help content to avoid repeated file loads
-let contentCache: { [key: string]: string } = {};
-let lastCacheTime = 0;
-const CACHE_DURATION = 0; // Always fetch fresh content
+// No caching - always fetch fresh content from external repository
 
 
 
@@ -112,13 +109,21 @@ async function loadHelpConfig(): Promise<any> {
       method: 'GET',
       cache: 'no-store',
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-        'Pragma': 'no-cache'
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
 
     if (response.ok) {
       const config = await response.json();
+      console.log(`✅ Help configuration loaded:`, {
+        url: configUrl,
+        apps: Object.keys(config.apps || {}),
+        ntrAppLocales: Object.keys(config.apps?.['ntr-app']?.locales || {}),
+        svSections: Object.keys(config.apps?.['ntr-app']?.locales?.['sv-se']?.file_paths || {}),
+        enSections: Object.keys(config.apps?.['ntr-app']?.locales?.['en-se']?.file_paths || {})
+      });
       return config;
     }
     
@@ -131,13 +136,6 @@ async function loadHelpConfig(): Promise<any> {
 
 // Dynamic content loading from external help documentation repository
 async function loadMarkdownContent(sectionId: string, language: string): Promise<string> {
-  const cacheKey = `${sectionId}-${language}`;
-  const now = Date.now();
-  
-  // Check if we have a valid cached version
-  if (contentCache[cacheKey] && (now - lastCacheTime) < CACHE_DURATION) {
-    return contentCache[cacheKey];
-  }
   
   try {
     // Load configuration to get the correct file path
@@ -173,15 +171,20 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       method: 'GET',
       cache: 'no-store',
       headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-        'Pragma': 'no-cache'
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+        'Pragma': 'no-cache',
+        'Expires': '0'
       }
     });
 
     if (response.ok) {
       const content = await response.text();
-      contentCache[cacheKey] = content;
-      lastCacheTime = now;
+      console.log(`✅ Content loaded for ${sectionId} (${language}):`, {
+        url: internalUrl,
+        contentLength: content.length,
+        first100Chars: content.substring(0, 100),
+        last100Chars: content.substring(content.length - 100)
+      });
       return content;
     }
     
@@ -199,8 +202,8 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       });
     }
     
-    // Try fallback to static paths if external configuration fails
-    console.log(`Attempting fallback to static paths for ${sectionId} in ${language}`);
+    // Try fallback to direct external repository access
+    console.log(`Attempting fallback to direct external repository access for ${sectionId} in ${language}`);
     try {
       const fallbackUrl = `/helpdocs/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;
       console.log(`Fetching fallback content: ${fallbackUrl}`);
@@ -209,16 +212,20 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
         method: 'GET',
         cache: 'no-store',
         headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0',
-          'Pragma': 'no-cache'
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+          'Pragma': 'no-cache',
+          'Expires': '0'
         }
       });
 
       if (fallbackResponse.ok) {
         const fallbackContent = await fallbackResponse.text();
-        contentCache[cacheKey] = fallbackContent;
-        lastCacheTime = now;
-        console.log(`Fallback content loaded successfully for ${sectionId}`);
+        console.log(`✅ Fallback content loaded for ${sectionId} (${language}):`, {
+          url: fallbackUrl,
+          contentLength: fallbackContent.length,
+          first100Chars: fallbackContent.substring(0, 100),
+          last100Chars: fallbackContent.substring(fallbackContent.length - 100)
+        });
         return fallbackContent;
       }
     } catch (fallbackError) {
@@ -226,24 +233,14 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     }
     
     // Return error message when both external and fallback fail
-    return `# Content not available\n\nThis help content is currently not available.\n\nError: ${error}\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`;
+    return `# Content not available\n\nThis help content is currently not available from the external repository.\n\nError: ${error}\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`;
   }
 }
 
 export const helpService = {
-  // Clear cache to force reload
-  clearCache(): void {
-    contentCache = {};
-    lastCacheTime = 0;
-    console.log('Help content cache cleared');
-  },
-
-  // Force reload by clearing cache and reloading content
+  // Force reload by fetching fresh content from external repository
   async forceReload(language: string = 'sv'): Promise<HelpSection[]> {
     console.log(`Force reloading help content for language: ${language}`);
-    this.clearCache();
-    // Force a fresh timestamp for all cache keys
-    lastCacheTime = 0;
     return this.getAllSections(language);
   },
 
@@ -253,7 +250,7 @@ export const helpService = {
     const sections: HelpSection[] = [];
     
     try {
-      // Try to get sections from dynamic configuration first
+      // Get sections from external configuration
       const availableSections = await this.getAvailableSections(language);
       
       for (const sectionId of availableSections) {
@@ -275,7 +272,7 @@ export const helpService = {
           });
         } catch (error) {
           console.error(`Error loading help content for section ${sectionId}:`, error);
-          // Fallback to empty content
+          // Show error content when external content is unavailable
           const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
           const title = sectionConfig?.title[language as keyof typeof sectionConfig.title] || sectionId;
           const keywords = sectionConfig?.keywords || [];
@@ -284,38 +281,24 @@ export const helpService = {
           sections.push({
             id: sectionId,
             title: title,
-            content: '# Content not available\n\nThis help content is currently not available.',
+            content: `# Content not available\n\nThis help content is currently not available from the external repository.\n\n**Error:** ${error}\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`,
             keywords: keywords,
             category: category
           });
         }
       }
     } catch (error) {
-      console.error('Error loading dynamic sections, falling back to static config:', error);
-      
-      // Fallback to static configuration
+      console.error('Error loading external help sections:', error);
+      // Fallback to static sections when external configuration is unavailable
+      console.log('Falling back to static help sections');
       for (const sectionConfig of helpConfig.sections) {
-        try {
-          const content = await loadMarkdownContent(sectionConfig.id, language);
-          
-          sections.push({
-            id: sectionConfig.id,
-            title: sectionConfig.title[language as keyof typeof sectionConfig.title],
-            content: content,
-            keywords: sectionConfig.keywords,
-            category: sectionConfig.category
-          });
-        } catch (error) {
-          console.error(`Error loading help content for section ${sectionConfig.id}:`, error);
-          // Fallback to empty content
-          sections.push({
-            id: sectionConfig.id,
-            title: sectionConfig.title[language as keyof typeof sectionConfig.title],
-            content: '# Content not available\n\nThis help content is currently not available.',
-            keywords: sectionConfig.keywords,
-            category: sectionConfig.category
-          });
-        }
+        sections.push({
+          id: sectionConfig.id,
+          title: sectionConfig.title[language as keyof typeof sectionConfig.title],
+          content: `# ${sectionConfig.title[language as keyof typeof sectionConfig.title]}\n\nThis help content is currently not available from the external repository.\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionConfig.id}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`,
+          keywords: sectionConfig.keywords,
+          category: sectionConfig.category
+        });
       }
     }
     
@@ -350,27 +333,17 @@ export const helpService = {
     return helpConfig.sections;
   },
 
-  // Get dynamic help configuration from external repository
+  // Get help configuration from external repository
   async getDynamicConfig(): Promise<any> {
     try {
       return await loadHelpConfig();
     } catch (error) {
-      console.error('Error loading dynamic help configuration:', error);
-      // Return fallback configuration
-      return {
-        apps: {
-          'ntr-app': {
-            locales: {
-              'sv-se': { file_paths: {} },
-              'en-us': { file_paths: {} }
-            }
-          }
-        }
-      };
+      console.error('Error loading help configuration from external repository:', error);
+      throw error; // Re-throw to let calling code handle the error
     }
   },
 
-  // Get available sections from dynamic configuration
+  // Get available sections from external configuration
   async getAvailableSections(language: string = 'sv'): Promise<string[]> {
     try {
       const config = await loadHelpConfig();
@@ -378,8 +351,8 @@ export const helpService = {
       const filePaths = config.apps['ntr-app'].locales[localeKey].file_paths;
       return Object.keys(filePaths);
     } catch (error) {
-      console.error('Error getting available sections:', error);
-      // Return fallback sections from static config
+      console.error('Error getting available sections from external repository:', error);
+      // Return static sections when external configuration is unavailable
       return helpConfig.sections.map(s => s.id);
     }
   },
