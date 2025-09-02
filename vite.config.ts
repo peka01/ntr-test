@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist',
         sourcemap: false,
         rollupOptions: {
-          input: 'main.tsx'
+          input: 'index.html'
         }
       }
     };
