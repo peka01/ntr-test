@@ -13,14 +13,6 @@ export default defineConfig(({ mode }) => {
     
     return {
       base,
-      // Specify the entry point
-      build: {
-        rollupOptions: {
-          input: {
-            main: path.resolve(__dirname, 'src/main.tsx')
-          }
-        }
-      },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
