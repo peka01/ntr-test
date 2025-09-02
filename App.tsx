@@ -10,7 +10,7 @@ import { useData } from './hooks/useData';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { HelpSystem } from './components/HelpSystem';
 import { HelpButton } from './components/HelpButton';
-import { ServiceWorkerStatus } from './components/ServiceWorkerStatus';
+
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserMenu } from './components/UserMenu';
@@ -222,8 +222,7 @@ const AppContent: React.FC = () => {
                 </div>
             </header>
 
-            {/* Service Worker Status (Debug) */}
-            <ServiceWorkerStatus />
+
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

@@ -124,8 +124,6 @@ async function loadHelpConfig(): Promise<any> {
     if (isGitHubPages) {
       // Use Service Worker proxy (no CORS issues on GitHub Pages)
       configUrl = `./help-proxy/help-config.json?t=${timestamp}`;
-      console.log(`🌐 GitHub Pages mode: Using Service Worker proxy: ${configUrl}`);
-      console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json`);
     } else if (isDevelopment) {
       // In development, use a CORS proxy or fallback to static config
       console.log(`🔧 Development mode: CORS restrictions may apply when fetching from GitHub directly`);
@@ -284,8 +282,6 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     if (isGitHubPages) {
       // Use Service Worker proxy (no CORS issues on GitHub Pages)
       internalUrl = `./help-proxy/${filePath}?t=${timestamp}`;
-      console.log(`🌐 GitHub Pages mode: Using Service Worker proxy: ${internalUrl}`);
-      console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}`);
     } else if (isDevelopment) {
       // In development, try direct GitHub access (may fail due to CORS)
       internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?t=${timestamp}`;
@@ -349,8 +345,6 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       if (isGitHubPages) {
         // Use Service Worker proxy (no CORS issues on GitHub Pages)
         fallbackUrl = `./help-proxy/docs/${language}/${sectionId}.md?t=${Date.now()}`;
-        console.log(`🌐 GitHub Pages mode: Using Service Worker proxy for fallback: ${fallbackUrl}`);
-        console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md`);
       } else if (isDevelopment) {
         // In development, fetch directly from GitHub
         fallbackUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;

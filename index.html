@@ -26,22 +26,10 @@
         
         // Register service worker
         if ('serviceWorker' in navigator) {
-            console.log('🔄 Registering Service Worker...');
             navigator.serviceWorker.register('./help-proxy-sw.js', { scope: './' })
-                .then((registration) => {
-                    console.log('✅ Service Worker registered successfully:', registration);
-                    console.log('🔍 Registration details:', {
-                        scope: registration.scope,
-                        active: registration.active,
-                        installing: registration.installing,
-                        waiting: registration.waiting
-                    });
-                })
                 .catch((error) => {
-                    console.error('❌ Service Worker registration failed:', error);
+                    console.error('Service Worker registration failed:', error);
                 });
-        } else {
-            console.warn('⚠️ Service Workers not supported in this browser');
         }
     </script>
     <script type="module" src="./src/main.tsx"></script>

@@ -3,25 +3,20 @@
 // from external repositories, bypassing CORS restrictions
 
 const CACHE_NAME = 'help-proxy-v1';
-const GITHUB_API_BASE = 'https://api.github.com/repos/peka01/helpdoc/contents/ntr-test';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test';
 
 // Install event - cache the service worker
 self.addEventListener('install', (event) => {
-  console.log('🔄 Help Proxy Service Worker installing...');
-  console.log('🎯 Service Worker scope:', self.registration?.scope || 'unknown');
   self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('✅ Help Proxy Service Worker activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log('🗑️ Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -34,24 +29,17 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  console.log(`🔍 Service Worker intercepting request: ${event.request.method} ${url.pathname}`);
-  
   // Handle CORS preflight requests
   if (event.request.method === 'OPTIONS') {
-    console.log('🔄 Handling CORS preflight request');
     event.respondWith(handleCorsPreflight());
     return;
   }
   
   // Handle help-proxy requests (both absolute and relative paths)
   if (!url.pathname.includes('help-proxy/')) {
-    console.log(`⏭️ Skipping non-help-proxy request: ${url.pathname}`);
     return;
   }
   
-  console.log(`✅ Handling help-proxy request: ${url.pathname}`);
-  console.log(`🔍 Full URL: ${url.href}`);
-  console.log(`🔍 Pathname: ${url.pathname}`);
   event.respondWith(handleHelpProxy(event.request));
 });
 
@@ -75,36 +63,12 @@ async function handleHelpProxy(request) {
   const helpProxyIndex = url.pathname.indexOf('help-proxy/');
   const targetPath = url.pathname.substring(helpProxyIndex + 'help-proxy/'.length);
   
-  console.log(`🔍 Path extraction: pathname="${url.pathname}", helpProxyIndex=${helpProxyIndex}, targetPath="${targetPath}"`);
-  
   try {
-    // Use GitHub API for CORS-friendly access
-    const apiUrl = `${GITHUB_API_BASE}/${targetPath}`;
-    console.log(`🌐 Fetching via GitHub API: ${targetPath} → ${apiUrl}`);
+    // Use raw content URL directly (bypassing GitHub API)
+    const rawUrl = `${GITHUB_RAW_BASE}/${targetPath}`;
+    console.log(`🌐 Fetching from: ${rawUrl}`);
     
-    // First, get file metadata from GitHub API
-    const apiResponse = await fetch(apiUrl, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/vnd.github.v3+json',
-        'User-Agent': 'ntr-help-proxy/1.0'
-      }
-    });
-    
-    if (!apiResponse.ok) {
-      throw new Error(`GitHub API failed: ${apiResponse.status} ${apiResponse.statusText}`);
-    }
-    
-    const fileData = await apiResponse.json();
-    
-    if (fileData.type !== 'file') {
-      throw new Error(`Path is not a file: ${targetPath}`);
-    }
-    
-    // Get the raw content from the download_url
-    const rawUrl = fileData.download_url;
-    console.log(`📥 Downloading raw content from: ${rawUrl}`);
-    
+    // Fetch content directly from raw.githubusercontent.com
     const rawResponse = await fetch(rawUrl, {
       method: 'GET',
       headers: {
@@ -142,7 +106,6 @@ async function handleHelpProxy(request) {
     const cache = await caches.open(CACHE_NAME);
     cache.put(request, proxyResponse.clone());
     
-    console.log(`✅ Successfully proxied: ${targetPath} (${content.length} bytes)`);
     return proxyResponse;
     
   } catch (error) {
@@ -153,7 +116,6 @@ async function handleHelpProxy(request) {
     const cachedResponse = await cache.match(request);
     
     if (cachedResponse) {
-      console.log(`📦 Returning cached version for ${targetPath}`);
       return cachedResponse;
     }
     
@@ -213,5 +175,4 @@ self.addEventListener('message', (event) => {
   }
 });
 
-// Log service worker lifecycle
-console.log('🔄 Help Proxy Service Worker script loaded');
+
