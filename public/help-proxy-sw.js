@@ -42,13 +42,15 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
-  // Only handle help-proxy requests
-  if (!url.pathname.startsWith('/help-proxy/')) {
+  // Handle help-proxy requests (both absolute and relative paths)
+  if (!url.pathname.includes('help-proxy/')) {
     console.log(`⏭️ Skipping non-help-proxy request: ${url.pathname}`);
     return;
   }
   
   console.log(`✅ Handling help-proxy request: ${url.pathname}`);
+  console.log(`🔍 Full URL: ${url.href}`);
+  console.log(`🔍 Pathname: ${url.pathname}`);
   event.respondWith(handleHelpProxy(event.request));
 });
 
@@ -68,7 +70,11 @@ function handleCorsPreflight() {
 
 async function handleHelpProxy(request) {
   const url = new URL(request.url);
-  const targetPath = url.pathname.replace('/help-proxy/', '');
+  // Extract the path after 'help-proxy/' regardless of whether it's absolute or relative
+  const helpProxyIndex = url.pathname.indexOf('help-proxy/');
+  const targetPath = url.pathname.substring(helpProxyIndex + 'help-proxy/'.length);
+  
+  console.log(`🔍 Path extraction: pathname="${url.pathname}", helpProxyIndex=${helpProxyIndex}, targetPath="${targetPath}"`);
   
   try {
     // Construct external URL
