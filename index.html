@@ -27,7 +27,7 @@
         // Register service worker
         if ('serviceWorker' in navigator) {
             console.log('🔄 Registering Service Worker...');
-            navigator.serviceWorker.register('/help-proxy-sw.js', { scope: '/' })
+            navigator.serviceWorker.register('./help-proxy-sw.js', { scope: './' })
                 .then((registration) => {
                     console.log('✅ Service Worker registered successfully:', registration);
                     console.log('🔍 Registration details:', {

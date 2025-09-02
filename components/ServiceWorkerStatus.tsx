@@ -55,7 +55,7 @@ export const ServiceWorkerStatus: React.FC = () => {
     setTestResult('Testing...');
     
     try {
-      const response = await fetch('/help-proxy/help-config.json');
+      const response = await fetch('./help-proxy/help-config.json');
       const result = response.ok;
       setTestResult(result ? '✅ Proxy test successful!' : '❌ Proxy test failed');
     } catch (error) {

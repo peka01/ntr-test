@@ -123,7 +123,7 @@ async function loadHelpConfig(): Promise<any> {
     let configUrl: string;
     if (isGitHubPages) {
       // Use Service Worker proxy (no CORS issues on GitHub Pages)
-      configUrl = `/help-proxy/help-config.json?t=${timestamp}`;
+      configUrl = `./help-proxy/help-config.json?t=${timestamp}`;
       console.log(`🌐 GitHub Pages mode: Using Service Worker proxy: ${configUrl}`);
       console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json`);
     } else if (isDevelopment) {
@@ -283,7 +283,7 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     let internalUrl: string;
     if (isGitHubPages) {
       // Use Service Worker proxy (no CORS issues on GitHub Pages)
-      internalUrl = `/help-proxy/${filePath}?t=${timestamp}`;
+      internalUrl = `./help-proxy/${filePath}?t=${timestamp}`;
       console.log(`🌐 GitHub Pages mode: Using Service Worker proxy: ${internalUrl}`);
       console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}`);
     } else if (isDevelopment) {
@@ -348,7 +348,7 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       let fallbackUrl: string;
       if (isGitHubPages) {
         // Use Service Worker proxy (no CORS issues on GitHub Pages)
-        fallbackUrl = `/help-proxy/docs/${language}/${sectionId}.md?t=${Date.now()}`;
+        fallbackUrl = `./help-proxy/docs/${language}/${sectionId}.md?t=${Date.now()}`;
         console.log(`🌐 GitHub Pages mode: Using Service Worker proxy for fallback: ${fallbackUrl}`);
         console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md`);
       } else if (isDevelopment) {
