@@ -104,13 +104,18 @@ export interface HelpSectionConfig {
 
 
 
-// Load help configuration from external repository
+// Load help configuration from external repository - MAIN FUNCTION
 async function loadHelpConfig(): Promise<any> {
   try {
     const timestamp = Date.now();
     
     // Check if we're in development mode (no nginx proxy)
-    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    // More accurate detection: check if we're actually running through nginx
+    const isDevelopment = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.port === '5173' || // Vite dev server
+                         window.location.port === '3000' || // Common dev port
+                         window.location.protocol === 'file:'; // Local file
     
     let configUrl: string;
     if (isDevelopment) {
@@ -226,7 +231,7 @@ async function loadHelpConfig(): Promise<any> {
   }
 }
 
-// Dynamic content loading from external help documentation repository
+// Dynamic content loading from external help documentation repository - CONTENT LOADER
 async function loadMarkdownContent(sectionId: string, language: string): Promise<string> {
   
   try {
@@ -258,7 +263,12 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     const timestamp = Date.now();
     
     // Check if we're in development mode (no nginx proxy)
-    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    // More accurate detection: check if we're actually running through nginx
+    const isDevelopment = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.port === '5173' || // Vite dev server
+                         window.location.port === '3000' || // Common dev port
+                         window.location.protocol === 'file:'; // Local file
     
     let internalUrl: string;
     if (isDevelopment) {
@@ -310,8 +320,14 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     // Try fallback to direct external repository access
     console.log(`Attempting fallback to direct external repository access for ${sectionId} in ${language}`);
     try {
-      // Check if we're in development mode (no nginx proxy)
-      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      // Check if we're in development mode (no nginx proxy) - FALLBACK FUNCTION
+      // More accurate detection: check if we're actually running through nginx
+      const isDevelopment = window.location.hostname === 'localhost' || 
+                           window.location.hostname === '127.0.0.1' ||
+                           window.location.hostname === 'peka01.github.io' || // GitHub Pages
+                           window.location.port === '5173' || // Vite dev server
+                           window.location.port === '3000' || // Common dev port
+                           window.location.protocol === 'file:'; // Local file
       
       let fallbackUrl: string;
       if (isDevelopment) {
@@ -478,7 +494,7 @@ export const helpService = {
     }
   },
 
-  // Compare last update times between sv and en for a section
+  // Compare last update times between sv and en for a section - FUNCTION 1
   async isEnglishOutdated(sectionId: string): Promise<boolean> {
     try {
       // Load configuration to get the correct file paths
@@ -542,7 +558,7 @@ export const helpService = {
     }
   },
 
-  // Get last updated timestamps for sv and en docs
+  // Get last updated timestamps for sv and en docs - FUNCTION 2
   async getLastUpdatedTimes(sectionId: string): Promise<{ sv?: string; en?: string }> {
     try {
       // Load configuration to get the correct file paths
