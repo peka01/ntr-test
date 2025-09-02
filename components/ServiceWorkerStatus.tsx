@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { serviceWorkerManager, ServiceWorkerStatus } from '../services/serviceWorkerManager';
+
+interface ServiceWorkerStatus {
+  isRegistered: boolean;
+  isActive: boolean;
+  isControlling: boolean;
+  hasUpdate: boolean;
+  registration?: ServiceWorkerRegistration;
+}
 
 export const ServiceWorkerStatus: React.FC = () => {
   const [status, setStatus] = useState<ServiceWorkerStatus>({
@@ -13,8 +20,31 @@ export const ServiceWorkerStatus: React.FC = () => {
 
   useEffect(() => {
     // Update status every 2 seconds
-    const interval = setInterval(() => {
-      setStatus(serviceWorkerManager.getStatus());
+    const interval = setInterval(async () => {
+      try {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        const controller = navigator.serviceWorker.controller;
+        
+        if (registrations.length > 0) {
+          const registration = registrations[0];
+          setStatus({
+            isRegistered: true,
+            isActive: registration.active !== null,
+            isControlling: !!controller,
+            hasUpdate: registration.waiting !== null,
+            registration: registration
+          });
+        } else {
+          setStatus({
+            isRegistered: false,
+            isActive: false,
+            isControlling: false,
+            hasUpdate: false
+          });
+        }
+      } catch (error) {
+        console.error('Error checking service worker status:', error);
+      }
     }, 2000);
 
     return () => clearInterval(interval);
@@ -25,7 +55,8 @@ export const ServiceWorkerStatus: React.FC = () => {
     setTestResult('Testing...');
     
     try {
-      const result = await serviceWorkerManager.testProxy();
+      const response = await fetch('/help-proxy/help-config.json');
+      const result = response.ok;
       setTestResult(result ? '✅ Proxy test successful!' : '❌ Proxy test failed');
     } catch (error) {
       setTestResult(`❌ Proxy test error: ${error}`);
@@ -35,14 +66,20 @@ export const ServiceWorkerStatus: React.FC = () => {
   };
 
   const handleUpdate = async () => {
-    await serviceWorkerManager.update();
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    if (registrations.length > 0) {
+      await registrations[0].update();
+    }
   };
 
   const handleSkipWaiting = async () => {
-    await serviceWorkerManager.skipWaiting();
+    const registrations = await navigator.serviceWorker.getRegistrations();
+    if (registrations.length > 0 && registrations[0].waiting) {
+      registrations[0].waiting.postMessage({ type: 'SKIP_WAITING' });
+    }
   };
 
-  if (!serviceWorkerManager.isSupported()) {
+  if (!('serviceWorker' in navigator)) {
     return (
       <div style={{ padding: '10px', backgroundColor: '#fff3cd', border: '1px solid #ffeaa7', borderRadius: '4px' }}>
         <strong>⚠️ Service Workers not supported</strong>

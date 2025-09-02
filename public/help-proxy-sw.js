@@ -171,6 +171,10 @@ function getContentType(path) {
   if (path.endsWith('.json')) return 'application/json';
   if (path.endsWith('.txt')) return 'text/plain';
   if (path.endsWith('.html')) return 'text/html';
+  if (path.endsWith('.js')) return 'text/javascript';
+  if (path.endsWith('.ts')) return 'text/typescript';
+  if (path.endsWith('.tsx')) return 'text/typescript';
+  if (path.endsWith('.jsx')) return 'text/javascript';
   return 'text/plain';
 }
 
