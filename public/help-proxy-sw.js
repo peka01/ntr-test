@@ -3,7 +3,8 @@
 // from external repositories, bypassing CORS restrictions
 
 const CACHE_NAME = 'help-proxy-v1';
-const EXTERNAL_BASE = 'https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test';
+const GITHUB_API_BASE = 'https://api.github.com/repos/peka01/helpdoc/contents/ntr-test';
+const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test';
 
 // Install event - cache the service worker
 self.addEventListener('install', (event) => {
@@ -77,26 +78,47 @@ async function handleHelpProxy(request) {
   console.log(`🔍 Path extraction: pathname="${url.pathname}", helpProxyIndex=${helpProxyIndex}, targetPath="${targetPath}"`);
   
   try {
-    // Construct external URL
-    const externalUrl = `${EXTERNAL_BASE}/${targetPath}`;
-    console.log(`🌐 Proxying request: ${targetPath} → ${externalUrl}`);
+    // Use GitHub API for CORS-friendly access
+    const apiUrl = `${GITHUB_API_BASE}/${targetPath}`;
+    console.log(`🌐 Fetching via GitHub API: ${targetPath} → ${apiUrl}`);
     
-    // Fetch from external repository
-    const response = await fetch(externalUrl, {
+    // First, get file metadata from GitHub API
+    const apiResponse = await fetch(apiUrl, {
       method: 'GET',
       headers: {
-        'User-Agent': 'ntr-help-proxy/1.0',
-        'Accept': 'text/plain, text/markdown, application/json',
-        'Cache-Control': 'no-cache'
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'ntr-help-proxy/1.0'
       }
     });
     
-    if (!response.ok) {
-      throw new Error(`External fetch failed: ${response.status} ${response.statusText}`);
+    if (!apiResponse.ok) {
+      throw new Error(`GitHub API failed: ${apiResponse.status} ${apiResponse.statusText}`);
+    }
+    
+    const fileData = await apiResponse.json();
+    
+    if (fileData.type !== 'file') {
+      throw new Error(`Path is not a file: ${targetPath}`);
+    }
+    
+    // Get the raw content from the download_url
+    const rawUrl = fileData.download_url;
+    console.log(`📥 Downloading raw content from: ${rawUrl}`);
+    
+    const rawResponse = await fetch(rawUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent': 'ntr-help-proxy/1.0',
+        'Accept': 'text/plain, text/markdown, application/json'
+      }
+    });
+    
+    if (!rawResponse.ok) {
+      throw new Error(`Raw content fetch failed: ${rawResponse.status} ${rawResponse.statusText}`);
     }
     
     // Get the content
-    const content = await response.text();
+    const content = await rawResponse.text();
     
     // Create new response with CORS headers
     const proxyResponse = new Response(content, {
@@ -111,7 +133,7 @@ async function handleHelpProxy(request) {
         'Pragma': 'no-cache',
         'Expires': '0',
         'X-Proxy-By': 'ntr-help-proxy-sw',
-        'X-Original-URL': externalUrl,
+        'X-Original-URL': rawUrl,
         'X-Proxy-Timestamp': new Date().toISOString()
       }
     });
