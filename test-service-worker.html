@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .info { background-color: #d1ecf1; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔧 Service Worker Test Page</h1>
+    
+    <div id="status" class="status info">Checking service worker status...</div>
+    
+    <div>
+        <button onclick="testProxy()">Test Proxy</button>
+        <button onclick="checkServiceWorker()">Check Service Worker</button>
+        <button onclick="clearCache()">Clear Cache</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        // Check if service workers are supported
+        if (!('serviceWorker' in navigator)) {
+            document.getElementById('status').innerHTML = 
+                '<span class="error">❌ Service Workers not supported in this browser</span>';
+        } else {
+            document.getElementById('status').innerHTML = 
+                '<span class="success">✅ Service Workers supported</span>';
+        }
+
+        // Test the proxy
+        async function testProxy() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status info">Testing proxy...</div>';
+            
+            try {
+                console.log('🧪 Testing proxy...');
+                const response = await fetch('/help-proxy/help-config.json');
+                
+                const result = {
+                    status: response.status,
+                    statusText: response.statusText,
+                    headers: Object.fromEntries(response.headers.entries()),
+                    url: response.url
+                };
+                
+                console.log('✅ Proxy test result:', result);
+                
+                if (response.ok) {
+                    const content = await response.text();
+                    result.content = content.substring(0, 200) + '...';
+                    
+                    resultsDiv.innerHTML = `
+                        <div class="status success">✅ Proxy test successful!</div>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                } else {
+                    resultsDiv.innerHTML = `
+                        <div class="status error">❌ Proxy test failed: ${response.status}</div>
+                        <pre>${JSON.stringify(result, null, 2)}</pre>
+                    `;
+                }
+            } catch (error) {
+                console.error('❌ Proxy test error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="status error">❌ Proxy test error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Check service worker status
+        async function checkServiceWorker() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status info">Checking service worker...</div>';
+            
+            try {
+                const registrations = await navigator.serviceWorker.getRegistrations();
+                const controller = navigator.serviceWorker.controller;
+                
+                const status = {
+                    registrations: registrations.length,
+                    controller: !!controller,
+                    registrationsDetails: registrations.map(reg => ({
+                        scope: reg.scope,
+                        active: !!reg.active,
+                        installing: !!reg.installing,
+                        waiting: !!reg.waiting
+                    }))
+                };
+                
+                console.log('🔍 Service worker status:', status);
+                
+                resultsDiv.innerHTML = `
+                    <div class="status success">✅ Service worker status checked</div>
+                    <pre>${JSON.stringify(status, null, 2)}</pre>
+                `;
+            } catch (error) {
+                console.error('❌ Service worker check error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="status error">❌ Service worker check error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Clear cache
+        async function clearCache() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<div class="status info">Clearing cache...</div>';
+            
+            try {
+                const cacheNames = await caches.keys();
+                await Promise.all(cacheNames.map(name => caches.delete(name)));
+                
+                console.log('🗑️ Cache cleared');
+                
+                resultsDiv.innerHTML = `
+                    <div class="status success">✅ Cache cleared successfully</div>
+                    <div>Cleared ${cacheNames.length} cache(s): ${cacheNames.join(', ')}</div>
+                `;
+            } catch (error) {
+                console.error('❌ Cache clear error:', error);
+                resultsDiv.innerHTML = `
+                    <div class="status error">❌ Cache clear error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // Auto-check service worker on page load
+        window.addEventListener('load', () => {
+            setTimeout(checkServiceWorker, 1000);
+        });
+    </script>
+</body>
+</html>

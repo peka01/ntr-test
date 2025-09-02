@@ -8,6 +8,7 @@ const EXTERNAL_BASE = 'https://raw.githubusercontent.com/peka01/helpdoc/main/ntr
 // Install event - cache the service worker
 self.addEventListener('install', (event) => {
   console.log('🔄 Help Proxy Service Worker installing...');
+  console.log('🎯 Service Worker scope:', self.registration?.scope || 'unknown');
   self.skipWaiting();
 });
 
@@ -32,17 +33,22 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
+  console.log(`🔍 Service Worker intercepting request: ${event.request.method} ${url.pathname}`);
+  
   // Handle CORS preflight requests
   if (event.request.method === 'OPTIONS') {
+    console.log('🔄 Handling CORS preflight request');
     event.respondWith(handleCorsPreflight());
     return;
   }
   
   // Only handle help-proxy requests
   if (!url.pathname.startsWith('/help-proxy/')) {
+    console.log(`⏭️ Skipping non-help-proxy request: ${url.pathname}`);
     return;
   }
   
+  console.log(`✅ Handling help-proxy request: ${url.pathname}`);
   event.respondWith(handleHelpProxy(event.request));
 });
 

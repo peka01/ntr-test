@@ -27,12 +27,20 @@ class ServiceWorkerManager {
 
     try {
       console.log('🔄 Registering Help Proxy Service Worker...');
+      console.log('📁 Service Worker path: /help-proxy-sw.js');
+      console.log('🎯 Service Worker scope: /help-proxy/');
       
       this.registration = await navigator.serviceWorker.register('/help-proxy-sw.js', {
-        scope: '/help-proxy/'
+        scope: '/'
       });
 
       console.log('✅ Help Proxy Service Worker registered successfully:', this.registration);
+      console.log('🔍 Registration details:', {
+        scope: this.registration.scope,
+        active: this.registration.active,
+        installing: this.registration.installing,
+        waiting: this.registration.waiting
+      });
 
       // Set up event listeners
       this.setupEventListeners();
@@ -40,6 +48,11 @@ class ServiceWorkerManager {
       return this.registration;
     } catch (error) {
       console.error('❌ Service Worker registration failed:', error);
+      console.error('❌ Error details:', {
+        name: error.name,
+        message: error.message,
+        stack: error.stack
+      });
       return null;
     }
   }
