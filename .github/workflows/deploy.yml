@@ -51,10 +51,24 @@ jobs:
     - name: Install dependencies
       run: npm install --verbose
       
+    - name: Check Vite config
+      run: |
+        echo "Vite config exists:"
+        ls -la vite.config.ts
+        echo "Vite config contents:"
+        cat vite.config.ts
+        
     - name: Build application
       run: npm run build
       env:
         NODE_ENV: production
+        
+    - name: Check build output
+      run: |
+        echo "Build output directory:"
+        ls -la dist/
+        echo "Build output contents:"
+        find dist/ -type f -exec echo "=== {} ===" \; -exec cat {} \;
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
