@@ -15,7 +15,10 @@ export default defineConfig(({ mode }) => {
       },
       build: {
         outDir: 'dist',
-        sourcemap: false
+        sourcemap: false,
+        rollupOptions: {
+          input: 'main.tsx'
+        }
       }
     };
 });
