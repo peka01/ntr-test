@@ -1,17 +1,18 @@
 
 import React, { useState } from 'react';
-import type { User, Training } from './types';
+import type { Training } from './types';
+import type { User } from '@supabase/supabase-js';
 import { AdminDashboard } from './components/AdminDashboard';
 import { SubscriptionPage } from './components/SubscriptionPage';
 import { AttendancePage } from './components/AttendancePage';
 import { useTranslations } from './hooks/useTranslations';
-import { LanguageSwitcher } from './components/LanguageSwitcher';
 import { useData } from './hooks/useData';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { HelpSystem } from './components/HelpSystem';
 import { HelpButton } from './components/HelpButton';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { UserMenu } from './components/UserMenu';
 import { LoginForm } from './components/LoginForm';
 
 type View = 'admin' | 'public' | 'attendance';
@@ -149,15 +150,11 @@ const AppContent: React.FC = () => {
                             <h1 className="text-xl font-semibold text-slate-900">
                                 {t('appTitle')}
                             </h1>
-                            <LanguageSwitcher />
                         </div>
                         
                         <div className="flex items-center space-x-4">
                             {user ? (
                                 <>
-                                    <span className="text-sm text-slate-600">
-                                        {t('welcomeMessage', { name: user.user_metadata?.name || user.email })}
-                                    </span>
                                     {isAdmin && (
                                         <button
                                             onClick={() => setView('admin')}
@@ -190,12 +187,7 @@ const AppContent: React.FC = () => {
                                     >
                                         {t('navAttendance')}
                                     </button>
-                                    <button
-                                        onClick={signOut}
-                                        className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900"
-                                    >
-                                        {t('signOutButton')}
-                                    </button>
+                                    <UserMenu user={user} />
                                 </>
                             ) : (
                                 <>
@@ -222,7 +214,7 @@ const AppContent: React.FC = () => {
                                 onClick={handleHelpClick}
                                 context="main"
                                 variant="icon"
-                                size="sm"
+                                size="lg"
                             />
                         </div>
                     </div>

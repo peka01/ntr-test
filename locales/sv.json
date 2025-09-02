@@ -102,6 +102,7 @@
   "accessDeniedMessage": "Du har inte behörighet att komma åt denna sida.",
   "languageSwedish": "Svenska",
   "languageEnglish": "English",
+  "languageSwitcher": "Språk",
   "helpMaximizeTitle": "Maximera",
   "helpMinimizeTitle": "Minimera",
   "helpRefreshTitle": "Uppdatera",
