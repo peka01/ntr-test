@@ -1,4 +1,10 @@
 // Help section configuration
+// 
+// CORS Strategy:
+// - Development mode: Attempts direct GitHub access, falls back to static config if CORS blocks
+// - Production mode: Uses nginx reverse proxy to avoid CORS issues
+// - All content is centralized in external repository, no local duplication
+//
 const helpConfig = {
   sections: [
     {
@@ -102,8 +108,83 @@ export interface HelpSectionConfig {
 async function loadHelpConfig(): Promise<any> {
   try {
     const timestamp = Date.now();
-    const configUrl = `/helpdocs/ntr-test/help-config.json?t=${timestamp}`;
-    console.log(`Fetching help configuration: ${configUrl}`);
+    
+    // Check if we're in development mode (no nginx proxy)
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    let configUrl: string;
+    if (isDevelopment) {
+      // In development, use a CORS proxy or fallback to static config
+      console.log(`🔧 Development mode: CORS restrictions may apply when fetching from GitHub directly`);
+      
+      // Try direct GitHub first (may fail due to CORS)
+      try {
+        configUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json?t=${timestamp}`;
+        console.log(`Attempting direct GitHub access: ${configUrl}`);
+        
+        const response = await fetch(configUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        
+        if (response.ok) {
+          const config = await response.json();
+          console.log(`✅ Direct GitHub access successful in development mode`);
+          return config;
+        }
+      } catch (corsError) {
+        console.warn(`⚠️ Direct GitHub access failed due to CORS:`, corsError);
+        console.log(`🔄 Falling back to static configuration for development`);
+        
+        // Return static config for development when CORS blocks external access
+        return {
+          apps: {
+            "ntr-app": {
+              name: "NTR Training Management System",
+              baseUrl: "ntr-test",
+              locales: {
+                "sv-se": {
+                  code: "SV",
+                  name: "Svenska",
+                  file_paths: {
+                    "overview": "docs/sv/overview.md",
+                    "vouchers": "docs/sv/vouchers.md",
+                    "user-management": "docs/sv/user-management.md",
+                    "training-management": "docs/sv/training-management.md",
+                    "subscriptions": "docs/sv/subscriptions.md",
+                    "attendance": "docs/sv/attendance.md",
+                    "troubleshooting": "docs/sv/troubleshooting.md"
+                  }
+                },
+                "en-se": {
+                  code: "EN",
+                  name: "English",
+                  file_paths: {
+                    "overview": "docs/en/overview.md",
+                    "vouchers": "docs/en/vouchers.md",
+                    "user-management": "docs/en/user-management.md",
+                    "training-management": "docs/en/training-management.md",
+                    "subscriptions": "docs/en/subscriptions.md",
+                    "attendance": "docs/en/attendance.md",
+                    "troubleshooting": "docs/en/troubleshooting.md"
+                  }
+                }
+              }
+            }
+          }
+        };
+      }
+    } else {
+      // In production, use nginx proxy
+      configUrl = `/helpdocs/ntr-test/help-config.json?t=${timestamp}`;
+      console.log(`🚀 Production mode: Fetching help configuration via nginx proxy: ${configUrl}`);
+      console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json`);
+    }
 
     const response = await fetch(configUrl, {
       method: 'GET',
@@ -125,6 +206,17 @@ async function loadHelpConfig(): Promise<any> {
         enSections: Object.keys(config.apps?.['ntr-app']?.locales?.['en-se']?.file_paths || {})
       });
       return config;
+    }
+    
+    console.error(`❌ Failed to load help config: ${response.status} ${response.statusText}`);
+    console.error(`Response headers:`, Object.fromEntries(response.headers.entries()));
+    
+    // Try to get response text for more details
+    try {
+      const errorText = await response.text();
+      console.error(`Response body:`, errorText);
+    } catch (e) {
+      console.error(`Could not read response body:`, e);
     }
     
     throw new Error(`Failed to load help config: ${response.status} ${response.statusText}`);
@@ -164,8 +256,21 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
 
     // Use first-party Nginx reverse proxy to fetch centralized docs
     const timestamp = Date.now();
-    const internalUrl = `/helpdocs/ntr-test/${filePath}?t=${timestamp}`;
-    console.log(`Fetching help content via internal proxy: ${internalUrl}`);
+    
+    // Check if we're in development mode (no nginx proxy)
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    
+    let internalUrl: string;
+    if (isDevelopment) {
+      // In development, try direct GitHub access (may fail due to CORS)
+      internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?t=${timestamp}`;
+      console.log(`🔧 Development mode: Attempting direct GitHub access: ${internalUrl}`);
+      console.log(`⚠️ Note: This may fail due to CORS restrictions`);
+    } else {
+      // In production, use nginx proxy
+      internalUrl = `/helpdocs/ntr-test/${filePath}?t=${timestamp}`;
+      console.log(`🚀 Production mode: Fetching help content via nginx proxy: ${internalUrl}`);
+    }
 
     const response = await fetch(internalUrl, {
       method: 'GET',
@@ -205,8 +310,20 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     // Try fallback to direct external repository access
     console.log(`Attempting fallback to direct external repository access for ${sectionId} in ${language}`);
     try {
-      const fallbackUrl = `/helpdocs/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;
-      console.log(`Fetching fallback content: ${fallbackUrl}`);
+      // Check if we're in development mode (no nginx proxy)
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      let fallbackUrl: string;
+      if (isDevelopment) {
+        // In development, fetch directly from GitHub
+        fallbackUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;
+        console.log(`🔧 Development mode: Fetching fallback content directly from GitHub: ${fallbackUrl}`);
+      } else {
+        // In production, use nginx proxy
+        fallbackUrl = `/helpdocs/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;
+        console.log(`🚀 Production mode: Fetching fallback content via nginx proxy: ${fallbackUrl}`);
+        console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md`);
+      }
       
       const fallbackResponse = await fetch(fallbackUrl, {
         method: 'GET',
@@ -228,12 +345,16 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
         });
         return fallbackContent;
       }
+      
+      console.error(`❌ Fallback failed: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
     } catch (fallbackError) {
       console.error(`Fallback also failed for ${sectionId}:`, fallbackError);
     }
     
     // Return error message when both external and fallback fail
-    return `# Content not available\n\nThis help content is currently not available from the external repository.\n\nError: ${error}\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`;
+    const errorMessage = `# Content not available\n\nThis help content is currently not available from the external repository.\n\n**Error:** ${error}\n\n**Possible causes:**\n- CORS restrictions in development mode\n- Network connectivity issues\n- External repository unavailable\n\n**Solutions:**\n1. **Development mode**: Run with Docker/nginx to avoid CORS\n2. **Check connection**: Verify internet connectivity\n3. **Refresh**: Try refreshing the page\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}\n- Mode: ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'Development' : 'Production'}`;
+    
+    return errorMessage;
   }
 }
 
@@ -383,9 +504,27 @@ export const helpService = {
         return false;
       }
 
+      // Check if we're in development mode (no nginx proxy)
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      let svCommitsUrl: string;
+      let enCommitsUrl: string;
+      
+      if (isDevelopment) {
+        // In development, fetch directly from GitHub API
+        svCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/commits?path=ntr-test/${svFilePath}&per_page=1`;
+        enCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/commits?path=ntr-test/${enFilePath}&per_page=1`;
+        console.log(`🔧 Development mode: Fetching metadata directly from GitHub API`);
+      } else {
+        // In production, use nginx proxy
+        svCommitsUrl = `/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${svFilePath}&per_page=1`;
+        enCommitsUrl = `/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${enFilePath}&per_page=1`;
+        console.log(`🚀 Production mode: Fetching metadata via nginx proxy`);
+      }
+      
       const [svCommitsRes, enCommitsRes] = await Promise.all([
-        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${svFilePath}&per_page=1`, { cache: 'no-store' }),
-        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${enFilePath}&per_page=1`, { cache: 'no-store' })
+        fetch(svCommitsUrl, { cache: 'no-store' }),
+        fetch(enCommitsUrl, { cache: 'no-store' })
       ]);
 
       if (!svCommitsRes.ok || !enCommitsRes.ok) return false;
@@ -429,9 +568,27 @@ export const helpService = {
         return {};
       }
 
+      // Check if we're in development mode (no nginx proxy)
+      const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      let svCommitsUrl: string;
+      let enCommitsUrl: string;
+      
+      if (isDevelopment) {
+        // In development, fetch directly from GitHub API
+        svCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/commits?path=ntr-test/${svFilePath}&per_page=1`;
+        enCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/commits?path=ntr-test/${enFilePath}&per_page=1`;
+        console.log(`🔧 Development mode: Fetching metadata directly from GitHub API`);
+      } else {
+        // In production, use nginx proxy
+        svCommitsUrl = `/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${svFilePath}&per_page=1`;
+        enCommitsUrl = `/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${enFilePath}&per_page=1`;
+        console.log(`🚀 Production mode: Fetching metadata via nginx proxy`);
+      }
+      
       const [svCommitsRes, enCommitsRes] = await Promise.all([
-        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${svFilePath}&per_page=1`, { cache: 'no-store' }),
-        fetch(`/helpmeta/repos/peka01/helpdoc/commits?path=ntr-test/${enFilePath}&per_page=1`, { cache: 'no-store' })
+        fetch(svCommitsUrl, { cache: 'no-store' }),
+        fetch(enCommitsUrl, { cache: 'no-store' })
       ]);
       const result: { sv?: string; en?: string } = {};
       if (svCommitsRes.ok) {
