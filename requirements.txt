@@ -5,3 +5,4 @@ mkdocs-minify-plugin>=0.7.0
 pymdown-extensions>=10.0.0
 mkdocs-mike>=1.2.0
 
+

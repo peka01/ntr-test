@@ -4,6 +4,16 @@ FROM node:18-alpine AS build
 # Set working directory
 WORKDIR /app
 
+# Accept build arguments
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_GEMINI_API_KEY
+
+# Set environment variables for build
+ENV VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+ENV VITE_SUPABASE_ANON_KEY=$VITE_SUPABASE_ANON_KEY
+ENV VITE_GEMINI_API_KEY=$VITE_GEMINI_API_KEY
+
 # Install dependencies first (better caching)
 COPY package*.json ./
 RUN npm install --silent --no-audit --no-fund

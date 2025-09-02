@@ -10,14 +10,19 @@ import { useData } from './hooks/useData';
 import { LoadingSpinner } from './components/LoadingSpinner';
 import { HelpSystem } from './components/HelpSystem';
 import { HelpButton } from './components/HelpButton';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
+import { LoginForm } from './components/LoginForm';
 
 type View = 'admin' | 'public' | 'attendance';
 
-const App: React.FC = () => {
+const AppContent: React.FC = () => {
     const { t } = useTranslations();
+    const { user, isAdmin, signOut } = useAuth();
     const [view, setView] = useState<View>('public');
     const [helpOpen, setHelpOpen] = useState(false);
     const [helpContext, setHelpContext] = useState<string>('');
+    const [showLogin, setShowLogin] = useState(false);
     
     const {
         users,
@@ -73,6 +78,14 @@ const App: React.FC = () => {
         }
     };
 
+    const handleUnsubscribe = async (trainingId: string, userId: string) => {
+        try {
+            await unsubscribe(trainingId, userId);
+        } catch (err) {
+            console.error('Failed to unsubscribe:', err);
+        }
+    };
+
     const handleMarkAttendance = async (trainingId: string, userId: string) => {
         try {
             await markAttendance(trainingId, userId);
@@ -111,118 +124,182 @@ const App: React.FC = () => {
         }
     };
 
-    const NavButton: React.FC<{ currentView: View; targetView: View; setView: (view: View) => void; children: React.ReactNode }> = ({ currentView, targetView, setView, children }) => (
-        <button
-            onClick={() => setView(targetView)}
-            className={`px-5 py-3 text-base font-semibold rounded-lg transition-colors duration-200 w-full sm:w-auto ${
-                currentView === targetView
-                    ? 'bg-cyan-500 text-white shadow-lg'
-                    : 'bg-white text-slate-700 hover:bg-slate-200 shadow-sm'
-            }`}
-        >
-            {children}
-        </button>
-    );
-
-    const renderContent = () => {
-        switch (view) {
-            case 'admin':
-                return <AdminDashboard
-                    users={users}
-                    trainings={trainings}
-                    onCreateUser={handleCreateUser}
-                    onCreateTraining={handleCreateTraining}
-                    onUpdateTraining={handleUpdateTraining}
-                    onAddVoucher={handleAddVoucher}
-                    onRemoveVoucher={handleRemoveVoucher}
-                    onHelpClick={handleHelpClick}
-                />;
-            case 'public':
-                return <SubscriptionPage
-                    users={users}
-                    trainings={trainings}
-                    subscriptions={subscriptions}
-                    onSubscribe={handleSubscribe}
-                    onHelpClick={handleHelpClick}
-                />;
-            case 'attendance':
-                return <AttendancePage
-                    users={users}
-                    trainings={trainings}
-                    subscriptions={subscriptions}
-                    attendance={attendance}
-                    onMarkAttendance={handleMarkAttendance}
-                    onUnmarkAttendance={handleUnmarkAttendance}
-                    onHelpClick={handleHelpClick}
-                />;
-            default:
-                return null;
-        }
-    }
-
-    // Show loading spinner while data is loading
     if (loading) {
-        return (
-            <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-                <LoadingSpinner />
-            </div>
-        );
+        return <LoadingSpinner />;
     }
 
-    // Show error message if there's an error
     if (error) {
         return (
-            <div className="min-h-screen bg-slate-100 flex items-center justify-center">
-                <div className="bg-white rounded-lg p-8 shadow-lg max-w-md w-full mx-4">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">Error Loading Data</h2>
-                    <p className="text-slate-600 mb-4">{error}</p>
-                    <button
-                        onClick={() => window.location.reload()}
-                        className="w-full px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 transition-colors"
-                    >
-                        Retry
-                    </button>
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <div className="text-center">
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+                    <p className="text-gray-600">{error}</p>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-slate-100 text-slate-900 font-sans flex flex-col items-center p-4 sm:p-6 lg:p-8">
-            <div className="w-full max-w-7xl mx-auto">
-                <header className="text-center mb-8 relative">
-                    <div className="absolute top-0 right-0 z-10 flex items-center gap-2">
-                        <HelpButton 
-                            onClick={handleHelpClick}
-                            variant="icon"
-                            size="sm"
-                            className="bg-white shadow-sm"
-                        />
-                        <LanguageSwitcher />
+        <div className="min-h-screen bg-slate-50">
+            {/* Header */}
+            <header className="bg-white shadow-sm border-b border-slate-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center space-x-4">
+                            <h1 className="text-xl font-semibold text-slate-900">
+                                Training Management System
+                            </h1>
+                            <LanguageSwitcher />
+                        </div>
+                        
+                        <div className="flex items-center space-x-4">
+                            {user ? (
+                                <>
+                                    <span className="text-sm text-slate-600">
+                                        Welcome, {user.user_metadata?.name || user.email}
+                                    </span>
+                                    {isAdmin && (
+                                        <button
+                                            onClick={() => setView('admin')}
+                                            className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                                view === 'admin' 
+                                                    ? 'bg-blue-100 text-blue-700' 
+                                                    : 'text-slate-600 hover:text-slate-900'
+                                            }`}
+                                        >
+                                            Admin
+                                        </button>
+                                    )}
+                                    <button
+                                        onClick={() => setView('public')}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                            view === 'public' 
+                                                ? 'bg-blue-100 text-blue-700' 
+                                                : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        Public
+                                    </button>
+                                    <button
+                                        onClick={() => setView('attendance')}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                            view === 'attendance' 
+                                                ? 'bg-blue-100 text-blue-700' 
+                                                : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        Attendance
+                                    </button>
+                                    <button
+                                        onClick={signOut}
+                                        className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900"
+                                    >
+                                        Sign Out
+                                    </button>
+                                </>
+                            ) : (
+                                <button
+                                    onClick={() => setShowLogin(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    Sign In
+                                </button>
+                            )}
+                            
+                            <HelpButton 
+                                onClick={handleHelpClick}
+                                context="main"
+                                variant="icon"
+                                size="sm"
+                            />
+                        </div>
                     </div>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight sm:leading-tight md:leading-tight break-words text-balance text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-600">
-                        {t('appTitle')}
-                    </h1>
-                    <nav className="mt-6 flex flex-col sm:flex-row justify-center items-center gap-2 sm:gap-4">
-                        <NavButton currentView={view} targetView="public" setView={setView}>{t('navPublic')}</NavButton>
-                        <NavButton currentView={view} targetView="attendance" setView={setView}>{t('navAttendance')}</NavButton>
-                        <NavButton currentView={view} targetView="admin" setView={setView}>{t('navAdmin')}</NavButton>
-                    </nav>
-                </header>
+                </div>
+            </header>
 
-                <main>
-                    {renderContent()}
-                </main>
-            </div>
+            {/* Main Content */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {!user ? (
+                    <div className="text-center py-12">
+                        <h2 className="text-3xl font-bold text-slate-900 mb-4">
+                            Welcome to Training Management System
+                        </h2>
+                        <p className="text-lg text-slate-600 mb-8">
+                            Please sign in to access the system
+                        </p>
+                        <button
+                            onClick={() => setShowLogin(true)}
+                            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg"
+                        >
+                            Sign In
+                        </button>
+                    </div>
+                ) : (
+                    <>
+                        {view === 'admin' && (
+                            <ProtectedRoute requireAdmin={true}>
+                                <AdminDashboard
+                                    users={users}
+                                    trainings={trainings}
+                                    onCreateUser={handleCreateUser}
+                                    onCreateTraining={handleCreateTraining}
+                                    onUpdateTraining={handleUpdateTraining}
+                                    onAddVoucher={handleAddVoucher}
+                                    onRemoveVoucher={handleRemoveVoucher}
+                                    onHelpClick={handleHelpClick}
+                                />
+                            </ProtectedRoute>
+                        )}
+
+                        {view === 'public' && (
+                            <ProtectedRoute>
+                                <SubscriptionPage
+                                    users={users}
+                                    trainings={trainings}
+                                    subscriptions={subscriptions}
+                                    onSubscribe={handleSubscribe}
+                                    onUnsubscribe={handleUnsubscribe}
+                                    onHelpClick={handleHelpClick}
+                                />
+                            </ProtectedRoute>
+                        )}
+
+                        {view === 'attendance' && (
+                            <ProtectedRoute>
+                                <AttendancePage
+                                    users={users}
+                                    trainings={trainings}
+                                    attendance={attendance}
+                                    onMarkAttendance={handleMarkAttendance}
+                                    onUnmarkAttendance={handleUnmarkAttendance}
+                                    onHelpClick={handleHelpClick}
+                                />
+                            </ProtectedRoute>
+                        )}
+                    </>
+                )}
+            </main>
 
             {/* Help System */}
             <HelpSystem 
-                isOpen={helpOpen}
-                onClose={() => setHelpOpen(false)}
-                context={helpContext}
-                isAdmin={view === 'admin'}
+                isOpen={helpOpen} 
+                onClose={() => setHelpOpen(false)} 
+                context={helpContext} 
             />
+
+            {/* Login Modal */}
+            {showLogin && (
+                <LoginForm onClose={() => setShowLogin(false)} />
+            )}
         </div>
+    );
+};
+
+const App: React.FC = () => {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
     );
 };
 
