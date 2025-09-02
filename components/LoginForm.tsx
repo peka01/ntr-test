@@ -33,15 +33,15 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
     try {
       // Input validation
       if (!validateEmail(email)) {
-        throw new Error('Please enter a valid email address');
+        throw new Error(t('loginInvalidEmailError'));
       }
 
       if (!validatePassword(password)) {
-        throw new Error('Password must be at least 6 characters long');
+        throw new Error(t('loginPasswordLengthError'));
       }
 
       if (isSignUp && !name.trim()) {
-        throw new Error('Name is required');
+        throw new Error(t('loginNameRequiredError'));
       }
 
       let result;
@@ -60,7 +60,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
         onClose();
       }
     } catch (err: any) {
-      setError(err.message || 'An error occurred');
+      setError(err.message || t('loginGenericError'));
     } finally {
       setLoading(false);
     }
@@ -79,13 +79,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
       <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-2xl font-bold text-gray-900">
-            {isSignUp ? 'Create Account' : 'Sign In'}
+            {isSignUp ? t('loginCreateAccountTitle') : t('loginSignInTitle')}
           </h2>
           {onClose && (
             <button
               onClick={onClose}
               className="text-gray-400 hover:text-gray-600"
-              aria-label="Close"
+              aria-label={t('loginCloseButton')}
             >
               ✕
             </button>
@@ -96,7 +96,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
           {isSignUp && (
             <div>
               <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Name
+                {t('loginNameLabel')}
               </label>
               <input
                 id="name"
@@ -104,7 +104,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your name"
+                placeholder={t('loginNamePlaceholder')}
                 required
               />
             </div>
@@ -112,7 +112,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Email
+              {t('loginEmailLabel')}
             </label>
             <input
               id="email"
@@ -120,14 +120,14 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your email"
+              placeholder={t('loginEmailPlaceholder')}
               required
             />
           </div>
 
           <div>
             <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-              Password
+              {t('loginPasswordLabel')}
             </label>
             <input
               id="password"
@@ -135,7 +135,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter your password"
+              placeholder={t('loginPasswordPlaceholder')}
               required
             />
           </div>
@@ -151,7 +151,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
             disabled={loading}
             className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
+            {loading ? t('loginProcessingButton') : (isSignUp ? t('loginCreateAccountButton') : t('loginSignInButton'))}
           </button>
         </form>
 
@@ -161,7 +161,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onClose }) => {
             onClick={handleToggleMode}
             className="text-blue-600 hover:text-blue-800 text-sm"
           >
-            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+            {isSignUp ? t('loginAlreadyHaveAccount') : t('loginDontHaveAccount')}
           </button>
         </div>
       </div>

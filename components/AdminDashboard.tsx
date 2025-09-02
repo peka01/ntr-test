@@ -176,10 +176,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, trainings
 
             <AdminCard 
                 title={t('adminManageUsers')}
-                helpContext="create user add user manage vouchers admin user list"
+                helpContext="create participant add subscriber manage vouchers admin user list"
                 onHelpClick={onHelpClick}
             >
                  <div className="space-y-4 mb-6">
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                        <p className="text-sm text-blue-800">
+                            <strong>{t('adminNoteLabel')}:</strong> {t('adminNoteText')}
+                        </p>
+                    </div>
                     <FormInput id="user-name" label={t('adminUserNameLabel')} value={userName} onChange={(e) => setUserName(e.target.value)} />
                     <FormInput id="user-email" label={t('adminEmailLabel')} value={userEmail} onChange={(e) => setUserEmail(e.target.value)} type="email" />
                     <button

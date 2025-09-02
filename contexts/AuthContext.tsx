@@ -61,11 +61,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      // Check if user has admin role in the database
+      // Check if user has admin role in the admin_users table
       const { data, error } = await supabase
-        .from('user_roles')
+        .from('admin_users')
         .select('role')
-        .eq('user_id', user.id)
+        .eq('id', user.id)
         .single();
 
       if (!error && data?.role === 'admin') {

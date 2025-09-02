@@ -5,6 +5,7 @@ import { InfoIcon } from './icons/InfoIcon';
 import { ListIcon } from './icons/ListIcon';
 import { StackIcon } from './icons/StackIcon';
 import { StepIcon } from './icons/StepIcon';
+import { useTranslations } from '../hooks/useTranslations';
 
 interface PlanDisplayProps {
     plan: ProjectPlan;
@@ -21,20 +22,22 @@ const SectionCard: React.FC<{ title: string; icon: React.ReactNode; children: Re
 );
 
 export const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
+    const { t } = useTranslations();
+    
     return (
         <div className="space-y-6">
-            <SectionCard title="Project Name" icon={<RocketIcon />}>
+            <SectionCard title={t('planProjectNameTitle')} icon={<RocketIcon />}>
                 <h2 className="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-cyan-600">
                     {plan.projectName}
                 </h2>
             </SectionCard>
 
-            <SectionCard title="Description" icon={<InfoIcon />}>
+            <SectionCard title={t('planDescriptionTitle')} icon={<InfoIcon />}>
                 <p>{plan.description}</p>
             </SectionCard>
 
             <div className="grid md:grid-cols-2 gap-6">
-                <SectionCard title="Key Features" icon={<ListIcon />}>
+                <SectionCard title={t('planKeyFeaturesTitle')} icon={<ListIcon />}>
                     <ul className="list-disc list-inside space-y-2">
                         {plan.keyFeatures.map((feature, index) => (
                             <li key={index}>{feature}</li>
@@ -42,7 +45,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
                     </ul>
                 </SectionCard>
 
-                <SectionCard title="Next Steps" icon={<StepIcon />}>
+                <SectionCard title={t('planNextStepsTitle')} icon={<StepIcon />}>
                     <ul className="list-decimal list-inside space-y-2">
                         {plan.nextSteps.map((step, index) => (
                             <li key={index}>{step}</li>
@@ -51,7 +54,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({ plan }) => {
                 </SectionCard>
             </div>
 
-            <SectionCard title="Recommended Tech Stack" icon={<StackIcon />}>
+            <SectionCard title={t('planTechStackTitle')} icon={<StackIcon />}>
                 <div className="space-y-4">
                     {plan.techStack.map((tech, index) => (
                         <div key={index} className="p-4 bg-slate-50 rounded-lg border border-slate-200">

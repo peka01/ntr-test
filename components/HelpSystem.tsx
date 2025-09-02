@@ -444,7 +444,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
                 }
               }}
               className="p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
-              title={isCompact ? 'Maximize to full view with sidebar' : 'Minimize to docked view'}
+              title={isCompact ? t('helpMaximizeTitle') : t('helpMinimizeTitle')}
               onMouseDown={(e) => e.stopPropagation()}
             >
               {isCompact ? (
@@ -460,7 +460,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
             <button
               onClick={handleManualRefresh}
               className={`p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors ${loading ? 'animate-spin' : ''}`}
-              title="Refresh help content from repository"
+              title={t('helpRefreshTitle')}
               disabled={loading}
               onMouseDown={(e) => e.stopPropagation()}
             >
@@ -527,7 +527,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
                           {loading ? (
               <div className="text-center text-slate-500 py-8">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
-                <p className="mt-2">Loading help content from repository...</p>
+                <p className="mt-2">{t('helpLoadingText')}</p>
               </div>
             ) : (
                 <nav className="space-y-2">
@@ -555,7 +555,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
           {isCompact && showToc && (
             <div className="absolute left-0 top-0 bottom-0 w-80 bg-white border-r border-slate-200 shadow-lg z-30 flex flex-col">
               <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-                <span className="font-semibold text-slate-800">Contents</span>
+                <span className="font-semibold text-slate-800">{t('helpContentsTitle')}</span>
                 <button className="text-slate-500 hover:text-slate-700" onClick={() => setShowToc(false)}>✕</button>
               </div>
               <div className="p-4 border-b border-slate-200">
@@ -572,7 +572,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
                 {loading ? (
                   <div className="text-center text-slate-500 py-8">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
-                    <p className="mt-2">Loading help content from repository...</p>
+                    <p className="mt-2">{t('helpLoadingText')}</p>
                   </div>
                 ) : (
                   <nav className="space-y-2">
@@ -606,7 +606,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
                     onClick={() => setFilter('all')}
                     className="hover:text-slate-800 hover:underline transition-colors"
                   >
-                    Help
+                    {t('helpSystemTitle')}
                   </button>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />

@@ -116,7 +116,7 @@ const AppContent: React.FC = () => {
     const handleRemoveVoucher = async (userId: string) => {
         try {
             const user = users.find(u => u.id === userId);
-            if (user && user.voucherBalance > 0) {
+            if (user) {
                 await updateUserVoucherBalance(userId, user.voucherBalance - 1);
             }
         } catch (err) {
@@ -132,7 +132,7 @@ const AppContent: React.FC = () => {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">Error</h2>
+                    <h2 className="text-2xl font-bold text-red-600 mb-4">{t('errorTitle')}</h2>
                     <p className="text-gray-600">{error}</p>
                 </div>
             </div>
@@ -147,7 +147,7 @@ const AppContent: React.FC = () => {
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-4">
                             <h1 className="text-xl font-semibold text-slate-900">
-                                Training Management System
+                                {t('appTitle')}
                             </h1>
                             <LanguageSwitcher />
                         </div>
@@ -156,7 +156,7 @@ const AppContent: React.FC = () => {
                             {user ? (
                                 <>
                                     <span className="text-sm text-slate-600">
-                                        Welcome, {user.user_metadata?.name || user.email}
+                                        {t('welcomeMessage', { name: user.user_metadata?.name || user.email })}
                                     </span>
                                     {isAdmin && (
                                         <button
@@ -167,7 +167,7 @@ const AppContent: React.FC = () => {
                                                     : 'text-slate-600 hover:text-slate-900'
                                             }`}
                                         >
-                                            Admin
+                                            {t('navAdmin')}
                                         </button>
                                     )}
                                     <button
@@ -178,7 +178,7 @@ const AppContent: React.FC = () => {
                                                 : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                     >
-                                        Public
+                                        {t('navPublic')}
                                     </button>
                                     <button
                                         onClick={() => setView('attendance')}
@@ -188,22 +188,34 @@ const AppContent: React.FC = () => {
                                                 : 'text-slate-600 hover:text-slate-900'
                                         }`}
                                     >
-                                        Attendance
+                                        {t('navAttendance')}
                                     </button>
                                     <button
                                         onClick={signOut}
                                         className="px-3 py-2 rounded-md text-sm font-medium text-slate-600 hover:text-slate-900"
                                     >
-                                        Sign Out
+                                        {t('signOutButton')}
                                     </button>
                                 </>
                             ) : (
-                                <button
-                                    onClick={() => setShowLogin(true)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                >
-                                    Sign In
-                                </button>
+                                <>
+                                    <button
+                                        onClick={() => setView('public')}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                            view === 'public' 
+                                                ? 'bg-blue-100 text-blue-700' 
+                                                : 'text-slate-600 hover:text-slate-900'
+                                        }`}
+                                    >
+                                        {t('viewTrainingsButton')}
+                                    </button>
+                                    <button
+                                        onClick={() => setShowLogin(true)}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                    >
+                                        {t('adminLoginButton')}
+                                    </button>
+                                </>
                             )}
                             
                             <HelpButton 
@@ -222,16 +234,16 @@ const AppContent: React.FC = () => {
                 {!user ? (
                     <div className="text-center py-12">
                         <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                            Welcome to Training Management System
+                            {t('welcomeTitle')}
                         </h2>
                         <p className="text-lg text-slate-600 mb-8">
-                            Please sign in to access the system
+                            {t('welcomeSubtitle')}
                         </p>
                         <button
                             onClick={() => setShowLogin(true)}
                             className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg"
                         >
-                            Sign In
+                            {t('signInButton')}
                         </button>
                     </div>
                 ) : (
@@ -252,16 +264,14 @@ const AppContent: React.FC = () => {
                         )}
 
                         {view === 'public' && (
-                            <ProtectedRoute>
-                                <SubscriptionPage
-                                    users={users}
-                                    trainings={trainings}
-                                    subscriptions={subscriptions}
-                                    onSubscribe={handleSubscribe}
-                                    onUnsubscribe={handleUnsubscribe}
-                                    onHelpClick={handleHelpClick}
-                                />
-                            </ProtectedRoute>
+                            <SubscriptionPage
+                                users={users}
+                                trainings={trainings}
+                                subscriptions={subscriptions}
+                                onSubscribe={handleSubscribe}
+                                onUnsubscribe={handleUnsubscribe}
+                                onHelpClick={handleHelpClick}
+                            />
                         )}
 
                         {view === 'attendance' && (
@@ -269,6 +279,7 @@ const AppContent: React.FC = () => {
                                 <AttendancePage
                                     users={users}
                                     trainings={trainings}
+                                    subscriptions={subscriptions}
                                     attendance={attendance}
                                     onMarkAttendance={handleMarkAttendance}
                                     onUnmarkAttendance={handleUnmarkAttendance}
@@ -277,6 +288,18 @@ const AppContent: React.FC = () => {
                             </ProtectedRoute>
                         )}
                     </>
+                )}
+
+                {/* Show public view for non-authenticated users */}
+                {!user && view === 'public' && (
+                    <SubscriptionPage
+                        users={users}
+                        trainings={trainings}
+                        subscriptions={subscriptions}
+                        onSubscribe={handleSubscribe}
+                        onUnsubscribe={handleUnsubscribe}
+                        onHelpClick={handleHelpClick}
+                    />
                 )}
             </main>
 

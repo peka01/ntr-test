@@ -1,9 +1,11 @@
 
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useTranslations } from '../hooks/useTranslations';
 
 export const LanguageSwitcher: React.FC = () => {
     const { language, setLanguage } = useLanguage();
+    const { t } = useTranslations();
 
     const SwitcherButton: React.FC<{ lang: 'sv' | 'en', children: React.ReactNode }> = ({ lang, children }) => (
          <button
@@ -20,8 +22,8 @@ export const LanguageSwitcher: React.FC = () => {
 
     return (
         <div className="flex items-center gap-2 p-1 bg-slate-200 rounded-lg">
-            <SwitcherButton lang="sv">Svenska</SwitcherButton>
-            <SwitcherButton lang="en">English</SwitcherButton>
+            <SwitcherButton lang="sv">{t('languageSwedish')}</SwitcherButton>
+            <SwitcherButton lang="en">{t('languageEnglish')}</SwitcherButton>
         </div>
     );
 };

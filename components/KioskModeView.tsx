@@ -3,6 +3,7 @@ import React, { useState, useMemo } from 'react';
 import type { User, Training } from '../types';
 import { WelcomeModal } from './WelcomeModal';
 import { useTranslations } from '../hooks/useTranslations';
+import { TrashIcon } from './icons/TrashIcon';
 
 interface KioskModeViewProps {
     training: Training;
@@ -10,6 +11,7 @@ interface KioskModeViewProps {
     subscribedUserIds: Set<string>;
     attendeeIds: Set<string>;
     onMarkAttendance: (trainingId: string, userId: string) => void;
+    onUnmarkAttendance: (trainingId: string, userId: string) => void;
     onClose: () => void;
 }
 
@@ -19,6 +21,7 @@ export const KioskModeView: React.FC<KioskModeViewProps> = ({
     subscribedUserIds,
     attendeeIds,
     onMarkAttendance,
+    onUnmarkAttendance,
     onClose
 }) => {
     const { t } = useTranslations();
@@ -32,6 +35,12 @@ export const KioskModeView: React.FC<KioskModeViewProps> = ({
         if (user.voucherBalance > 0 && !attendeeIds.has(user.id)) {
             onMarkAttendance(training.id, user.id);
             setWelcomedUser(user);
+        }
+    };
+
+    const handleMarkEjNärvarande = (user: User) => {
+        if (attendeeIds.has(user.id)) {
+            onUnmarkAttendance(training.id, user.id);
         }
     };
 
@@ -57,15 +66,26 @@ export const KioskModeView: React.FC<KioskModeViewProps> = ({
                             return (
                                 <div
                                     key={user.id}
-                                    className={`p-6 rounded-xl text-center transition-all duration-300 flex flex-col justify-center ${
+                                    className={`p-6 rounded-xl text-center transition-all duration-300 flex flex-col justify-center relative ${
                                         hasAttended
                                             ? 'bg-green-100 border border-green-300'
                                             : 'bg-white border border-slate-200 shadow-sm'
                                     }`}
                                 >
+                                    {hasAttended && (
+                                        <button
+                                            onClick={() => handleMarkEjNärvarande(user)}
+                                            className="absolute top-2 right-2 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                            title={t('kioskMarkNotPresentTitle')}
+                                        >
+                                            <TrashIcon className="w-5 h-5" />
+                                        </button>
+                                    )}
                                     <p className="text-xl font-semibold text-slate-800 truncate">{user.name}</p>
                                     {hasAttended ? (
-                                        <p className="mt-4 text-green-700 font-bold text-lg">{t('kioskPresentStatus')}</p>
+                                        <div className="mt-4 flex flex-col items-center">
+                                            <p className="text-green-700 font-bold text-lg">{t('kioskPresentStatus')}</p>
+                                        </div>
                                     ) : (
                                         <button
                                             onClick={() => handleMarkNärvarande(user)}

@@ -23,24 +23,87 @@ export const userService = {
     })) || [];
   },
 
-  // Create a new user
+  // Create a new user (participant/subscriber only - no auth account)
   async create(name: string, email: string): Promise<User> {
-    const { data, error } = await supabase
-      .from('users')
-      .insert([{ name, email, voucher_balance: 0 }])
-      .select()
-      .single();
+    // Generate a unique ID for the user (since we're not using auth.users)
+    const userId = crypto.randomUUID();
+    
+    // Check if a user with this email already exists
+    // Use a more robust query to avoid 406 errors
+    let existingUser = null;
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('id, name, email, voucher_balance')
+        .eq('email', email)
+        .maybeSingle(); // Use maybeSingle instead of single to avoid errors
 
-    if (error) {
-      console.error('Error creating user:', error);
-      throw error;
+      if (error) {
+        console.error('Error checking existing user:', error);
+        // Continue with creation instead of throwing error
+      } else if (data) {
+        existingUser = data;
+      }
+    } catch (error) {
+      console.error('Exception checking existing user:', error);
+      // Continue with creation instead of throwing error
     }
 
+    let userData;
+    if (existingUser) {
+      // User exists, update the existing record
+      try {
+        const { data: updateData, error: updateError } = await supabase
+          .from('users')
+          .update({ 
+            name, 
+            voucher_balance: 0 
+          })
+          .eq('id', existingUser.id)
+          .select()
+          .single();
+
+        if (updateError) {
+          console.error('Error updating existing user:', updateError);
+          throw updateError;
+        }
+        userData = updateData;
+      } catch (error) {
+        console.error('Exception updating existing user:', error);
+        throw error;
+      }
+    } else {
+      // User doesn't exist, create new record with generated UUID
+      try {
+        const { data: insertData, error: insertError } = await supabase
+          .from('users')
+          .insert([{ 
+            id: userId, 
+            name, 
+            email, 
+            voucher_balance: 0 
+          }])
+          .select()
+          .single();
+
+        if (insertError) {
+          console.error('Error creating new user:', insertError);
+          throw insertError;
+        }
+        userData = insertData;
+      } catch (error) {
+        console.error('Exception creating new user:', error);
+        throw error;
+      }
+    }
+
+    console.log(`User ${name} created as participant/subscriber (no login access)`);
+
     return {
-      id: data.id,
-      name: data.name,
-      email: data.email,
-      voucherBalance: data.voucher_balance
+      id: userData.id,
+      name: userData.name,
+      email: userData.email,
+      voucherBalance: userData.voucher_balance
     };
   },
 
