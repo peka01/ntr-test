@@ -13,6 +13,14 @@ export default defineConfig(({ mode }) => {
     
     return {
       base,
+      // Specify the entry point
+      build: {
+        rollupOptions: {
+          input: {
+            main: path.resolve(__dirname, 'src/main.tsx')
+          }
+        }
+      },
       define: {
         'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY || ''),
@@ -29,6 +37,9 @@ export default defineConfig(({ mode }) => {
         assetsDir: 'assets',
         sourcemap: false,
         rollupOptions: {
+          input: {
+            main: path.resolve(__dirname, 'src/main.tsx')
+          },
           output: {
             manualChunks: {
               vendor: ['react', 'react-dom'],
@@ -36,7 +47,11 @@ export default defineConfig(({ mode }) => {
               gemini: ['@google/genai']
             }
           }
-        }
+        },
+        // Ensure proper file extensions
+        assetsInlineLimit: 0,
+        // Force proper chunk naming
+        chunkSizeWarningLimit: 1000
       },
       server: {
         host: '0.0.0.0',
