@@ -28,7 +28,7 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist',
         sourcemap: false,
         rollupOptions: {
-          input: 'index.html'
+          input: path.resolve(__dirname, 'index.html')
         }
       },
       server: {
