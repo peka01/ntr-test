@@ -26,20 +26,10 @@ export default defineConfig(({ mode }) => {
       },
       build: {
         outDir: 'dist',
-        assetsDir: 'assets',
         sourcemap: false,
         rollupOptions: {
-          input: path.resolve(__dirname, 'index.html'),
-          output: {
-            entryFileNames: 'assets/[name]-[hash].js',
-            chunkFileNames: 'assets/[name]-[hash].js',
-            assetFileNames: 'assets/[name]-[hash].[ext]'
-          }
-        },
-        // Ensure proper file extensions
-        assetsInlineLimit: 0,
-        // Force proper chunk naming
-        chunkSizeWarningLimit: 1000
+          input: 'index.html'
+        }
       },
       server: {
         host: '0.0.0.0',
