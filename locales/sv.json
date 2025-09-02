@@ -99,5 +99,14 @@
   "authRequiredTitle": "Autentisering krävs",
   "authRequiredMessage": "Logga in för att komma åt denna sida.",
   "accessDeniedTitle": "Åtkomst nekad",
-  "accessDeniedMessage": "Du har inte behörighet att komma åt denna sida."
+  "accessDeniedMessage": "Du har inte behörighet att komma åt denna sida.",
+  "languageSwedish": "Svenska",
+  "languageEnglish": "English",
+  "helpMaximizeTitle": "Maximera",
+  "helpMinimizeTitle": "Minimera",
+  "helpRefreshTitle": "Uppdatera",
+  "helpLoadingText": "Laddar...",
+  "helpContentsTitle": "Innehåll",
+  "loadingText": "Laddar...",
+  "kioskMarkNotPresentTitle": "Markera som Ej närvarande"
 }

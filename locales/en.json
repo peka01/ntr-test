@@ -98,5 +98,14 @@
   "authRequiredTitle": "Authentication Required",
   "authRequiredMessage": "Please sign in to access this page.",
   "accessDeniedTitle": "Access Denied",
-  "accessDeniedMessage": "You don't have permission to access this page."
+  "accessDeniedMessage": "You don't have permission to access this page.",
+  "languageSwedish": "Svenska",
+  "languageEnglish": "English",
+  "helpMaximizeTitle": "Maximize",
+  "helpMinimizeTitle": "Minimize",
+  "helpRefreshTitle": "Refresh",
+  "helpLoadingText": "Loading...",
+  "helpContentsTitle": "Contents",
+  "loadingText": "Loading...",
+  "kioskMarkNotPresentTitle": "Mark as Not Present"
 }
