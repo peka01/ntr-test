@@ -1,6 +1,7 @@
 // Help section configuration
 // 
 // CORS Strategy:
+// - GitHub Pages: Uses Service Worker proxy to avoid CORS issues
 // - Development mode: Attempts direct GitHub access, falls back to static config if CORS blocks
 // - Production mode: Uses nginx reverse proxy to avoid CORS issues
 // - All content is centralized in external repository, no local duplication
@@ -117,8 +118,15 @@ async function loadHelpConfig(): Promise<any> {
                          window.location.port === '3000' || // Common dev port
                          window.location.protocol === 'file:'; // Local file
     
+    const isGitHubPages = window.location.hostname === 'peka01.github.io';
+    
     let configUrl: string;
-    if (isDevelopment) {
+    if (isGitHubPages) {
+      // Use Service Worker proxy (no CORS issues on GitHub Pages)
+      configUrl = `/help-proxy/help-config.json?t=${timestamp}`;
+      console.log(`🌐 GitHub Pages mode: Using Service Worker proxy: ${configUrl}`);
+      console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json`);
+    } else if (isDevelopment) {
       // In development, use a CORS proxy or fallback to static config
       console.log(`🔧 Development mode: CORS restrictions may apply when fetching from GitHub directly`);
       
@@ -270,8 +278,15 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
                          window.location.port === '3000' || // Common dev port
                          window.location.protocol === 'file:'; // Local file
     
+    const isGitHubPages = window.location.hostname === 'peka01.github.io';
+    
     let internalUrl: string;
-    if (isDevelopment) {
+    if (isGitHubPages) {
+      // Use Service Worker proxy (no CORS issues on GitHub Pages)
+      internalUrl = `/help-proxy/${filePath}?t=${timestamp}`;
+      console.log(`🌐 GitHub Pages mode: Using Service Worker proxy: ${internalUrl}`);
+      console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}`);
+    } else if (isDevelopment) {
       // In development, try direct GitHub access (may fail due to CORS)
       internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?t=${timestamp}`;
       console.log(`🔧 Development mode: Attempting direct GitHub access: ${internalUrl}`);
@@ -324,13 +339,19 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       // More accurate detection: check if we're actually running through nginx
       const isDevelopment = window.location.hostname === 'localhost' || 
                            window.location.hostname === '127.0.0.1' ||
-                           window.location.hostname === 'peka01.github.io' || // GitHub Pages
                            window.location.port === '5173' || // Vite dev server
                            window.location.port === '3000' || // Common dev port
                            window.location.protocol === 'file:'; // Local file
       
+      const isGitHubPages = window.location.hostname === 'peka01.github.io';
+      
       let fallbackUrl: string;
-      if (isDevelopment) {
+      if (isGitHubPages) {
+        // Use Service Worker proxy (no CORS issues on GitHub Pages)
+        fallbackUrl = `/help-proxy/docs/${language}/${sectionId}.md?t=${Date.now()}`;
+        console.log(`🌐 GitHub Pages mode: Using Service Worker proxy for fallback: ${fallbackUrl}`);
+        console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md`);
+      } else if (isDevelopment) {
         // In development, fetch directly from GitHub
         fallbackUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;
         console.log(`🔧 Development mode: Fetching fallback content directly from GitHub: ${fallbackUrl}`);

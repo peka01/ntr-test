@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { serviceWorkerManager } from './services/serviceWorkerManager';
 
 console.log('Main.tsx loaded, React version:', React.version);
 console.log('ReactDOM version:', ReactDOM.version);
