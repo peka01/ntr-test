@@ -31,11 +31,9 @@ export default defineConfig(({ mode }) => {
         rollupOptions: {
           input: path.resolve(__dirname, 'index.html'),
           output: {
-            manualChunks: {
-              vendor: ['react', 'react-dom'],
-              supabase: ['@supabase/supabase-js'],
-              gemini: ['@google/genai']
-            }
+            entryFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: 'assets/[name]-[hash].js',
+            assetFileNames: 'assets/[name]-[hash].[ext]'
           }
         },
         // Ensure proper file extensions
