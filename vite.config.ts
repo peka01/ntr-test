@@ -29,18 +29,10 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist',
         sourcemap: false,
         rollupOptions: {
-          input: {
-            app: './index.html'
-          }
+          input: './index.html'
         },
         // Ensure proper file extensions for GitHub Pages
-        assetsDir: 'assets',
-        // Generate proper entry points
-        lib: {
-          entry: './src/main.tsx',
-          name: 'TrainingManagementApp',
-          fileName: 'main'
-        }
+        assetsDir: 'assets'
       }
     };
 });
