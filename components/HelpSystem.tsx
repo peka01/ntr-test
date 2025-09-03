@@ -53,9 +53,6 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const { language } = useLanguage();
   const { context } = useUserInteraction();
 
-  // TEMPORARY LOGGING: Add this console.log to inspect the context
-  console.log('HelpSystem context:', context);
-
   const [isCompact, setIsCompact] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSection, setSelectedSection] = useState<string>('overview');
@@ -740,7 +737,6 @@ Användarens fråga: ${content}`;
                     <button
                       key={section.id}
                       onClick={() => {
-                        console.log(`TOC Click: Setting section to '${section.id}'`);
                         setSelectedSection(section.id);
                       }}
                       className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
@@ -788,7 +784,6 @@ Användarens fråga: ${content}`;
                       <button
                         key={section.id}
                         onClick={() => {
-                          console.log(`Compact TOC Click: Setting section to '${section.id}'`);
                           setSelectedSection(section.id);
                           setShowToc(false);
                         }}

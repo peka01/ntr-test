@@ -33,17 +33,25 @@ npm install
 "homepage": "https://YOUR_USERNAME.github.io/ntr-test"
 ```
 
-### 4. Manual Deployment (Optional)
+### 4. Deployment
 
-If you want to deploy manually:
+The recommended way to deploy is using the script configured in `package.json`. This script handles both the build process and the deployment to the `gh-pages` branch.
 
 ```bash
+# First, install the new gh-pages dependency
+npm install
+
+# Then, run the deploy script
 npm run deploy
 ```
 
-### 5. Automatic Deployment (Recommended)
+This single command will:
+1. Run `npm run build` to create a production-ready `dist` folder.
+2. Use the `gh-pages` tool to push the contents of the `dist` folder to your `gh-pages` branch.
 
-The GitHub Actions workflow will automatically deploy your app when you push to the main branch.
+### 5. Automatic Deployment (Via GitHub Actions)
+
+If you have a GitHub Actions workflow set up, ensure it now runs `npm run deploy`. This will automate the process on every push to your main branch.
 
 ## How It Works
 
