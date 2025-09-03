@@ -1,7 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
+import { AuthProvider } from './contexts/AuthContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { UserInteractionProvider } from './contexts/UserInteractionContext';
 
 console.log('Main.tsx loaded, React version:', React.version);
 console.log('ReactDOM version:', ReactDOM.version);
@@ -20,7 +22,11 @@ console.log('Rendering React app...');
 root.render(
   <React.StrictMode>
     <LanguageProvider>
-      <App />
+      <AuthProvider>
+        <UserInteractionProvider>
+          <App />
+        </UserInteractionProvider>
+      </AuthProvider>
     </LanguageProvider>
   </React.StrictMode>
 );
