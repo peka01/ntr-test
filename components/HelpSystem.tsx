@@ -810,10 +810,6 @@ Användarens fråga: ${content}`;
         <div className="p-4 border-t border-slate-200 bg-slate-50">
           {/* AI Chat Search Field */}
           <div className="space-y-3">
-            <div className="text-sm text-slate-600 text-center font-medium">
-              🤖 AI Hjälp - Fråga mig om systemet
-            </div>
-            
             <form onSubmit={(e) => {
               e.preventDefault();
               if (aiInputValue.trim()) {
