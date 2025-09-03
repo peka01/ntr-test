@@ -152,9 +152,45 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
     
     let configUrl: string;
     if (isGitHubPages) {
-      // On GitHub Pages, use GitHub raw content with CSP whitelisting
-      configUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json?${cacheParams}`;
-      console.log(`🌐 GitHub Pages: Using GitHub raw content with CSP whitelisting: ${configUrl}`);
+      // On GitHub Pages, use GitHub's API to fetch content as base64
+      // This avoids CORS issues by using GitHub's own API
+      configUrl = `https://api.github.com/repos/peka01/helpdoc/contents/ntr-test/help-config.json?ref=main`;
+      console.log(`🌐 GitHub Pages: Using GitHub API to fetch content: ${configUrl}`);
+      
+      try {
+        // Fetch from GitHub API (no CORS issues from GitHub Pages)
+        const response = await fetch(configUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'GitHub-Pages-App/1.0',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        
+        if (response.ok) {
+          const apiResponse = await response.json();
+          
+          // GitHub API returns content as base64 encoded
+          if (apiResponse.content && apiResponse.encoding === 'base64') {
+            const decodedContent = atob(apiResponse.content);
+            const config = JSON.parse(decodedContent);
+            console.log(`✅ GitHub Pages: Successfully loaded help config from external repository via API`);
+            return config;
+          } else {
+            throw new Error('Invalid response format from GitHub API');
+          }
+        } else {
+          console.error(`❌ GitHub API returned HTTP ${response.status}:`, response.statusText);
+          throw new Error(`GitHub API returned HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (apiError) {
+        console.error(`❌ GitHub API failed:`, apiError);
+        throw new Error(`GitHub API access failed: ${apiError.message}`);
+      }
     } else if (isDevelopment) {
       // In development, use a CORS proxy or fallback to static config
       console.log(`🔧 Development mode: CORS restrictions may apply when fetching from GitHub directly`);
@@ -276,44 +312,105 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
     
     let internalUrl: string;
     if (isGitHubPages) {
-      // On GitHub Pages, use direct GitHub access (CORS should work from GitHub Pages)
-      internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?${cacheParams}`;
-      console.log(`🌐 GitHub Pages: Using direct GitHub access for content: ${internalUrl}`);
+      // On GitHub Pages, use GitHub API to fetch content as base64
+      internalUrl = `https://api.github.com/repos/peka01/helpdoc/contents/ntr-test/${filePath}?ref=main`;
+      console.log(`🌐 GitHub Pages: Using GitHub API for content: ${internalUrl}`);
+      
+      try {
+        // Fetch from GitHub API (no CORS issues from GitHub Pages)
+        const response = await fetch(internalUrl, {
+          method: 'GET',
+          cache: 'no-store',
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+            'User-Agent': 'GitHub-Pages-App/1.0',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        });
+        
+        if (response.ok) {
+          const apiResponse = await response.json();
+          
+          // GitHub API returns content as base64 encoded
+          if (apiResponse.content && apiResponse.encoding === 'base64') {
+            const decodedContent = atob(apiResponse.content);
+            console.log(`✅ GitHub Pages: Successfully loaded content from external repository via API`);
+            return decodedContent;
+          } else {
+            throw new Error('Invalid response format from GitHub API');
+          }
+        } else {
+          console.error(`❌ GitHub API returned HTTP ${response.status}:`, response.statusText);
+          throw new Error(`GitHub API returned HTTP ${response.status}: ${response.statusText}`);
+        }
+      } catch (apiError) {
+        console.error(`❌ GitHub API failed:`, apiError);
+        throw new Error(`GitHub API access failed: ${apiError.message}`);
+      }
     } else if (isDevelopment) {
       // In development, try direct GitHub access (may fail due to CORS)
       internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?${cacheParams}`;
       console.log(`🔧 Development mode: Attempting direct GitHub access: ${internalUrl}`);
       console.log(`⚠️ Note: This may fail due to CORS restrictions`);
+      
+      // Try to fetch content
+      const response = await fetch(internalUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+
+      if (response.ok) {
+        const content = await response.text();
+        console.log(`✅ Content loaded for ${sectionId} (${language}):`, {
+          url: internalUrl,
+          forceRefresh,
+          contentLength: content.length,
+          first100Chars: content.substring(0, 100),
+          last100Chars: content.substring(content.length - 100),
+          cacheStatus: response.headers.get('X-Cache-Status') || 'unknown'
+        });
+        return content;
+      }
+      
+      throw new Error(`Direct GitHub access failed: ${response.status} ${response.statusText}`);
     } else {
       // In production, use nginx proxy
       internalUrl = `/helpdocs/ntr-test/${filePath}?${cacheParams}`;
       console.log(`🚀 Production mode: Fetching help content via nginx proxy: ${internalUrl}`);
-    }
-
-    const response = await fetch(internalUrl, {
-      method: 'GET',
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
-        'Pragma': 'no-cache',
-        'Expires': '0'
-      }
-    });
-
-    if (response.ok) {
-      const content = await response.text();
-      console.log(`✅ Content loaded for ${sectionId} (${language}):`, {
-        url: internalUrl,
-        forceRefresh,
-        contentLength: content.length,
-        first100Chars: content.substring(0, 100),
-        last100Chars: content.substring(content.length - 100),
-        cacheStatus: response.headers.get('X-Cache-Status') || 'unknown'
+      
+      // Try to fetch content via nginx proxy
+      const response = await fetch(internalUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
       });
-      return content;
+
+      if (response.ok) {
+        const content = await response.text();
+        console.log(`✅ Content loaded for ${sectionId} (${language}):`, {
+          url: internalUrl,
+          forceRefresh,
+          contentLength: content.length,
+          first100Chars: content.substring(0, 100),
+          last100Chars: content.substring(content.length - 100),
+          cacheStatus: response.headers.get('X-Cache-Status') || 'unknown'
+        });
+        return content;
+      }
+      
+      throw new Error(`Nginx proxy failed: ${response.status} ${response.statusText}`);
     }
-    
-    throw new Error(`Internal proxy failed: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.error(`Error loading content for ${sectionId} in ${language}:`, error);
     
