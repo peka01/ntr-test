@@ -56,13 +56,13 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({
       const welcomeMessage: Message = {
         id: 'welcome',
         type: 'assistant',
-        content: t('aiChatWelcome', { context }),
+        content: t('aiChatWelcome', { context: context.screen }),
         timestamp: new Date(),
         sources: []
       };
       setMessages([welcomeMessage]);
     }
-  }, [context, helpSections, messages.length, t, context]);
+  }, [context, helpSections, messages.length, t]);
 
   // Prepare context for AI
   const prepareContext = (): string => {
@@ -85,7 +85,7 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({
 
     // Add current context
     if (context) {
-      contextString += `## Current Context\n\nUser is currently working with: ${context}\n\n`;
+      contextString += `## Current Context\n\nUser is currently on screen: **${context.screen}**\nLast action: **${context.action}**\n\n`;
     }
 
     return contextString;

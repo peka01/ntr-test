@@ -118,15 +118,15 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   // Auto-select relevant section based on context
   useEffect(() => {
     if (context && helpSections.length > 0) {
-      const contextLower = context.toLowerCase();
+      const contextString = `${context.screen} ${context.action}`.toLowerCase();
       
       // First, try to find exact matches for user-specific contexts
       const userContexts = ['subscribe', 'unsubscribe', 'subscription', 'public view'];
       const adminContexts = ['create user', 'add user', 'manage vouchers', 'create training', 'edit training'];
       
       // Check if this is a user context
-      const isUserContext = userContexts.some(userCtx => contextLower.includes(userCtx));
-      const isAdminContext = adminContexts.some(adminCtx => contextLower.includes(adminCtx));
+      const isUserContext = userContexts.some(userCtx => contextString.includes(userCtx));
+      const isAdminContext = adminContexts.some(adminCtx => contextString.includes(adminCtx));
       
       let relevantSection;
       
@@ -134,20 +134,20 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
         // Prioritize user sections for user contexts
         relevantSection = helpSections.find(section => 
           section.category === 'user' && 
-          section.keywords.some(keyword => contextLower.includes(keyword.toLowerCase()))
+          section.keywords.some(keyword => contextString.includes(keyword.toLowerCase()))
         );
       } else if (isAdminContext) {
         // Prioritize admin sections for admin contexts
         relevantSection = helpSections.find(section => 
           section.category === 'admin' && 
-          section.keywords.some(keyword => contextLower.includes(keyword.toLowerCase()))
+          section.keywords.some(keyword => contextString.includes(keyword.toLowerCase()))
         );
       }
       
       // If no specific match found, fall back to general matching
       if (!relevantSection) {
         relevantSection = helpSections.find(section => 
-          section.keywords.some(keyword => contextLower.includes(keyword.toLowerCase()))
+          section.keywords.some(keyword => contextString.includes(keyword.toLowerCase()))
         );
       }
       
@@ -391,7 +391,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
 
       // Add current context
       if (context) {
-        contextString += `## Current Context\n\nUser is currently working with: ${context}\n\n`;
+        contextString += `## Current Context\n\nUser is currently on screen: **${context.screen}**\nLast action: **${context.action}**\n\n`;
       }
 
       // If no help documentation is available, provide a fallback context
