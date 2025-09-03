@@ -239,3 +239,9 @@ navigator.serviceWorker.register('./help-proxy-sw.js', { scope: './' })
    - Background sync for offline content
    - Push notifications for content updates
    - Advanced caching strategies
+
+#### For Users
+1. **Automatic Detection**: Content updates are detected automatically
+2. **Smart Refresh**: Refresh button (🔄) automatically clears caches and fetches latest content
+3. **Complete Refresh**: Single button handles both cache clearing and content reloading
+4. **Visual Indicators**: Loading states and cache status in console

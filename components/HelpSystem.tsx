@@ -70,15 +70,17 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
     try {
       setLoading(true);
       console.log('Refreshing help content from repository...');
+      
+      // Clear all caches first for a complete refresh
+      await helpService.clearAllCaches();
+      
+      // Force reload with cache busting
       const sections = await helpService.forceReload(language);
       setHelpSections(sections);
-      
-
       
       console.log('Help content refreshed successfully');
     } catch (error) {
       console.error('Error manually refreshing help content:', error);
-
     } finally {
       setLoading(false);
     }

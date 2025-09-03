@@ -101,14 +101,44 @@ export interface HelpSectionConfig {
   category: 'admin' | 'user' | 'general';
 }
 
-// No caching - always fetch fresh content from external repository
+// Enhanced cache-busting and refresh utilities
+function generateCacheBuster(): string {
+  return `t=${Date.now()}&v=${Math.random().toString(36).substr(2, 9)}`;
+}
 
+function generateForceRefreshParams(): string {
+  return `refresh=true&nocache=true&${generateCacheBuster()}`;
+}
 
+// Service Worker communication for cache management
+async function clearServiceWorkerCache(): Promise<void> {
+  if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+    try {
+      navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
+      console.log('🗑️ Requested Service Worker cache clear');
+    } catch (error) {
+      console.warn('Could not communicate with Service Worker:', error);
+    }
+  }
+}
+
+// Force reload by fetching fresh content from external repository
+async function forceReload(language: string = 'sv'): Promise<HelpSection[]> {
+  console.log(`Force reloading help content for language: ${language}`);
+  
+  // Clear Service Worker cache first
+  await clearServiceWorkerCache();
+  
+  // Wait a bit for cache to clear
+  await new Promise(resolve => setTimeout(resolve, 100));
+  
+  return this.getAllSections(language, true); // Force refresh
+}
 
 // Load help configuration from external repository - MAIN FUNCTION
-async function loadHelpConfig(): Promise<any> {
+async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
   try {
-    const timestamp = Date.now();
+    const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
     
     // Check if we're in development mode (no nginx proxy)
     // More accurate detection: check if we're actually running through nginx
@@ -123,14 +153,14 @@ async function loadHelpConfig(): Promise<any> {
     let configUrl: string;
     if (isGitHubPages) {
       // Use Service Worker proxy (no CORS issues on GitHub Pages)
-      configUrl = `./help-proxy/help-config.json?t=${timestamp}`;
+      configUrl = `./help-proxy/help-config.json?${cacheParams}`;
     } else if (isDevelopment) {
       // In development, use a CORS proxy or fallback to static config
       console.log(`🔧 Development mode: CORS restrictions may apply when fetching from GitHub directly`);
       
       // Try direct GitHub first (may fail due to CORS)
       try {
-        configUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json?t=${timestamp}`;
+        configUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json?${cacheParams}`;
         console.log(`Attempting direct GitHub access: ${configUrl}`);
         
         const response = await fetch(configUrl, {
@@ -182,7 +212,7 @@ async function loadHelpConfig(): Promise<any> {
                     "training-management": "docs/en/training-management.md",
                     "subscriptions": "docs/en/subscriptions.md",
                     "attendance": "docs/en/attendance.md",
-                    "troubleshooting": "docs/en/troubleshooting.md"
+                    "troubleshooting": "docs/sv/troubleshooting.md"
                   }
                 }
               }
@@ -192,7 +222,7 @@ async function loadHelpConfig(): Promise<any> {
       }
     } else {
       // In production, use nginx proxy
-      configUrl = `/helpdocs/ntr-test/help-config.json?t=${timestamp}`;
+      configUrl = `/helpdocs/ntr-test/help-config.json?${cacheParams}`;
       console.log(`🚀 Production mode: Fetching help configuration via nginx proxy: ${configUrl}`);
       console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json`);
     }
@@ -211,6 +241,7 @@ async function loadHelpConfig(): Promise<any> {
       const config = await response.json();
       console.log(`✅ Help configuration loaded:`, {
         url: configUrl,
+        forceRefresh,
         apps: Object.keys(config.apps || {}),
         ntrAppLocales: Object.keys(config.apps?.['ntr-app']?.locales || {}),
         svSections: Object.keys(config.apps?.['ntr-app']?.locales?.['sv-se']?.file_paths || {}),
@@ -238,11 +269,11 @@ async function loadHelpConfig(): Promise<any> {
 }
 
 // Dynamic content loading from external help documentation repository - CONTENT LOADER
-async function loadMarkdownContent(sectionId: string, language: string): Promise<string> {
+async function loadMarkdownContent(sectionId: string, language: string, forceRefresh: boolean = false): Promise<string> {
   
   try {
     // Load configuration to get the correct file path
-    const config = await loadHelpConfig();
+    const config = await loadHelpConfig(forceRefresh);
     
     // Validate configuration structure
     if (!config || !config.apps || !config.apps['ntr-app']) {
@@ -266,7 +297,7 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     }
 
     // Use first-party Nginx reverse proxy to fetch centralized docs
-    const timestamp = Date.now();
+    const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
     
     // Check if we're in development mode (no nginx proxy)
     // More accurate detection: check if we're actually running through nginx
@@ -281,15 +312,15 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     let internalUrl: string;
     if (isGitHubPages) {
       // Use Service Worker proxy (no CORS issues on GitHub Pages)
-      internalUrl = `./help-proxy/${filePath}?t=${timestamp}`;
+      internalUrl = `./help-proxy/${filePath}?${cacheParams}`;
     } else if (isDevelopment) {
       // In development, try direct GitHub access (may fail due to CORS)
-      internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?t=${timestamp}`;
+      internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?${cacheParams}`;
       console.log(`🔧 Development mode: Attempting direct GitHub access: ${internalUrl}`);
       console.log(`⚠️ Note: This may fail due to CORS restrictions`);
     } else {
       // In production, use nginx proxy
-      internalUrl = `/helpdocs/ntr-test/${filePath}?t=${timestamp}`;
+      internalUrl = `/helpdocs/ntr-test/${filePath}?${cacheParams}`;
       console.log(`🚀 Production mode: Fetching help content via nginx proxy: ${internalUrl}`);
     }
 
@@ -307,9 +338,11 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       const content = await response.text();
       console.log(`✅ Content loaded for ${sectionId} (${language}):`, {
         url: internalUrl,
+        forceRefresh,
         contentLength: content.length,
         first100Chars: content.substring(0, 100),
-        last100Chars: content.substring(content.length - 100)
+        last100Chars: content.substring(content.length - 100),
+        cacheStatus: response.headers.get('X-Cache-Status') || 'unknown'
       });
       return content;
     }
@@ -324,7 +357,8 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
         message: error.message,
         stack: error.stack,
         sectionId,
-        language
+        language,
+        forceRefresh
       });
     }
     
@@ -344,14 +378,14 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
       let fallbackUrl: string;
       if (isGitHubPages) {
         // Use Service Worker proxy (no CORS issues on GitHub Pages)
-        fallbackUrl = `./help-proxy/docs/${language}/${sectionId}.md?t=${Date.now()}`;
+        fallbackUrl = `./help-proxy/docs/${language}/${sectionId}.md?${generateCacheBuster()}`;
       } else if (isDevelopment) {
         // In development, fetch directly from GitHub
-        fallbackUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;
+        fallbackUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md?${generateCacheBuster()}`;
         console.log(`🔧 Development mode: Fetching fallback content directly from GitHub: ${fallbackUrl}`);
       } else {
         // In production, use nginx proxy
-        fallbackUrl = `/helpdocs/ntr-test/docs/${language}/${sectionId}.md?t=${Date.now()}`;
+        fallbackUrl = `/helpdocs/ntr-test/docs/${language}/${sectionId}.md?${generateCacheBuster()}`;
         console.log(`🚀 Production mode: Fetching fallback content via nginx proxy: ${fallbackUrl}`);
         console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md`);
       }
@@ -383,7 +417,7 @@ async function loadMarkdownContent(sectionId: string, language: string): Promise
     }
     
     // Return error message when both external and fallback fail
-    const errorMessage = `# Content not available\n\nThis help content is currently not available from the external repository.\n\n**Error:** ${error}\n\n**Possible causes:**\n- CORS restrictions in development mode\n- Network connectivity issues\n- External repository unavailable\n\n**Solutions:**\n1. **Development mode**: Run with Docker/nginx to avoid CORS\n2. **Check connection**: Verify internet connectivity\n3. **Refresh**: Try refreshing the page\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}\n- Mode: ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'Development' : 'Production'}`;
+    const errorMessage = `# Content not available\n\nThis help content is currently not available from the external repository.\n\n**Error:** ${error}\n\n**Possible causes:**\n- CORS restrictions in development mode\n- Network connectivity issues\n- External repository unavailable\n\n**Solutions:**\n1. **Development mode**: Run with Docker/nginx to avoid CORS\n2. **Check connection**: Verify internet connectivity\n3. **Refresh**: Try refreshing the page\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}\n- Mode: ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'Development' : 'Production'}\n- Force Refresh: ${forceRefresh}`;
     
     return errorMessage;
   }
@@ -393,12 +427,19 @@ export const helpService = {
   // Force reload by fetching fresh content from external repository
   async forceReload(language: string = 'sv'): Promise<HelpSection[]> {
     console.log(`Force reloading help content for language: ${language}`);
-    return this.getAllSections(language);
+    
+    // Clear Service Worker cache first
+    await clearServiceWorkerCache();
+    
+    // Wait a bit for cache to clear
+    await new Promise(resolve => setTimeout(resolve, 100));
+    
+    return this.getAllSections(language, true); // Force refresh
   },
 
   // Get all help sections for a specific language
-  async getAllSections(language: string = 'sv'): Promise<HelpSection[]> {
-    console.log(`Loading all help sections for language: ${language}`);
+  async getAllSections(language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection[]> {
+    console.log(`Loading all help sections for language: ${language}${forceRefresh ? ' (forced refresh)' : ''}`);
     const sections: HelpSection[] = [];
     
     try {
@@ -407,7 +448,7 @@ export const helpService = {
       
       for (const sectionId of availableSections) {
         try {
-          const content = await loadMarkdownContent(sectionId, language);
+          const content = await loadMarkdownContent(sectionId, language, forceRefresh);
           
           // Find matching static config for title and metadata
           const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
@@ -459,12 +500,12 @@ export const helpService = {
   },
 
   // Get a specific help section
-  async getSection(sectionId: string, language: string = 'sv'): Promise<HelpSection | null> {
+  async getSection(sectionId: string, language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection | null> {
     try {
       const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
       if (!sectionConfig) return null;
 
-      const content = await loadMarkdownContent(sectionId, language);
+      const content = await loadMarkdownContent(sectionId, language, forceRefresh);
       
       return {
         id: sectionConfig.id,
@@ -486,9 +527,9 @@ export const helpService = {
   },
 
   // Get help configuration from external repository
-  async getDynamicConfig(): Promise<any> {
+  async getDynamicConfig(forceRefresh: boolean = false): Promise<any> {
     try {
-      return await loadHelpConfig();
+      return await loadHelpConfig(forceRefresh);
     } catch (error) {
       console.error('Error loading help configuration from external repository:', error);
       throw error; // Re-throw to let calling code handle the error
@@ -507,6 +548,31 @@ export const helpService = {
       // Return static sections when external configuration is unavailable
       return helpConfig.sections.map(s => s.id);
     }
+  },
+
+  // Clear all caches and force fresh content
+  async clearAllCaches(): Promise<void> {
+    console.log('🗑️ Clearing all help system caches...');
+    
+    // Clear Service Worker cache
+    await clearServiceWorkerCache();
+    
+    // Clear browser cache for help-related requests
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        for (const cacheName of cacheNames) {
+          if (cacheName.includes('help') || cacheName.includes('proxy')) {
+            await caches.delete(cacheName);
+            console.log(`🗑️ Cleared browser cache: ${cacheName}`);
+          }
+        }
+      } catch (error) {
+        console.warn('Could not clear browser caches:', error);
+      }
+    }
+    
+    console.log('✅ All caches cleared');
   },
 
   // Compare last update times between sv and en for a section - FUNCTION 1
@@ -607,8 +673,8 @@ export const helpService = {
       
       if (isDevelopment) {
         // In development, fetch directly from GitHub API
-        svCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/commits?path=ntr-test/${svFilePath}&per_page=1`;
-        enCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/commits?path=ntr-test/${enFilePath}&per_page=1`;
+        svCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/main/ntr-test/${svFilePath}&per_page=1`;
+        enCommitsUrl = `https://api.github.com/repos/peka01/helpdoc/main/ntr-test/${enFilePath}&per_page=1`;
         console.log(`🔧 Development mode: Fetching metadata directly from GitHub API`);
       } else {
         // In production, use nginx proxy
