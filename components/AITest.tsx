@@ -21,8 +21,7 @@ export const AITest: React.FC = () => {
       // Import GoogleGenAI dynamically
       const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({ apiKey });
-      const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
-
+      
       const systemPrompt = `Du är en hjälpsam AI-assistent för ett träningshanteringssystem. 
 
 Systemet har följande huvudfunktioner:
@@ -36,9 +35,12 @@ Var hjälpsam, vänlig och professionell.
 
 Användarens fråga: ${question}`;
 
-      const result = await model.generateContent(systemPrompt);
-      const aiResponse = await result.response;
-      const text = aiResponse.text();
+      const result = await ai.models.generateContent({
+        model: "gemini-2.0-flash-exp",
+        contents: systemPrompt,
+      });
+
+      const text = result.text.trim();
 
       setResponse(text);
     } catch (error) {

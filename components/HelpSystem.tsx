@@ -348,7 +348,6 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
       // Import GoogleGenAI dynamically to avoid build issues
       const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({ apiKey });
-      const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
       // Prepare context from help sections and additional knowledge
       let contextString = '';
@@ -405,9 +404,12 @@ Instruktioner:
 
 Användarens fråga: ${content}`;
 
-      const result = await model.generateContent(systemPrompt);
-      const response = await result.response;
-      const text = response.text();
+      const result = await ai.models.generateContent({
+        model: "gemini-2.0-flash-exp",
+        contents: systemPrompt,
+      });
+
+      const text = result.text.trim();
 
       // Extract sources from response
       const sources = [];

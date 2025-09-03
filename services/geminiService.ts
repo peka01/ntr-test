@@ -62,7 +62,7 @@ export const generateProjectPlan = async (idea: string): Promise<ProjectPlan> =>
         const ai = new GoogleGenAI({ apiKey });
 
         const response = await ai.models.generateContent({
-            model: "gemini-2.5-flash",
+            model: "gemini-2.0-flash-exp",
             contents: `Based on the following project idea, generate a structured project plan. Idea: "${idea}"`,
             config: {
                 responseMimeType: "application/json",

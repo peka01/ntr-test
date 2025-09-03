@@ -114,7 +114,6 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({
       }
 
       const ai = new GoogleGenAI({ apiKey });
-      const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
 
       const systemPrompt = `Du är en hjälpsam AI-assistent för ett träningshanteringssystem. Använd följande information för att svara på användarens frågor:
 
@@ -130,9 +129,12 @@ Instruktioner:
 
 Användarens fråga: ${content}`;
 
-      const result = await model.generateContent(systemPrompt);
-      const response = await result.response;
-      const text = response.text();
+      const result = await ai.models.generateContent({
+        model: "gemini-2.0-flash-exp",
+        contents: systemPrompt,
+      });
+
+      const text = result.text.trim();
 
       // Extract sources from response (simple keyword matching)
       const sources = [];

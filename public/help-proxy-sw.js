@@ -44,6 +44,13 @@ self.addEventListener('fetch', (event) => {
     return;
   }
   
+  // Handle commits endpoint for metadata first
+  if (url.pathname.includes('help-proxy/commits')) {
+    console.log(`✅ Intercepting commits request: ${url.pathname}`);
+    event.respondWith(handleCommitsRequest(event.request));
+    return;
+  }
+  
   // Handle help-proxy requests (both absolute and relative paths)
   if (url.pathname.includes('help-proxy/')) {
     console.log(`✅ Intercepting help-proxy request: ${url.pathname}`);

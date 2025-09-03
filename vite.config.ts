@@ -33,6 +33,28 @@ export default defineConfig(({ mode }) => {
         },
         // Ensure proper file extensions for GitHub Pages
         assetsDir: 'assets'
+      },
+      server: {
+        headers: {
+          // Content Security Policy to allow external content
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+            "style-src 'self' 'unsafe-inline'",
+            "img-src 'self' data: https:",
+            "font-src 'self' data:",
+            "connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://peka01.github.io",
+            "frame-src 'self'",
+            "object-src 'none'",
+            "base-uri 'self'",
+            "form-action 'self'",
+            "frame-ancestors 'self'"
+          ].join('; '),
+          // CORS headers for development
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, Cache-Control, Pragma'
+        }
       }
     };
 });
