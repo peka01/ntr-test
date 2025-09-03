@@ -883,7 +883,9 @@ Användarens fråga: ${content}`;
                             key={index}
                             onClick={() => {
                               setSelectedSection(source.id!);
-                              onClose();
+                              setAiResponse('');
+                              setAiSources([]);
+                              setAiInputValue('');
                             }}
                             className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded hover:bg-cyan-200 transition-colors cursor-pointer"
                             title={t('aiHelpGoToSection', { sectionName: source.name })}
