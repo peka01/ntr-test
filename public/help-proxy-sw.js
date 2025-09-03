@@ -78,18 +78,35 @@ async function handleHelpProxy(request) {
   const hasTimestamp = url.searchParams.has('t') || url.searchParams.has('timestamp') || url.searchParams.has('v');
   const forceRefresh = hasTimestamp || url.searchParams.has('refresh') || url.searchParams.has('nocache');
   
+  // If forcing refresh, clear ALL related caches first
+  if (forceRefresh) {
+    console.log(`🔄 Force refresh detected, clearing all caches for: ${targetPath}`);
+    try {
+      const cache = await caches.open(CACHE_NAME);
+      const keys = await cache.keys();
+      for (const key of keys) {
+        if (key.url.includes(targetPath) || key.url.includes('help-proxy/')) {
+          await cache.delete(key);
+          console.log(`🗑️ Cleared cache for: ${key.url}`);
+        }
+      }
+    } catch (error) {
+      console.warn(`⚠️ Cache clearing failed:`, error);
+    }
+  }
+  
   try {
     // Use raw content URL directly (bypassing GitHub API)
     const rawUrl = `${GITHUB_RAW_BASE}/${targetPath}`;
     console.log(`🌐 Fetching from: ${rawUrl}${forceRefresh ? ' (forced refresh)' : ''}`);
     
-    // Add cache-busting to GitHub URL if not already present
-    let githubUrl = rawUrl;
-    if (!forceRefresh) {
-      const timestamp = Date.now();
-      const separator = rawUrl.includes('?') ? '&' : '?';
-      githubUrl = `${rawUrl}${separator}_sw=${timestamp}`;
-    }
+    // ALWAYS add cache-busting to GitHub URL to bypass GitHub CDN cache
+    const timestamp = Date.now();
+    const randomId = Math.random().toString(36).substring(2, 15);
+    const separator = rawUrl.includes('?') ? '&' : '?';
+    const githubUrl = `${rawUrl}${separator}_t=${timestamp}&_v=${randomId}&_sw=${CACHE_NAME}`;
+    
+    console.log(`🔗 Final GitHub URL: ${githubUrl}`);
     
     // Fetch content directly from raw.githubusercontent.com - minimal headers to avoid CORS preflight
     const rawResponse = await fetch(githubUrl, {
@@ -108,6 +125,7 @@ async function handleHelpProxy(request) {
     
     // Get the content
     const content = await rawResponse.text();
+    console.log(`✅ Content fetched successfully from GitHub, length: ${content.length}`);
     
     // Create new response with CORS headers and no-cache directives
     const proxyResponse = new Response(content, {
@@ -124,7 +142,8 @@ async function handleHelpProxy(request) {
         'X-Proxy-By': 'ntr-help-proxy-sw-v2',
         'X-Original-URL': rawUrl,
         'X-Proxy-Timestamp': new Date().toISOString(),
-        'X-Cache-Status': 'MISS'
+        'X-Cache-Status': forceRefresh ? 'FORCED_REFRESH' : 'MISS',
+        'X-GitHub-Cache-Buster': `${timestamp}-${randomId}`
       }
     });
     

@@ -216,32 +216,241 @@ navigator.serviceWorker.register('./help-proxy-sw.js', { scope: './' })
 ### Error Handling
 - Returns cached content if available
 - Provides helpful error messages
-- Graceful degradation for network issues
+  - Graceful degradation for network issues
+  
+## Cache Management and Content Updates
+
+### Problem: Stale Content from External Repository
+When content is updated in the external repository, it may not immediately appear in the application due to various caching layers:
+- Service Worker cache
+- Browser cache
+- GitHub CDN cache
+- Network-level caching
+
+### Solution: Enhanced Cache Invalidation
+The help system now includes comprehensive cache invalidation mechanisms:
+
+#### 1. Service Worker Cache Management
+- **Cache Versioning**: Incremented cache version (`help-proxy-v2`) forces refresh
+- **Force Refresh Detection**: Recognizes cache-busting query parameters
+- **Automatic Cache Cleanup**: Periodic cleanup of old cache entries (every hour)
+- **Cache Status Headers**: Response headers indicate cache status (HIT/MISS/FORCED_REFRESH)
+
+#### 2. Enhanced Cache-Busting
+- **Timestamp Parameters**: `?t=${Date.now()}&v=${randomString}`
+- **Force Refresh Parameters**: `?refresh=true&nocache=true&${timestamp}`
+- **Service Worker Cache Keys**: Unique cache keys prevent conflicts
+- **GitHub CDN Bypass**: Cache-busting parameters ensure fresh content from GitHub
+
+#### 3. Cache Clearing Functions
+- **Integrated Cache Clear**: Refresh button automatically clears all caches
+- **Service Worker Communication**: Direct cache clearing via postMessage
+- **Browser Cache Clearing**: Clears all help-related browser caches
+- **Force Reload**: Bypasses all caching layers
+
+#### 4. CORS Issue Resolution
+- **Minimal Headers**: Removed headers that trigger CORS preflight requests
+- **Service Worker Proxy**: Bypasses CORS restrictions by proxying requests
+- **GitHub Raw Content**: Direct access to GitHub raw content URLs
+- **Error Handling**: Clear error messages when external repository is unavailable
+
+### Content Update Workflow
+
+#### For Content Managers (External Repository)
+
+1. **Update Content Files**
+   - Edit markdown files in the `helpdoc` repository
+   - Make changes to files in `ntr-test/docs/sv/` or `ntr-test/docs/en/`
+   - Update `help-config.json` if adding new sections
+
+2. **Commit and Push Changes**
+   ```bash
+   git add .
+   git commit -m "Update help content for [section]"
+   git push origin main
+   ```
+
+3. **Wait for GitHub Deployment**
+   - GitHub Pages typically updates within 2-5 minutes
+   - Raw content URLs become available at:
+     - `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/sv/[section].md`
+     - `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/en/[section].md`
+
+4. **Verify Content Availability**
+   - Test direct access to raw content URLs
+   - Ensure files are accessible without authentication
+
+### Recent Updates (Latest Version)
+
+#### CORS Issue Resolution
+- **Problem**: Service Worker was hitting CORS preflight failures when fetching from GitHub
+- **Solution**: Removed problematic headers that trigger CORS preflight requests
+- **Result**: Direct GitHub content fetching now works without CORS issues
+
+#### Enhanced Cache Busting (Latest Fix)
+- **Problem**: GitHub CDN was still serving stale content even on forced refresh
+- **Solution**: Always add cache-busting parameters to GitHub URLs, including timestamps and random IDs
+- **Result**: Fresh content is now guaranteed on every refresh
+
+#### Service Worker Improvements
+- **Better Error Handling**: Clear error messages when external repository is unavailable
+- **Cache Management**: Improved cache clearing and invalidation logic
+- **Debug Logging**: Enhanced logging for troubleshooting cache issues
 
 ## Future Enhancements
 
-1. **Enhanced Caching Strategy**
-   - Implement intelligent caching with cache invalidation
-   - Cache invalidation based on commit timestamps
-   - Reduce external repository load
+## Cache Management and Content Updates
 
-2. **Content Validation**
-   - Validate markdown syntax
-   - Check for broken links
-   - Ensure content completeness
+### Problem: Stale Content from External Repository
+When content is updated in the external repository, it may not immediately appear in the application due to various caching layers:
+- Service Worker cache
+- Browser cache
+- GitHub CDN cache
+- Network-level caching
 
-3. **Multi-Repository Support**
-   - Support multiple documentation repositories
-   - Load balancing between repositories
-   - Repository-specific configurations
+### Solution: Enhanced Cache Invalidation
+The help system now includes comprehensive cache invalidation mechanisms:
 
-4. **Service Worker Improvements**
-   - Background sync for offline content
-   - Push notifications for content updates
-   - Advanced caching strategies
+#### 1. Service Worker Cache Management
+- **Cache Versioning**: Incremented cache version (`help-proxy-v2`) forces refresh
+- **Force Refresh Detection**: Recognizes cache-busting query parameters
+- **Automatic Cache Cleanup**: Periodic cleanup of old cache entries (every hour)
+- **Cache Status Headers**: Response headers indicate cache status (HIT/MISS/FORCED_REFRESH)
 
-#### For Users
+#### 2. Enhanced Cache-Busting
+- **Timestamp Parameters**: `?t=${Date.now()}&v=${randomString}`
+- **Force Refresh Parameters**: `?refresh=true&nocache=true&${timestamp}`
+- **Service Worker Cache Keys**: Unique cache keys prevent conflicts
+- **GitHub CDN Bypass**: Cache-busting parameters ensure fresh content from GitHub
+
+#### 3. Cache Clearing Functions
+- **Integrated Cache Clear**: Refresh button automatically clears all caches
+- **Service Worker Communication**: Direct cache clearing via postMessage
+- **Browser Cache Clearing**: Clears all help-related browser caches
+- **Force Reload**: Bypasses all caching layers
+
+#### 4. CORS Issue Resolution
+- **Minimal Headers**: Removed headers that trigger CORS preflight requests
+- **Service Worker Proxy**: Bypasses CORS restrictions by proxying requests
+- **GitHub Raw Content**: Direct access to GitHub raw content URLs
+- **Error Handling**: Clear error messages when external repository is unavailable
+
+### Content Update Workflow
+
+#### For Content Managers (External Repository)
+
+1. **Update Content Files**
+   - Edit markdown files in the `helpdoc` repository
+   - Make changes to files in `ntr-test/docs/sv/` or `ntr-test/docs/en/`
+   - Update `help-config.json` if adding new sections
+
+2. **Commit and Push Changes**
+   ```bash
+   git add .
+   git commit -m "Update help content for [section]"
+   git push origin main
+   ```
+
+3. **Wait for GitHub Deployment**
+   - GitHub Pages typically updates within 2-5 minutes
+   - Raw content URLs become available at:
+     - `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/sv/[section].md`
+     - `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/en/[section].md`
+
+4. **Verify Content Availability**
+   - Test direct access to raw content URLs
+   - Ensure files are accessible without authentication
+
+#### For Users (Application)
+
 1. **Automatic Detection**: Content updates are detected automatically
 2. **Smart Refresh**: Refresh button (🔄) automatically clears caches and fetches latest content
 3. **Complete Refresh**: Single button handles both cache clearing and content reloading
 4. **Visual Indicators**: Loading states and cache status in console
+
+#### For Developers
+
+1. **Cache Debugging**: Check browser console for cache status
+2. **Force Updates**: Use `forceRefresh: true` parameter in API calls
+3. **Service Worker**: Monitor Service Worker logs for cache operations
+4. **Network Tab**: Verify fresh requests in browser dev tools
+
+### Cache Invalidation Flow
+
+```
+Content Updated → GitHub Pages Deploy → Service Worker Detects → Cache Cleared → Fresh Content Loaded
+     ↓
+User Opens Help → Service Worker Checks → Cache Miss → Fetches Fresh → Updates Cache
+     ↓
+Next Request → Service Worker Checks → Cache Hit → Returns Cached (if not expired)
+```
+
+### Troubleshooting Cache Issues
+
+#### Content Not Updating
+1. **Check Service Worker**: Verify Service Worker is active and updated
+2. **Clear Browser Cache**: Use cache clear button or browser dev tools
+3. **Force Refresh**: Use refresh button with cache clearing
+4. **Check Network**: Verify requests are reaching external repository
+
+#### Service Worker Issues
+1. **Check Registration**: Verify Service Worker is registered in browser
+2. **Update Service Worker**: Increment cache version to force update
+3. **Clear All Caches**: Use `helpService.clearAllCaches()`
+4. **Browser Dev Tools**: Check Application > Service Workers tab
+
+#### GitHub Repository Issues
+1. **Verify Repository**: Check if `peka01/helpdoc` repository exists and is public
+2. **Check File Structure**: Ensure files are in correct paths
+3. **Branch Name**: Verify content is in `main` branch
+4. **File Permissions**: Ensure files are accessible without authentication
+
+#### Performance Considerations
+- **Cache Duration**: Content cached for 1 hour maximum
+- **Automatic Cleanup**: Old cache entries removed automatically
+- **Selective Caching**: Only successful responses are cached
+- **Error Handling**: Failed requests don't pollute cache
+
+### Recent Updates (Latest Version)
+
+#### CORS Issue Resolution
+- **Problem**: Service Worker was hitting CORS preflight failures when fetching from GitHub
+- **Solution**: Removed problematic headers that trigger CORS preflight requests
+- **Result**: Direct GitHub content fetching now works without CORS issues
+
+#### Enhanced Cache Busting
+- **GitHub CDN Bypass**: Added timestamp and random parameters to bypass GitHub's CDN cache
+- **Force Refresh Logic**: Improved cache clearing when refresh button is pressed
+- **Cache Status Tracking**: Better visibility into cache operations and status
+
+#### Service Worker Improvements
+- **Better Error Handling**: Clear error messages when external repository is unavailable
+- **Cache Management**: Improved cache clearing and invalidation logic
+- **Debug Logging**: Enhanced logging for troubleshooting cache issues
+
+### Testing the System
+
+#### Verify External Repository Access
+```javascript
+// Test direct GitHub access
+fetch('https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json')
+  .then(response => console.log('Status:', response.status))
+  .catch(error => console.error('Error:', error));
+```
+
+#### Test Service Worker
+```javascript
+// Test help-proxy request
+fetch('./help-proxy/help-config.json?t=' + Date.now())
+  .then(response => console.log('Status:', response.status))
+  .catch(error => console.error('Error:', error));
+```
+
+#### Check Cache Status
+```javascript
+// Check Service Worker registrations
+navigator.serviceWorker.getRegistrations()
+  .then(regs => console.log('Service Workers:', regs));
+```
+
+1. **Enhanced Caching Strategy**
