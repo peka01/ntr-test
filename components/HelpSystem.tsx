@@ -53,12 +53,13 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
         // Force reload to bypass any stale cache
         const sections = await helpService.forceReload(language);
         setHelpSections(sections);
-        
-
       } catch (error) {
         console.error('Error loading help content:', error);
+        // Don't fail completely - set empty sections and continue
         setHelpSections([]);
-
+        
+        // Show a user-friendly message in the content area
+        console.warn('Help content unavailable, but AI chat will still work with additional knowledge sources');
       } finally {
         setLoading(false);
       }
@@ -327,8 +328,15 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
 
     try {
       const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      console.log('🔑 API Key check:', {
+        hasApiKey: !!apiKey,
+        apiKeyLength: apiKey ? apiKey.length : 0,
+        apiKeyStart: apiKey ? apiKey.substring(0, 4) + '...' : 'none',
+        envVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
+      });
+      
       if (!apiKey) {
-        throw new Error('Gemini API key not configured');
+        throw new Error('Gemini API key not configured. Please check your .env file and restart the development server.');
       }
 
       // Import GoogleGenAI dynamically to avoid build issues
@@ -339,24 +347,40 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
       // Prepare context from help sections and additional knowledge
       let contextString = '';
       
-      if (helpSections.length > 0) {
-        contextString += '## Help Documentation\n\n';
-        helpSections.forEach(section => {
-          contextString += `### ${section.title}\n`;
-          contextString += `Category: ${section.category}\n`;
-          contextString += `Keywords: ${section.keywords.join(', ')}\n`;
-          contextString += `${section.content}\n\n`;
-        });
+      // Try to get help sections, but don't fail if unavailable
+      try {
+        if (helpSections.length > 0) {
+          contextString += '## Help Documentation\n\n';
+          helpSections.forEach(section => {
+            contextString += `### ${section.title}\n`;
+            contextString += `Category: ${section.category}\n`;
+            contextString += `Keywords: ${section.keywords.join(', ')}\n`;
+            contextString += `${section.content}\n\n`;
+          });
+        }
+      } catch (helpError) {
+        console.warn('Help sections not available, continuing with additional knowledge only:', helpError);
       }
 
-      // Add additional knowledge sources
-      const { getAllSourcesAsText, searchSourcesByKeyword } = await import('../services/aiKnowledgeSources');
-      contextString += '## Additional System Knowledge\n\n';
-      contextString += getAllSourcesAsText();
+      // Add additional knowledge sources (this should always work)
+      try {
+        const { getAllSourcesAsText, searchSourcesByKeyword } = await import('../services/aiKnowledgeSources');
+        contextString += '## Additional System Knowledge\n\n';
+        contextString += getAllSourcesAsText();
+      } catch (knowledgeError) {
+        console.error('Could not load additional knowledge sources:', knowledgeError);
+        contextString += '## Additional System Knowledge\n\n';
+        contextString += 'System knowledge sources are currently unavailable.\n\n';
+      }
 
       // Add current context
       if (context) {
         contextString += `## Current Context\n\nUser is currently working with: ${context}\n\n`;
+      }
+
+      // If no help documentation is available, provide a fallback context
+      if (!contextString.includes('Help Documentation') && !contextString.includes('Additional System Knowledge')) {
+        contextString = `## System Information\n\nThis is a training management system with the following features:\n- User management and roles\n- Training session management\n- Voucher/credit system\n- Attendance tracking\n\n`;
       }
 
       const systemPrompt = `Du är en hjälpsam AI-assistent för ett träningshanteringssystem. Använd följande information för att svara på användarens frågor:
@@ -371,6 +395,7 @@ Instruktioner:
 - Ge praktiska exempel när det är lämpligt
 - Citera relevanta delar av dokumentationen när det hjälper
 - Håll svaret koncist men informativt
+- Om dokumentationen inte är tillgänglig, svara baserat på din allmänna kunskap om systemadministration
 
 Användarens fråga: ${content}`;
 
@@ -380,25 +405,31 @@ Användarens fråga: ${content}`;
 
       // Extract sources from response
       const sources = [];
-      const allKeywords = helpSections.flatMap(s => s.keywords);
       
-      // Search for sources in additional knowledge
-      const relevantSources = searchSourcesByKeyword(text);
-      relevantSources.forEach(source => {
-        if (!sources.includes(source.name)) {
-          sources.push(source.name);
-        }
-      });
-      
-      // Also check help sections
-      allKeywords.forEach(keyword => {
-        if (text.toLowerCase().includes(keyword.toLowerCase())) {
-          const source = helpSections.find(s => s.keywords.includes(keyword))?.title;
-          if (source && !sources.includes(source)) {
-            sources.push(source);
+      try {
+        const allKeywords = helpSections.flatMap(s => s.keywords);
+        
+        // Search for sources in additional knowledge
+        const { searchSourcesByKeyword } = await import('../services/aiKnowledgeSources');
+        const relevantSources = searchSourcesByKeyword(text);
+        relevantSources.forEach(source => {
+          if (!sources.includes(source.name)) {
+            sources.push(source.name);
           }
-        }
-      });
+        });
+        
+        // Also check help sections
+        allKeywords.forEach(keyword => {
+          if (text.toLowerCase().includes(keyword.toLowerCase())) {
+            const source = helpSections.find(s => s.keywords.includes(keyword))?.title;
+            if (source && !sources.includes(source)) {
+              sources.push(source);
+            }
+          }
+        });
+      } catch (sourceError) {
+        console.warn('Could not extract sources:', sourceError);
+      }
 
       setAiResponse(text);
       setAiSources(sources);
@@ -733,6 +764,32 @@ Användarens fråga: ${content}`;
                   />
                 </div>
               </>
+            ) : helpSections.length === 0 && !loading ? (
+              <div className="text-center text-slate-500 py-8">
+                <div className="mb-4">
+                  <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                  </svg>
+                  <h3 className="text-lg font-medium text-slate-700 mb-2">Help Content Unavailable</h3>
+                  <p className="text-slate-600 mb-4">
+                    The help documentation is currently not available from the external repository.
+                  </p>
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+                    <h4 className="font-medium text-blue-800 mb-2">💡 Good News!</h4>
+                    <p className="text-blue-700 text-sm">
+                      You can still get help using the AI chat at the bottom of this window. 
+                      The AI has access to system knowledge and can answer your questions about:
+                    </p>
+                    <ul className="text-blue-700 text-sm mt-2 list-disc list-inside space-y-1">
+                      <li>User roles and permissions</li>
+                      <li>Training session management</li>
+                      <li>Voucher and credit system</li>
+                      <li>System architecture and features</li>
+                      <li>Troubleshooting common issues</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             ) : (
               <div className="text-center text-slate-500 py-8">
                 <p>{t('helpNoResults')}</p>

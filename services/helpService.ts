@@ -227,6 +227,7 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
     throw new Error(`Failed to load help config: ${response.status} ${response.statusText}`);
   } catch (error) {
     console.error('Error loading help configuration:', error);
+    
     throw error;
   }
 }
@@ -398,25 +399,15 @@ export const helpService = {
           });
         } catch (error) {
           console.error(`Error loading help content for section ${sectionId}:`, error);
-          // Show error content when external content is unavailable
-          const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
-          const title = sectionConfig?.title[language as keyof typeof sectionConfig.title] || sectionId;
-          const keywords = sectionConfig?.keywords || [];
-          const category = sectionConfig?.category || 'general';
-          
-          sections.push({
-            id: sectionId,
-            title: title,
-            content: `# Content not available\n\nThis help content is currently not available from the external repository.\n\n**Error:** ${error}\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`,
-            keywords: keywords,
-            category: category
-          });
+          // Skip sections that can't be loaded - external repository is required
+          console.error(`Skipping section ${sectionId} - external content required`);
         }
       }
           } catch (error) {
         console.error('Error loading external help sections:', error);
-        // No fallback - external repository is required
-        throw new Error(`External help repository is required and unavailable: ${error.message}`);
+        
+            // No fallback - external repository is required
+    throw new Error(`External help repository is required and unavailable: ${error.message}`);
       }
     
     console.log(`Loaded ${sections.length} help sections`);
