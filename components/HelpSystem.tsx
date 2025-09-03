@@ -927,35 +927,43 @@ Användarens fråga: ${content}`;
         {/* Edges */}
         <div 
           className="absolute top-0 left-2 right-2 h-2 cursor-n-resize z-50 hover:bg-blue-500 hover:opacity-30" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 'n')}
         />
         <div 
           className="absolute bottom-0 left-2 right-2 h-2 cursor-s-resize z-50 hover:bg-blue-500 hover:opacity-30" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 's')}
         />
         <div 
           className="absolute top-2 bottom-2 left-0 w-2 cursor-w-resize z-50 hover:bg-blue-500 hover:opacity-30" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 'w')}
         />
         <div 
           className="absolute top-2 bottom-2 right-0 w-2 cursor-e-resize z-50 hover:bg-blue-500 hover:opacity-30" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 'e')}
         />
         {/* Corners */}
         <div 
           className="absolute top-0 left-0 w-4 h-4 cursor-nw-resize z-50 hover:bg-blue-500 hover:opacity-50" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 'nw')}
         />
         <div 
           className="absolute top-0 right-0 w-4 h-4 cursor-ne-resize z-50 hover:bg-blue-500 hover:opacity-50" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 'ne')}
         />
         <div 
           className="absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-50 hover:bg-blue-500 hover:opacity-50" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 'sw')}
         />
         <div 
           className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-50 hover:bg-blue-500 hover:opacity-50" 
+          style={{ border: '1px dashed red' }}
           onMouseDown={(e) => handleResizeStart(e, 'se')}
         />
       </div>
