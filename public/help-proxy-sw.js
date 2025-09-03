@@ -91,21 +91,19 @@ async function handleHelpProxy(request) {
       githubUrl = `${rawUrl}${separator}_sw=${timestamp}`;
     }
     
-    // Fetch content directly from raw.githubusercontent.com with cache-busting headers
+    // Fetch content directly from raw.githubusercontent.com - minimal headers to avoid CORS preflight
     const rawResponse = await fetch(githubUrl, {
       method: 'GET',
       cache: 'no-store',
       headers: {
         'User-Agent': 'ntr-help-proxy/2.0',
-        'Accept': 'text/plain, text/markdown, application/json',
-        'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-        'Pragma': 'no-cache',
-        'X-Requested-With': 'XMLHttpRequest'
+        'Accept': 'text/plain, text/markdown, application/json'
+        // Minimal headers to avoid CORS preflight issues
       }
     });
     
     if (!rawResponse.ok) {
-      throw new Error(`Raw content fetch failed: ${rawResponse.status} ${rawResponse.statusText}`);
+      throw new Error(`GitHub fetch failed: ${rawResponse.status} ${rawResponse.statusText}`);
     }
     
     // Get the content
