@@ -299,11 +299,13 @@ const AppContent: React.FC = () => {
             </main>
 
             {/* Help System */}
-            <HelpSystem 
-                isOpen={helpOpen} 
-                onClose={() => setHelpOpen(false)} 
-                context={helpContext} 
-            />
+            {helpOpen && (
+                <HelpSystem 
+                    isOpen={helpOpen} 
+                    onClose={() => setHelpOpen(false)} 
+                    context={helpContext} 
+                />
+            )}
 
             {/* Login Modal */}
             {showLogin && (
