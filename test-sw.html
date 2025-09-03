@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Worker Test</title>
+</head>
+<body>
+    <h1>Service Worker Test</h1>
+    <p>This page tests if the Service Worker is properly intercepting help-proxy requests.</p>
+    
+    <button onclick="testServiceWorker()">Test Service Worker</button>
+    <button onclick="testHelpProxy()">Test Help Proxy</button>
+    <button onclick="checkServiceWorkerStatus()">Check Service Worker Status</button>
+    
+    <div id="output"></div>
+    
+    <script>
+        function log(message) {
+            const output = document.getElementById('output');
+            output.innerHTML += '<p>' + message + '</p>';
+            console.log(message);
+        }
+        
+        function checkServiceWorkerStatus() {
+            log('🔍 Checking Service Worker status...');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations()
+                    .then(registrations => {
+                        log(`📋 Found ${registrations.length} Service Worker registrations`);
+                        registrations.forEach((reg, index) => {
+                            log(`  ${index + 1}. Scope: ${reg.scope}, Active: ${!!reg.active}`);
+                        });
+                    })
+                    .catch(error => {
+                        log(`❌ Error checking registrations: ${error}`);
+                    });
+            } else {
+                log('❌ Service Worker not supported');
+            }
+        }
+        
+        function testServiceWorker() {
+            log('🧪 Testing Service Worker registration...');
+            
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./help-proxy-sw.js', { scope: './' })
+                    .then(registration => {
+                        log(`✅ Service Worker registered: ${registration.scope}`);
+                        return navigator.serviceWorker.ready;
+                    })
+                    .then(registration => {
+                        log('✅ Service Worker is ready');
+                        checkServiceWorkerStatus();
+                    })
+                    .catch(error => {
+                        log(`❌ Service Worker registration failed: ${error}`);
+                    });
+            } else {
+                log('❌ Service Worker not supported');
+            }
+        }
+        
+        function testHelpProxy() {
+            log('🧪 Testing help-proxy request...');
+            
+            // Test the exact URL that's failing
+            const testUrl = './help-proxy/help-config.json?t=' + Date.now();
+            log(`🌐 Testing URL: ${testUrl}`);
+            
+            fetch(testUrl)
+                .then(response => {
+                    log(`✅ Response status: ${response.status}`);
+                    log(`✅ Response headers: ${JSON.stringify(Object.fromEntries(response.headers.entries()))}`);
+                    return response.text();
+                })
+                .then(text => {
+                    log(`✅ Response body (first 200 chars): ${text.substring(0, 200)}...`);
+                })
+                .catch(error => {
+                    log(`❌ Fetch failed: ${error}`);
+                });
+        }
+        
+        // Check status on page load
+        window.addEventListener('load', () => {
+            log('🚀 Page loaded, checking Service Worker status...');
+            checkServiceWorkerStatus();
+        });
+    </script>
+</body>
+</html>

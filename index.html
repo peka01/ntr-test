@@ -24,12 +24,32 @@
         console.log('HTML loaded, root element:', document.getElementById('root'));
         console.log('Waiting for React app to load...');
         
-        // Register service worker
+        // Register service worker with proper error handling and activation
         if ('serviceWorker' in navigator) {
+            console.log('🔄 Registering Service Worker...');
+            
             navigator.serviceWorker.register('./help-proxy-sw.js', { scope: './' })
+                .then((registration) => {
+                    console.log('✅ Service Worker registered successfully:', registration.scope);
+                    
+                    // Wait for the service worker to be ready
+                    return navigator.serviceWorker.ready;
+                })
+                .then((registration) => {
+                    console.log('✅ Service Worker is ready and active');
+                    
+                    // Check if there are any existing service workers
+                    return navigator.serviceWorker.getRegistrations();
+                })
+                .then((registrations) => {
+                    console.log(`📋 Found ${registrations.length} Service Worker registrations:`, 
+                        registrations.map(r => ({ scope: r.scope, active: !!r.active })));
+                })
                 .catch((error) => {
-                    console.error('Service Worker registration failed:', error);
+                    console.error('❌ Service Worker registration failed:', error);
                 });
+        } else {
+            console.warn('⚠️ Service Worker not supported in this browser');
         }
     </script>
     <script type="module" src="./src/main.tsx"></script>

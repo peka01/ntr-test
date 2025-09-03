@@ -35,19 +35,23 @@ self.addEventListener('activate', (event) => {
 // Fetch event - intercept requests and proxy them
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
+  console.log(`🔍 Service Worker fetch event: ${event.request.method} ${url.pathname}`);
   
   // Handle CORS preflight requests
   if (event.request.method === 'OPTIONS') {
+    console.log(`🔄 Handling CORS preflight for: ${url.pathname}`);
     event.respondWith(handleCorsPreflight());
     return;
   }
   
   // Handle help-proxy requests (both absolute and relative paths)
-  if (!url.pathname.includes('help-proxy/')) {
+  if (url.pathname.includes('help-proxy/')) {
+    console.log(`✅ Intercepting help-proxy request: ${url.pathname}`);
+    event.respondWith(handleHelpProxy(event.request));
     return;
   }
   
-  event.respondWith(handleHelpProxy(event.request));
+  console.log(`⏭️ Skipping non-help-proxy request: ${url.pathname}`);
 });
 
 // Handle CORS preflight requests

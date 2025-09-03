@@ -180,45 +180,8 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
         }
       } catch (corsError) {
         console.warn(`⚠️ Direct GitHub access failed due to CORS:`, corsError);
-        console.log(`🔄 Falling back to static configuration for development`);
-        
-        // Return static config for development when CORS blocks external access
-        return {
-          apps: {
-            "ntr-app": {
-              name: "NTR Training Management System",
-              baseUrl: "ntr-test",
-              locales: {
-                "sv-se": {
-                  code: "SV",
-                  name: "Svenska",
-                  file_paths: {
-                    "overview": "docs/sv/overview.md",
-                    "vouchers": "docs/sv/vouchers.md",
-                    "user-management": "docs/sv/user-management.md",
-                    "training-management": "docs/sv/training-management.md",
-                    "subscriptions": "docs/sv/subscriptions.md",
-                    "attendance": "docs/sv/attendance.md",
-                    "troubleshooting": "docs/sv/troubleshooting.md"
-                  }
-                },
-                "en-se": {
-                  code: "EN",
-                  name: "English",
-                  file_paths: {
-                    "overview": "docs/en/overview.md",
-                    "vouchers": "docs/en/vouchers.md",
-                    "user-management": "docs/en/user-management.md",
-                    "training-management": "docs/en/training-management.md",
-                    "subscriptions": "docs/en/subscriptions.md",
-                    "attendance": "docs/en/attendance.md",
-                    "troubleshooting": "docs/sv/troubleshooting.md"
-                  }
-                }
-              }
-            }
-          }
-        };
+        console.log(`❌ External repository access failed in development mode`);
+        throw new Error(`External repository access failed due to CORS: ${corsError.message}`);
       }
     } else {
       // In production, use nginx proxy
@@ -362,62 +325,32 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
       });
     }
     
-    // Try fallback to direct external repository access
-    console.log(`Attempting fallback to direct external repository access for ${sectionId} in ${language}`);
-    try {
-      // Check if we're in development mode (no nginx proxy) - FALLBACK FUNCTION
-      // More accurate detection: check if we're actually running through nginx
-      const isDevelopment = window.location.hostname === 'localhost' || 
-                           window.location.hostname === '127.0.0.1' ||
-                           window.location.port === '5173' || // Vite dev server
-                           window.location.port === '3000' || // Common dev port
-                           window.location.protocol === 'file:'; // Local file
-      
-      const isGitHubPages = window.location.hostname === 'peka01.github.io';
-      
-      let fallbackUrl: string;
-      if (isGitHubPages) {
-        // Use Service Worker proxy (no CORS issues on GitHub Pages)
-        fallbackUrl = `./help-proxy/docs/${language}/${sectionId}.md?${generateCacheBuster()}`;
-      } else if (isDevelopment) {
-        // In development, fetch directly from GitHub
-        fallbackUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md?${generateCacheBuster()}`;
-        console.log(`🔧 Development mode: Fetching fallback content directly from GitHub: ${fallbackUrl}`);
-      } else {
-        // In production, use nginx proxy
-        fallbackUrl = `/helpdocs/ntr-test/docs/${language}/${sectionId}.md?${generateCacheBuster()}`;
-        console.log(`🚀 Production mode: Fetching fallback content via nginx proxy: ${fallbackUrl}`);
-        console.log(`This will be proxied to: https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/docs/${language}/${sectionId}.md`);
-      }
-      
-      const fallbackResponse = await fetch(fallbackUrl, {
-        method: 'GET',
-        cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
-      });
-
-      if (fallbackResponse.ok) {
-        const fallbackContent = await fallbackResponse.text();
-        console.log(`✅ Fallback content loaded for ${sectionId} (${language}):`, {
-          url: fallbackUrl,
-          contentLength: fallbackContent.length,
-          first100Chars: fallbackContent.substring(0, 100),
-          last100Chars: fallbackContent.substring(fallbackContent.length - 100)
-        });
-        return fallbackContent;
-      }
-      
-      console.error(`❌ Fallback failed: ${fallbackResponse.status} ${fallbackResponse.statusText}`);
-    } catch (fallbackError) {
-      console.error(`Fallback also failed for ${sectionId}:`, fallbackError);
-    }
-    
     // Return error message when both external and fallback fail
-    const errorMessage = `# Content not available\n\nThis help content is currently not available from the external repository.\n\n**Error:** ${error}\n\n**Possible causes:**\n- CORS restrictions in development mode\n- Network connectivity issues\n- External repository unavailable\n\n**Solutions:**\n1. **Development mode**: Run with Docker/nginx to avoid CORS\n2. **Check connection**: Verify internet connectivity\n3. **Refresh**: Try refreshing the page\n\n**Debug Info:**\n- Section: ${sectionId}\n- Language: ${language}\n- Time: ${new Date().toISOString()}\n- Mode: ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'Development' : 'Production'}\n- Force Refresh: ${forceRefresh}`;
+    const errorMessage = `# Content not available
+
+This help content is currently not available from the external repository.
+
+**Error:** ${error}
+
+**Possible causes:**
+- CORS restrictions in development mode
+- Network connectivity issues
+- External repository unavailable
+
+**Solutions:**
+1. **Development mode**: Run with Docker/nginx to avoid CORS
+2. **Check connection**: Verify internet connectivity
+3. **Refresh**: Try refreshing the page
+
+**Debug Info:**
+- Section: ${sectionId}
+- Language: ${language}
+- Time: ${new Date().toISOString()}
+- Mode: ${window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'Development' : 'Production'}
+- Force Refresh: ${forceRefresh}
+
+---
+*External documentation repository is required and unavailable.*`;
     
     return errorMessage;
   }
@@ -480,20 +413,11 @@ export const helpService = {
           });
         }
       }
-    } catch (error) {
-      console.error('Error loading external help sections:', error);
-      // Fallback to static sections when external configuration is unavailable
-      console.log('Falling back to static help sections');
-      for (const sectionConfig of helpConfig.sections) {
-        sections.push({
-          id: sectionConfig.id,
-          title: sectionConfig.title[language as keyof typeof sectionConfig.title],
-          content: `# ${sectionConfig.title[language as keyof typeof sectionConfig.title]}\n\nThis help content is currently not available from the external repository.\n\nPlease check your internet connection and try refreshing.\n\n**Debug Info:**\n- Section: ${sectionConfig.id}\n- Language: ${language}\n- Time: ${new Date().toISOString()}`,
-          keywords: sectionConfig.keywords,
-          category: sectionConfig.category
-        });
+          } catch (error) {
+        console.error('Error loading external help sections:', error);
+        // No fallback - external repository is required
+        throw new Error(`External help repository is required and unavailable: ${error.message}`);
       }
-    }
     
     console.log(`Loaded ${sections.length} help sections`);
     return sections;
@@ -545,8 +469,8 @@ export const helpService = {
       return Object.keys(filePaths);
     } catch (error) {
       console.error('Error getting available sections from external repository:', error);
-      // Return static sections when external configuration is unavailable
-      return helpConfig.sections.map(s => s.id);
+      // No fallback - external repository is required
+      throw new Error(`External help repository is required and unavailable: ${error.message}`);
     }
   },
 
@@ -583,22 +507,19 @@ export const helpService = {
       
       // Validate configuration structure
       if (!config || !config.apps || !config.apps['ntr-app']) {
-        console.warn('Invalid configuration structure for metadata check, using fallback');
-        return false;
+        throw new Error('Invalid configuration structure for metadata check');
       }
       
       const appConfig = config.apps['ntr-app'];
       if (!appConfig.locales || !appConfig.locales['sv-se'] || !appConfig.locales['en-se']) {
-        console.warn('Missing locale configuration for metadata check, using fallback');
-        return false;
+        throw new Error('Missing locale configuration for metadata check');
       }
       
       const svFilePath = appConfig.locales['sv-se'].file_paths[sectionId];
       const enFilePath = appConfig.locales['en-se'].file_paths[sectionId];
       
       if (!svFilePath || !enFilePath) {
-        console.warn(`No file paths found for section ${sectionId}, using fallback`);
-        return false;
+        throw new Error(`No file paths found for section ${sectionId}`);
       }
 
       // Check if we're in development mode (no nginx proxy)
@@ -624,18 +545,22 @@ export const helpService = {
         fetch(enCommitsUrl, { cache: 'no-store' })
       ]);
 
-      if (!svCommitsRes.ok || !enCommitsRes.ok) return false;
+      if (!svCommitsRes.ok || !enCommitsRes.ok) {
+        throw new Error(`Failed to fetch commit information: ${svCommitsRes.status} ${enCommitsRes.status}`);
+      }
       const svCommits = await svCommitsRes.json() as GithubCommitInfo[];
       const enCommits = await enCommitsRes.json() as GithubCommitInfo[];
 
-      if (!svCommits.length || !enCommits.length) return false;
+      if (!svCommits.length || !enCommits.length) {
+        throw new Error('No commit information available');
+      }
 
       const svDate = new Date(svCommits[0].commit.committer.date).getTime();
       const enDate = new Date(enCommits[0].commit.committer.date).getTime();
       return enDate < svDate; // English older than Swedish
     } catch (e) {
       console.error('Error checking translation freshness', e);
-      return false;
+      throw new Error(`Failed to check translation freshness: ${e.message}`);
     }
   },
 
@@ -647,22 +572,19 @@ export const helpService = {
       
       // Validate configuration structure
       if (!config || !config.apps || !config.apps['ntr-app']) {
-        console.warn('Invalid configuration structure for metadata check, using fallback');
-        return {};
+        throw new Error('Invalid configuration structure for metadata check');
       }
       
       const appConfig = config.apps['ntr-app'];
       if (!appConfig.locales || !appConfig.locales['sv-se'] || !appConfig.locales['en-se']) {
-        console.warn('Missing locale configuration for metadata check, using fallback');
-        return {};
+        throw new Error('Missing locale configuration for metadata check');
       }
       
       const svFilePath = appConfig.locales['sv-se'].file_paths[sectionId];
       const enFilePath = appConfig.locales['en-se'].file_paths[sectionId];
       
       if (!svFilePath || !enFilePath) {
-        console.warn(`No file paths found for section ${sectionId}, using fallback`);
-        return {};
+        throw new Error(`No file paths found for section ${sectionId}`);
       }
 
       // Check if we're in development mode (no nginx proxy)
@@ -687,23 +609,24 @@ export const helpService = {
         fetch(svCommitsUrl, { cache: 'no-store' }),
         fetch(enCommitsUrl, { cache: 'no-store' })
       ]);
-      const result: { sv?: string; en?: string } = {};
-      if (svCommitsRes.ok) {
-        const svCommits = await svCommitsRes.json() as GithubCommitInfo[];
-        if (svCommits.length) {
-          result.sv = svCommits[0].commit.committer.date;
-        }
+      if (!svCommitsRes.ok || !enCommitsRes.ok) {
+        throw new Error(`Failed to fetch commit information: ${svCommitsRes.status} ${enCommitsRes.status}`);
       }
-      if (enCommitsRes.ok) {
-        const enCommits = await enCommitsRes.json() as GithubCommitInfo[];
-        if (enCommits.length) {
-          result.en = enCommits[0].commit.committer.date;
-        }
+      
+      const svCommits = await svCommitsRes.json() as GithubCommitInfo[];
+      const enCommits = await enCommitsRes.json() as GithubCommitInfo[];
+      
+      if (!svCommits.length || !enCommits.length) {
+        throw new Error('No commit information available');
       }
-      return result;
+      
+      return {
+        sv: svCommits[0].commit.committer.date,
+        en: enCommits[0].commit.committer.date
+      };
     } catch (e) {
       console.error('Error fetching last updated times', e);
-      return {};
+      throw new Error(`Failed to fetch last updated times: ${e.message}`);
     }
   }
 };
