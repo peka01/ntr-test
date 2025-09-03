@@ -152,8 +152,9 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
     
     let configUrl: string;
     if (isGitHubPages) {
-      // Use Service Worker proxy (no CORS issues on GitHub Pages)
-      configUrl = `./help-proxy/help-config.json?${cacheParams}`;
+      // On GitHub Pages, use direct GitHub access (CORS should work from GitHub Pages)
+      configUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json?${cacheParams}`;
+      console.log(`🌐 GitHub Pages: Using direct GitHub access: ${configUrl}`);
     } else if (isDevelopment) {
       // In development, use a CORS proxy or fallback to static config
       console.log(`🔧 Development mode: CORS restrictions may apply when fetching from GitHub directly`);
@@ -275,8 +276,9 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
     
     let internalUrl: string;
     if (isGitHubPages) {
-      // Use Service Worker proxy (no CORS issues on GitHub Pages)
-      internalUrl = `./help-proxy/${filePath}?${cacheParams}`;
+      // On GitHub Pages, use direct GitHub access (CORS should work from GitHub Pages)
+      internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?${cacheParams}`;
+      console.log(`🌐 GitHub Pages: Using direct GitHub access for content: ${internalUrl}`);
     } else if (isDevelopment) {
       // In development, try direct GitHub access (may fail due to CORS)
       internalUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/${filePath}?${cacheParams}`;

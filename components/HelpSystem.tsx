@@ -332,11 +332,17 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
         hasApiKey: !!apiKey,
         apiKeyLength: apiKey ? apiKey.length : 0,
         apiKeyStart: apiKey ? apiKey.substring(0, 4) + '...' : 'none',
-        envVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_'))
+        envVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
+        fullEnv: import.meta.env,
+        mode: import.meta.env.MODE,
+        base: import.meta.env.BASE_URL
       });
       
       if (!apiKey) {
-        throw new Error('Gemini API key not configured. Please check your .env file and restart the development server.');
+        console.error('❌ Gemini API key is missing!');
+        console.error('Environment variables available:', Object.keys(import.meta.env));
+        console.error('VITE_ variables:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
+        throw new Error('Gemini API key not configured. This usually means the environment variable was not loaded during build time. Check your GitHub Actions secrets and Vite configuration.');
       }
 
       // Import GoogleGenAI dynamically to avoid build issues
