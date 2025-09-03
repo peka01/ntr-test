@@ -515,6 +515,7 @@ Användarens fråga: ${content}`;
   return (
     <>
       <div 
+        key={language}
         ref={modalRef}
         className="fixed bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 z-50 select-none"
         style={
