@@ -1,7 +1,9 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { User, Training } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
+import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 
 interface SubscriptionPageProps {
@@ -83,7 +85,14 @@ const TrainingCard: React.FC<{
 };
 
 export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, trainings, subscriptions, onSubscribe, onHelpClick }) => {
+    const { user } = useAuth();
     const { t } = useTranslations();
+    const { setContext } = useUserInteraction();
+
+    useEffect(() => {
+        setContext({ screen: 'Subscription Page', action: 'Viewing subscriptions' });
+    }, [setContext]);
+
     const [searchQuery, setSearchQuery] = useState('');
 
     const filteredTrainings = trainings.filter(t =>

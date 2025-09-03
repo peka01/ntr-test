@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { helpService, type HelpSection } from '../services/helpService';
 import { GoogleGenAI } from '@google/genai';
 import { getAllSourcesAsText, searchSourcesByKeyword } from '../services/aiKnowledgeSources';
+import { useUserInteraction } from '../contexts/UserInteractionContext';
 
 interface Message {
   id: string;
@@ -16,18 +17,17 @@ interface Message {
 interface AIChatbotProps {
   isOpen: boolean;
   onClose: () => void;
-  context?: string;
   helpSections?: HelpSection[];
 }
 
 export const AIChatbot: React.FC<AIChatbotProps> = ({ 
   isOpen, 
   onClose, 
-  context, 
   helpSections = [] 
 }) => {
   const { t } = useTranslations();
   const { language } = useLanguage();
+  const { context } = useUserInteraction();
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -225,6 +225,15 @@ Användarens fråga: ${content}`;
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
+          {/* User Context Display */}
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
+            <div className="font-medium mb-1">{t('aiHelpContextTitle')}</div>
+            <ul className="list-disc list-inside space-y-1">
+              <li><strong>{t('aiHelpContextScreen')}:</strong> {context.screen}</li>
+              <li><strong>{t('aiHelpContextAction')}:</strong> {context.action}</li>
+            </ul>
+          </div>
+          
           {messages.map((message) => (
             <div
               key={message.id}

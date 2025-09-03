@@ -1,7 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import type { User, Training } from '../types';
+import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
+import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 
 interface AdminDashboardProps {
@@ -64,7 +66,14 @@ const FormInput: React.FC<{ id: string; label: string; value: string; onChange: 
 
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, trainings, onCreateUser, onCreateTraining, onUpdateTraining, onAddVoucher, onRemoveVoucher, onHelpClick }) => {
+    const { user } = useAuth();
     const { t } = useTranslations();
+    const { setContext } = useUserInteraction();
+
+    useEffect(() => {
+        setContext({ screen: 'Admin Dashboard', action: 'Viewing dashboard' });
+    }, [setContext]);
+
     const [userName, setUserName] = useState('');
     const [userEmail, setUserEmail] = useState('');
     const [trainingName, setTrainingName] = useState('');

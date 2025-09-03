@@ -1,8 +1,9 @@
 
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import type { User, Training } from '../types';
 import { KioskModeView } from './KioskModeView';
 import { useTranslations } from '../hooks/useTranslations';
+import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 import { TrashIcon } from './icons/TrashIcon';
 
@@ -91,7 +92,14 @@ const AttendanceCard: React.FC<{
 
 
 export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings, subscriptions, attendance, onMarkAttendance, onUnmarkAttendance, onHelpClick }) => {
+    const { user } = useAuth();
     const { t } = useTranslations();
+    const { setContext } = useUserInteraction();
+
+    useEffect(() => {
+        setContext({ screen: 'Attendance Page', action: 'Viewing attendance' });
+    }, [setContext]);
+
     const [kioskModeTraining, setKioskModeTraining] = useState<Training | null>(null);
 
     // Debug logging

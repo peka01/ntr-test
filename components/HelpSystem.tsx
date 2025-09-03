@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { helpService, type HelpSection } from '../services/helpService';
+import { useUserInteraction } from '../contexts/UserInteractionContext';
 
 interface HelpSystemProps {
   isOpen: boolean;
@@ -16,9 +17,10 @@ interface SourceInfo {
   type: 'help' | 'knowledge';
 }
 
-export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context, isAdmin = false }) => {
+export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin = false }) => {
   const { t } = useTranslations();
   const { language } = useLanguage();
+  const { context } = useUserInteraction();
   const [isCompact, setIsCompact] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSection, setSelectedSection] = useState<string>('overview');
@@ -829,6 +831,15 @@ Användarens fråga: ${content}`;
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 bg-slate-50">
+          {/* User Context Display */}
+          <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
+            <div className="font-medium mb-1">{t('aiHelpContextTitle')}</div>
+            <ul className="list-disc list-inside space-y-1">
+              <li><strong>{t('aiHelpContextScreen')}:</strong> {context.screen}</li>
+              <li><strong>{t('aiHelpContextAction')}:</strong> {context.action}</li>
+            </ul>
+          </div>
+          
           {/* AI Chat Search Field */}
           <div className="space-y-3">
             <form onSubmit={(e) => {

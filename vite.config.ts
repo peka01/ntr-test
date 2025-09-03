@@ -28,11 +28,6 @@ export default defineConfig(({ mode }) => {
       build: {
         outDir: 'dist',
         sourcemap: false,
-        rollupOptions: {
-          input: {
-            main: './index.html'
-          }
-        },
         // Ensure proper file extensions for GitHub Pages
         assetsDir: 'assets'
       },
