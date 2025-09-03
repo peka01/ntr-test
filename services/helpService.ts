@@ -152,9 +152,9 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
     
     let configUrl: string;
     if (isGitHubPages) {
-      // On GitHub Pages, use direct GitHub access (CORS should work from GitHub Pages)
+      // On GitHub Pages, use GitHub raw content with CSP whitelisting
       configUrl = `https://raw.githubusercontent.com/peka01/helpdoc/main/ntr-test/help-config.json?${cacheParams}`;
-      console.log(`🌐 GitHub Pages: Using direct GitHub access: ${configUrl}`);
+      console.log(`🌐 GitHub Pages: Using GitHub raw content with CSP whitelisting: ${configUrl}`);
     } else if (isDevelopment) {
       // In development, use a CORS proxy or fallback to static config
       console.log(`🔧 Development mode: CORS restrictions may apply when fetching from GitHub directly`);
