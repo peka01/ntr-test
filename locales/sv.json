@@ -132,5 +132,11 @@
   "helpLoadingText": "Laddar innehåll...",
   "helpContentsTitle": "Innehåll",
   "loadingText": "Laddar...",
-  "kioskMarkNotPresentTitle": "Markera som Ej närvarande"
+  "kioskMarkNotPresentTitle": "Markera som Ej närvarande",
+  "adminEditTraining": "Redigera träning",
+  "adminCreateTraining": "Skapa träning",
+  "adminTrainingTitleLabel": "Titel",
+  "adminTrainingDescLabel": "Beskrivning",
+  "adminTrainingDateLabel": "Datum",
+  "adminTrainingTimeLabel": "Tid"
 }

@@ -131,5 +131,11 @@
   "helpLoadingText": "Loading content...",
   "helpContentsTitle": "Contents",
   "loadingText": "Loading...",
-  "kioskMarkNotPresentTitle": "Mark as Not Present"
+  "kioskMarkNotPresentTitle": "Mark as Not Present",
+  "adminEditTraining": "Edit Training",
+  "adminCreateTraining": "Create Training",
+  "adminTrainingTitleLabel": "Title",
+  "adminTrainingDescLabel": "Description",
+  "adminTrainingDateLabel": "Date",
+  "adminTrainingTimeLabel": "Time"
 }

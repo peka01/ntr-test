@@ -87,18 +87,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, trainings
 
     const handleUserInputChange = (setter: React.Dispatch<React.SetStateAction<any>>, field: string, value: any) => {
         setter(value);
-        setContext({
+        setContext(prev => ({
+          ...prev,
           action: 'Creating a new user',
-          data: { ...{userName, userEmail, userVouchers: userVouchers.toString() }, [field]: value }
-        });
+          data: { ...prev.data, [field]: value }
+        }));
       };
     
       const handleTrainingInputChange = (setter: React.Dispatch<React.SetStateAction<string>>, field: string, value: string) => {
         setter(value);
-        setContext({
+        setContext(prev => ({
+          ...prev,
           action: 'Creating a new training',
-          data: { ...{trainingTitle, trainingDescription, trainingDate, trainingTime}, [field]: value }
-        });
+          data: { ...prev.data, [field]: value }
+        }));
       };
 
       const handleCreateUser = () => {

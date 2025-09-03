@@ -7,25 +7,25 @@ const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/peka01/helpdoc/main/n
 
 // Install event - cache the service worker
 self.addEventListener('install', (event) => {
-  console.log('🔄 Service Worker installing...');
+  // console.log('🔄 Service Worker installing...');
   self.skipWaiting();
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('🔄 Service Worker activating...');
+  console.log('🔄 Help Proxy Service Worker activating...');
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
-            console.log(`🗑️ Deleting old cache: ${cacheName}`);
+            // console.log(`🗑️ Deleting old cache: ${cacheName}`);
             return caches.delete(cacheName);
           }
         })
       );
     }).then(() => {
-      console.log(`✅ Service Worker activated with cache: ${CACHE_NAME}`);
+      console.log(`✅ Help Proxy Service Worker is active.`);
       // Force all clients to reload to get fresh content
       return self.clients.claim();
     })
@@ -35,30 +35,30 @@ self.addEventListener('activate', (event) => {
 // Fetch event - intercept requests and proxy them
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
-  console.log(`🔍 Service Worker fetch event: ${event.request.method} ${url.pathname}`);
+  // console.log(`🔍 Service Worker fetch event: ${event.request.method} ${url.pathname}`);
   
   // Handle CORS preflight requests
   if (event.request.method === 'OPTIONS') {
-    console.log(`🔄 Handling CORS preflight for: ${url.pathname}`);
+    // console.log(`🔄 Handling CORS preflight for: ${url.pathname}`);
     event.respondWith(handleCorsPreflight());
     return;
   }
   
   // Handle commits endpoint for metadata first
   if (url.pathname.includes('help-proxy/commits')) {
-    console.log(`✅ Intercepting commits request: ${url.pathname}`);
+    // console.log(`✅ Intercepting commits request: ${url.pathname}`);
     event.respondWith(handleCommitsRequest(event.request));
     return;
   }
   
   // Handle help-proxy requests (both absolute and relative paths)
   if (url.pathname.includes('help-proxy/')) {
-    console.log(`✅ Intercepting help-proxy request: ${url.pathname}`);
+    // console.log(`✅ Intercepting help-proxy request: ${url.pathname}`);
     event.respondWith(handleHelpProxy(event.request));
     return;
   }
   
-  console.log(`⏭️ Skipping non-help-proxy request: ${url.pathname}`);
+  // console.log(`⏭️ Skipping non-help-proxy request: ${url.pathname}`);
 });
 
 // Handle CORS preflight requests
@@ -87,14 +87,14 @@ async function handleHelpProxy(request) {
   
   // If forcing refresh, clear ALL related caches first
   if (forceRefresh) {
-    console.log(`🔄 Force refresh detected, clearing all caches for: ${targetPath}`);
+    // console.log(`🔄 Force refresh detected, clearing all caches for: ${targetPath}`);
     try {
       const cache = await caches.open(CACHE_NAME);
       const keys = await cache.keys();
       for (const key of keys) {
         if (key.url.includes(targetPath) || key.url.includes('help-proxy/')) {
           await cache.delete(key);
-          console.log(`🗑️ Cleared cache for: ${key.url}`);
+          // console.log(`🗑️ Cleared cache for: ${key.url}`);
         }
       }
     } catch (error) {
@@ -105,7 +105,7 @@ async function handleHelpProxy(request) {
   try {
     // Use raw content URL directly (bypassing GitHub API)
     const rawUrl = `${GITHUB_RAW_BASE}/${targetPath}`;
-    console.log(`🌐 Fetching from: ${rawUrl}${forceRefresh ? ' (forced refresh)' : ''}`);
+    // console.log(`🌐 Fetching from: ${rawUrl}${forceRefresh ? ' (forced refresh)' : ''}`);
     
     // ALWAYS add cache-busting to GitHub URL to bypass GitHub CDN cache
     const timestamp = Date.now();
@@ -113,7 +113,7 @@ async function handleHelpProxy(request) {
     const separator = rawUrl.includes('?') ? '&' : '?';
     const githubUrl = `${rawUrl}${separator}_t=${timestamp}&_v=${randomId}&_sw=${CACHE_NAME}`;
     
-    console.log(`🔗 Final GitHub URL: ${githubUrl}`);
+    // console.log(`🔗 Final GitHub URL: ${githubUrl}`);
     
     // Fetch content directly from raw.githubusercontent.com - minimal headers to avoid CORS preflight
     const rawResponse = await fetch(githubUrl, {
@@ -132,7 +132,7 @@ async function handleHelpProxy(request) {
     
     // Get the content
     const content = await rawResponse.text();
-    console.log(`✅ Content fetched successfully from GitHub, length: ${content.length}`);
+    // console.log(`✅ Content fetched successfully from GitHub, length: ${content.length}`);
     
     // Create new response with CORS headers and no-cache directives
     const proxyResponse = new Response(content, {
@@ -160,16 +160,16 @@ async function handleHelpProxy(request) {
       // Store with cache-busting key to avoid conflicts
       const cacheKey = new Request(`${request.url}?_sw_cache=${Date.now()}`);
       cache.put(cacheKey, proxyResponse.clone());
-      console.log(`💾 Cached response for: ${targetPath}`);
+      // console.log(`💾 Cached response for: ${targetPath}`);
     } else if (forceRefresh) {
-      console.log(`🔄 Skipping cache for forced refresh: ${targetPath}`);
+      // console.log(`🔄 Skipping cache for forced refresh: ${targetPath}`);
       // Clear any existing cached version
       const cache = await caches.open(CACHE_NAME);
       const keys = await cache.keys();
       for (const key of keys) {
         if (key.url.includes(targetPath)) {
           await cache.delete(key);
-          console.log(`🗑️ Cleared cached version for: ${targetPath}`);
+          // console.log(`🗑️ Cleared cached version for: ${targetPath}`);
         }
       }
     }
@@ -185,7 +185,7 @@ async function handleHelpProxy(request) {
       const cachedResponse = await cache.match(request);
       
       if (cachedResponse) {
-        console.log(`📦 Returning cached content for: ${targetPath}`);
+        // console.log(`📦 Returning cached content for: ${targetPath}`);
         // Update headers to indicate cached content
         const cachedResponseClone = cachedResponse.clone();
         const newHeaders = new Headers(cachedResponseClone.headers);
@@ -260,12 +260,12 @@ self.addEventListener('message', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          console.log(`🗑️ Clearing cache: ${cacheName}`);
+          // console.log(`🗑️ Clearing cache: ${cacheName}`);
           return caches.delete(cacheName);
         })
       );
     }).then(() => {
-      console.log('✅ All caches cleared');
+      console.log('✅ All help caches cleared via manual request.');
       // Notify all clients
       self.clients.matchAll().then((clients) => {
         clients.forEach((client) => {
@@ -289,7 +289,7 @@ setInterval(async () => {
       const timestamp = url.searchParams.get('_sw_cache');
       if (timestamp && (now - parseInt(timestamp)) > maxAge) {
         await cache.delete(key);
-        console.log(`🗑️ Auto-cleaned old cache entry: ${url.pathname}`);
+        // console.log(`🗑️ Auto-cleaned old cache entry: ${url.pathname}`);
       }
     }
   } catch (error) {

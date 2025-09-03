@@ -142,7 +142,7 @@ async function clearServiceWorkerCache(): Promise<void> {
   if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
     try {
       navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_CACHE' });
-      console.log('🗑️ Requested Service Worker cache clear');
+      // console.log('🗑️ Requested Service Worker cache clear');
     } catch (error) {
       console.warn('Could not communicate with Service Worker:', error);
     }
@@ -151,7 +151,7 @@ async function clearServiceWorkerCache(): Promise<void> {
 
 // Force reload by fetching fresh content from external repository
 async function forceReload(language: string = 'sv'): Promise<HelpSection[]> {
-  console.log(`Force reloading help content for language: ${language}`);
+  // console.log(`Force reloading help content for language: ${language}`);
   
   // Clear Service Worker cache first
   await clearServiceWorkerCache();
@@ -170,7 +170,7 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
     
     // Always use service worker proxy to avoid CORS issues
     const configUrl = `./help-proxy/help-config.json?${cacheParams}`;
-    console.log(`🌐 Using service worker proxy to fetch help config: ${configUrl}`);
+    // console.log(`🌐 Using service worker proxy to fetch help config: ${configUrl}`);
     
     const response = await fetch(configUrl, {
       method: 'GET',
@@ -184,12 +184,7 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
 
     if (response.ok) {
       const config = await response.json();
-      console.log(`✅ Help configuration loaded via service worker proxy:`, {
-        url: configUrl,
-        forceRefresh,
-        apps: Object.keys(config.apps || {}),
-        configContent: config,
-      });
+      console.log(`✅ Help configuration loaded successfully.`);
       return config;
     }
     
@@ -243,7 +238,7 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
     // Always use service worker proxy to avoid CORS issues
     const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
     const internalUrl = `./help-proxy/${filePath}?${cacheParams}`;
-    console.log(`🌐 Using service worker proxy for content: ${internalUrl}`);
+    // console.log(`🌐 Using service worker proxy for content: ${internalUrl}`);
     
     // Try to fetch content via service worker proxy
     const response = await fetch(internalUrl, {
@@ -258,14 +253,7 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
 
     if (response.ok) {
       const content = await response.text();
-      console.log(`✅ Content loaded for ${sectionId} (${language}) via service worker proxy:`, {
-        url: internalUrl,
-        forceRefresh,
-        contentLength: content.length,
-        first100Chars: content.substring(0, 100),
-        last100Chars: content.substring(content.length - 100),
-        cacheStatus: response.headers.get('X-Cache-Status') || 'unknown'
-      });
+      // console.log(`✅ Content loaded for ${sectionId} (${language}) via service worker proxy.`);
       return content;
     }
     
@@ -319,7 +307,7 @@ This help content is currently not available from the external repository.
 export const helpService = {
   // Force reload by fetching fresh content from external repository
   async forceReload(language: string = 'sv'): Promise<HelpSection[]> {
-    console.log(`Force reloading help content for language: ${language}`);
+    // console.log(`Force reloading help content for language: ${language}`);
     
     // Clear Service Worker cache first
     await clearServiceWorkerCache();
@@ -332,7 +320,7 @@ export const helpService = {
 
   // Get all help sections for a specific language
   async getAllSections(language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection[]> {
-    console.log(`Loading all help sections for language: ${language}${forceRefresh ? ' (forced refresh)' : ''}`);
+    // console.log(`Loading all help sections for language: ${language}${forceRefresh ? ' (forced refresh)' : ''}`);
     const sections: HelpSection[] = [];
     
     try {
@@ -369,7 +357,7 @@ export const helpService = {
       throw new Error(`External help repository is required and unavailable: ${error.message}`);
     }
     
-    console.log(`Loaded ${sections.length} help sections`);
+    // console.log(`Loaded ${sections.length} help sections`);
     return sections;
   },
 
@@ -426,7 +414,7 @@ export const helpService = {
 
   // Clear all caches and force fresh content
   async clearAllCaches(): Promise<void> {
-    console.log('🗑️ Clearing all help system caches...');
+    // console.log('🗑️ Clearing all help system caches...');
     
     // Clear Service Worker cache
     await clearServiceWorkerCache();
@@ -438,7 +426,7 @@ export const helpService = {
         for (const cacheName of cacheNames) {
           if (cacheName.includes('help') || cacheName.includes('proxy')) {
             await caches.delete(cacheName);
-            console.log(`🗑️ Cleared browser cache: ${cacheName}`);
+            // console.log(`🗑️ Cleared browser cache: ${cacheName}`);
           }
         }
       } catch (error) {
@@ -446,7 +434,7 @@ export const helpService = {
       }
     }
     
-    console.log('✅ All caches cleared');
+    // console.log('✅ All caches cleared');
   },
 
   // Compare last update times between sv and en for a section - FUNCTION 1
@@ -476,7 +464,7 @@ export const helpService = {
       // Use service worker proxy for metadata
       const svCommitsUrl = `./help-proxy/commits?path=ntr-test/${svFilePath}&per_page=1`;
       const enCommitsUrl = `./help-proxy/commits?path=ntr-test/${enFilePath}&per_page=1`;
-      console.log(`🌐 Using service worker proxy for metadata`);
+      // console.log(`🌐 Using service worker proxy for metadata`);
       
       const [svCommitsRes, enCommitsRes] = await Promise.all([
         fetch(svCommitsUrl, { cache: 'no-store' }),
@@ -529,7 +517,7 @@ export const helpService = {
       // Use service worker proxy for metadata
       const svCommitsUrl = `./help-proxy/commits?path=ntr-test/${svFilePath}&per_page=1`;
       const enCommitsUrl = `./help-proxy/commits?path=ntr-test/${enFilePath}&per_page=1`;
-      console.log(`🌐 Using service worker proxy for metadata`);
+      // console.log(`🌐 Using service worker proxy for metadata`);
       
       const [svCommitsRes, enCommitsRes] = await Promise.all([
         fetch(svCommitsUrl, { cache: 'no-store' }),
