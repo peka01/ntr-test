@@ -17,10 +17,45 @@ interface SourceInfo {
   type: 'help' | 'knowledge';
 }
 
+// NEW: Content rendering sub-component
+const HelpContent: React.FC<{ section: HelpSection | undefined; svFallback: string | null; renderFn: (content: string) => string }> = ({ section, svFallback, renderFn }) => {
+  if (!section) {
+    return (
+      <div className="text-center text-slate-500 py-8">
+        <p>Select a section to begin.</p>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="mb-6 flex items-center space-x-2 text-sm text-slate-600">
+        <span>Help</span>
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+        <span className="capitalize">{section.category}</span>
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
+        <span className="font-medium text-slate-800">{section.title}</span>
+      </div>
+      <div className="prose prose-slate max-w-none">
+        <div 
+          dangerouslySetInnerHTML={{ 
+            __html: renderFn(svFallback ?? section.content)
+          }} 
+        />
+      </div>
+    </>
+  );
+};
+
+
 export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin = false }) => {
   const { t } = useTranslations();
   const { language } = useLanguage();
   const { context } = useUserInteraction();
+
+  // TEMPORARY LOGGING: Add this console.log to inspect the context
+  console.log('HelpSystem context:', context);
+
   const [isCompact, setIsCompact] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSection, setSelectedSection] = useState<string>('overview');
@@ -768,67 +803,25 @@ Användarens fråga: ${content}`;
 
           {/* Content */}
           <div className="flex-1 overflow-y-auto p-6">
-            {selectedSectionData ? (
-              <>
-                {/* Breadcrumb Navigation */}
-                <div className="mb-6 flex items-center space-x-2 text-sm text-slate-600">
-                  <button
-                    onClick={() => setFilter('all')}
-                    className="hover:text-slate-800 hover:underline transition-colors"
-                  >
-                    {t('helpSystemTitle')}
-                  </button>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  <span className="capitalize">{selectedSectionData.category}</span>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                  <span className="font-medium text-slate-800">{selectedSectionData.title}</span>
-                </div>
-                
-                {/* Content */}
-                <div className="prose prose-slate max-w-none">
-                  <div 
-                    dangerouslySetInnerHTML={{ 
-                      __html: renderContent(
-                        svFallbackContent ?? selectedSectionData.content
-                      )
-                    }} 
-                  />
-                </div>
-              </>
-            ) : helpSections.length === 0 && !loading ? (
+            {loading ? (
+              <div className="text-center text-slate-500 py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
+                <p className="mt-2">{t('helpLoadingText')}</p>
+              </div>
+            ) : error ? (
               <div className="text-center text-slate-500 py-8">
                 <div className="mb-4">
-                  <svg className="w-16 h-16 text-slate-300 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                  </svg>
-                  <h3 className="text-lg font-medium text-slate-700 mb-2">Help Content Unavailable</h3>
-                  <p className="text-slate-600 mb-4">
-                    The help documentation is currently not available from the external repository.
-                  </p>
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
-                    <h4 className="font-medium text-blue-800 mb-2">💡 Good News!</h4>
-                    <p className="text-blue-700 text-sm">
-                      You can still get help using the AI chat at the bottom of this window. 
-                      The AI has access to system knowledge and can answer your questions about:
-                    </p>
-                    <ul className="text-blue-700 text-sm mt-2 list-disc list-inside space-y-1">
-                      <li>User roles and permissions</li>
-                      <li>Training session management</li>
-                      <li>Voucher and credit system</li>
-                      <li>System architecture and features</li>
-                      <li>Troubleshooting common issues</li>
-                    </ul>
-                  </div>
+                  <svg className="w-16 h-16 text-red-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" /></svg>
+                  <h3 className="text-lg font-medium text-slate-700 mb-2">{t('helpContentErrorTitle')}</h3>
+                  <p className="text-slate-600 mb-4">{t('helpContentErrorText')}</p>
                 </div>
               </div>
             ) : (
-              <div className="text-center text-slate-500 py-8">
-                <p>{t('helpNoResults')}</p>
-              </div>
+              <HelpContent 
+                section={selectedSectionData} 
+                svFallback={svFallbackContent}
+                renderFn={renderContent}
+              />
             )}
           </div>
         </div>
