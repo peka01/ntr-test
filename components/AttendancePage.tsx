@@ -6,15 +6,17 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 import { TrashIcon } from './icons/TrashIcon';
+import { StepIcon } from './icons/StepIcon';
+import { useAuth } from '../contexts/AuthContext';
 
-interface AttendancePageProps {
-    users: User[];
-    trainings: Training[];
-    subscriptions: Map<string, Set<string>>;
-    attendance: Map<string, Set<string>>;
-    onMarkAttendance: (trainingId: string, userId: string) => void;
-    onUnmarkAttendance: (trainingId: string, userId: string) => void;
-    onHelpClick?: (context?: string) => void;
+export interface AttendancePageProps {
+  users: User[];
+  trainings: Training[];
+  subscriptions: any[];
+  attendance: any[];
+  onMarkAttendance: (trainingId: string, userId: string, attended: boolean) => void;
+  onUnmarkAttendance: (trainingId: string, userId: string) => void;
+  onHelpClick: (context: string) => void;
 }
 
 const AttendanceCard: React.FC<{
@@ -92,15 +94,15 @@ const AttendanceCard: React.FC<{
 
 
 export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings, subscriptions, attendance, onMarkAttendance, onUnmarkAttendance, onHelpClick }) => {
-    const { user } = useAuth();
-    const { t } = useTranslations();
-    const { setContext } = useUserInteraction();
+     const { user } = useAuth();
+      const { t } = useTranslations();
+     const { setContext } = useUserInteraction();
 
-    useEffect(() => {
-        setContext({ screen: 'Attendance Page', action: 'Viewing attendance' });
-    }, [setContext]);
+     useEffect(() => {
+         setContext({ screen: 'Attendance Page', action: 'Viewing attendance' });
+     }, [setContext]);
 
-    const [kioskModeTraining, setKioskModeTraining] = useState<Training | null>(null);
+      const [kioskModeTraining, setKioskModeTraining] = useState<Training | null>(null);
 
     // Debug logging
     console.log('AttendancePage props:', { users, trainings, subscriptions, attendance });

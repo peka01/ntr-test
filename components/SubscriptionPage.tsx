@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type { User, Training } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
