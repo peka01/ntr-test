@@ -208,6 +208,11 @@ export const subscriptionService = {
       .select();
 
     if (error) {
+      // Ignore duplicate key errors (user is already subscribed)
+      if (error.code === '23505') {
+        console.warn('User is already subscribed, ignoring error.');
+        return;
+      }
       console.error('Error creating subscription:', error);
       throw error;
     }
@@ -260,6 +265,11 @@ export const attendanceService = {
       .select();
 
     if (error) {
+      // Ignore duplicate key errors (attendance is already marked)
+      if (error.code === '23505') {
+        console.warn('Attendance is already marked, ignoring error.');
+        return;
+      }
       console.error('Error marking attendance:', error);
       throw error;
     }
