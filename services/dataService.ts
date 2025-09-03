@@ -146,7 +146,7 @@ export const trainingService = {
   async create(name: string, description: string): Promise<Training> {
     const { data, error } = await supabase
       .from('trainings')
-      .insert([{ name, description }])
+      .insert([{ id: crypto.randomUUID(), name, description }])
       .select()
       .single();
 
@@ -204,7 +204,7 @@ export const subscriptionService = {
   async subscribe(trainingId: string, userId: string): Promise<void> {
     const { error } = await supabase
       .from('subscriptions')
-      .insert([{ training_id: trainingId, user_id: userId }])
+      .insert([{ id: crypto.randomUUID(), training_id: trainingId, user_id: userId }])
       .select();
 
     if (error) {
@@ -256,7 +256,8 @@ export const attendanceService = {
   async markAttendance(trainingId: string, userId: string): Promise<void> {
     const { error } = await supabase
       .from('attendance')
-      .insert([{ training_id: trainingId, user_id: userId }]);
+      .insert([{ id: crypto.randomUUID(), training_id: trainingId, user_id: userId }])
+      .select();
 
     if (error) {
       console.error('Error marking attendance:', error);
