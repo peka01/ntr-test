@@ -32,6 +32,14 @@ export default defineConfig(({ mode }) => {
           input: {
             app: './index.html'
           }
+        },
+        // Ensure proper file extensions for GitHub Pages
+        assetsDir: 'assets',
+        // Generate proper entry points
+        lib: {
+          entry: './src/main.tsx',
+          name: 'TrainingManagementApp',
+          fileName: 'main'
         }
       }
     };

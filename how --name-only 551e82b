@@ -1,0 +1,10 @@
+[33m551e82b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m Refactor helpService to utilize GitHub API for content fetching on GitHub Pages
+[33mf26c1ad[m Enhance security policies in index.html and update helpService logging
+[33m04dfedd[m Update Vite configuration and enhance HelpSystem error handling
+[33m2c8e75f[m Update environment variable handling and improve error messaging in HelpSystem component
+[33m01559bc[m Revamp AI Chatbot integration in HelpSystem component
+[33m0fd4e14[m Add AI Chatbot integration to HelpSystem component
+[33m4fe9471[m Enhance cache management and error handling in help system
+[33mf3e8ffe[m Refactor help-proxy service worker to optimize CORS handling and error messages
+[33ma2f1258[m Enhance service worker registration and error handling in help system
+[33m5dca3e1[m Enhance help system with improved cache management and user experience
