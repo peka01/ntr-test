@@ -841,7 +841,7 @@ Användarens fråga: ${content}`;
                 type="text"
                 value={aiInputValue}
                 onChange={(e) => setAiInputValue(e.target.value)}
-                placeholder="Ställ din fråga här... (t.ex. 'Hur skapar jag en träningssession?')"
+                placeholder={t('aiChatPlaceholder')}
                 className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm"
                 disabled={isAILoading}
               />
