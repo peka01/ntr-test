@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { helpService, type HelpSection } from '../services/helpService';
-import { AIChatbot } from './AIChatbot';
 
 interface HelpSystemProps {
   isOpen: boolean;
@@ -20,7 +19,12 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   const [filter, setFilter] = useState<'all' | 'admin' | 'user' | 'general'>('all');
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isAIChatbotOpen, setIsAIChatbotOpen] = useState(false);
+  
+  // AI Chat state
+  const [aiInputValue, setAiInputValue] = useState('');
+  const [aiResponse, setAiResponse] = useState('');
+  const [aiSources, setAiSources] = useState<string[]>([]);
+  const [isAILoading, setIsAILoading] = useState(false);
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 1200, height: 800 });
@@ -313,6 +317,100 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   const [svFallbackContent, setSvFallbackContent] = useState<string | null>(null);
   const [showToc, setShowToc] = useState<boolean>(false);
 
+  // AI Chat function
+  const sendAIMessage = async (content: string) => {
+    if (!content.trim()) return;
+
+    setIsAILoading(true);
+    setAiResponse('');
+    setAiSources([]);
+
+    try {
+      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      if (!apiKey) {
+        throw new Error('Gemini API key not configured');
+      }
+
+      // Import GoogleGenAI dynamically to avoid build issues
+      const { GoogleGenAI } = await import('@google/genai');
+      const ai = new GoogleGenAI({ apiKey });
+      const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+
+      // Prepare context from help sections and additional knowledge
+      let contextString = '';
+      
+      if (helpSections.length > 0) {
+        contextString += '## Help Documentation\n\n';
+        helpSections.forEach(section => {
+          contextString += `### ${section.title}\n`;
+          contextString += `Category: ${section.category}\n`;
+          contextString += `Keywords: ${section.keywords.join(', ')}\n`;
+          contextString += `${section.content}\n\n`;
+        });
+      }
+
+      // Add additional knowledge sources
+      const { getAllSourcesAsText, searchSourcesByKeyword } = await import('../services/aiKnowledgeSources');
+      contextString += '## Additional System Knowledge\n\n';
+      contextString += getAllSourcesAsText();
+
+      // Add current context
+      if (context) {
+        contextString += `## Current Context\n\nUser is currently working with: ${context}\n\n`;
+      }
+
+      const systemPrompt = `Du är en hjälpsam AI-assistent för ett träningshanteringssystem. Använd följande information för att svara på användarens frågor:
+
+${contextString}
+
+Instruktioner:
+- Svara på svenska om användaren skriver på svenska, annars på engelska
+- Var hjälpsam, vänlig och professionell
+- Använd informationen från dokumentationen och systemkunskapen
+- Om du inte vet svaret, säg det tydligt
+- Ge praktiska exempel när det är lämpligt
+- Citera relevanta delar av dokumentationen när det hjälper
+- Håll svaret koncist men informativt
+
+Användarens fråga: ${content}`;
+
+      const result = await model.generateContent(systemPrompt);
+      const response = await result.response;
+      const text = response.text();
+
+      // Extract sources from response
+      const sources = [];
+      const allKeywords = helpSections.flatMap(s => s.keywords);
+      
+      // Search for sources in additional knowledge
+      const relevantSources = searchSourcesByKeyword(text);
+      relevantSources.forEach(source => {
+        if (!sources.includes(source.name)) {
+          sources.push(source.name);
+        }
+      });
+      
+      // Also check help sections
+      allKeywords.forEach(keyword => {
+        if (text.toLowerCase().includes(keyword.toLowerCase())) {
+          const source = helpSections.find(s => s.keywords.includes(keyword))?.title;
+          if (source && !sources.includes(source)) {
+            sources.push(source);
+          }
+        }
+      });
+
+      setAiResponse(text);
+      setAiSources(sources);
+      setAiInputValue(''); // Clear input after successful response
+    } catch (error) {
+      console.error('Error sending message to AI:', error);
+      setAiResponse('Tyvärr kunde jag inte svara just nu. Kontrollera att din API-nyckel är korrekt konfigurerad och försök igen.');
+    } finally {
+      setIsAILoading(false);
+    }
+  };
+
   // Update document info when section changes
 
 
@@ -462,16 +560,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
                 </svg>
               )}
             </button>
-            <button
-              onClick={() => setIsAIChatbotOpen(true)}
-              className="p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
-              title="AI Hjälp - Fråga AI:n om systemet"
-              onMouseDown={(e) => e.stopPropagation()}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-              </svg>
-            </button>
+
             <button
               onClick={handleManualRefresh}
               className={`p-2 text-slate-600 hover:text-slate-700 hover:bg-slate-50 rounded-lg transition-colors ${loading ? 'animate-spin' : ''}`}
@@ -654,15 +743,82 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 bg-slate-50">
-          <div className="flex items-center justify-center text-sm text-slate-600">
-            <a 
-              href="https://www.spiris.se/kontakt" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="text-cyan-600 hover:text-cyan-700 underline"
-            >
-              {t('helpContactUs')}
-            </a>
+          {/* AI Chat Search Field */}
+          <div className="space-y-3">
+            <div className="text-sm text-slate-600 text-center font-medium">
+              🤖 AI Hjälp - Fråga mig om systemet
+            </div>
+            
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              if (aiInputValue.trim()) {
+                sendAIMessage(aiInputValue);
+              }
+            }} className="flex space-x-2">
+              <input
+                type="text"
+                value={aiInputValue}
+                onChange={(e) => setAiInputValue(e.target.value)}
+                placeholder="Ställ din fråga här... (t.ex. 'Hur skapar jag en träningssession?')"
+                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm"
+                disabled={isAILoading}
+              />
+              <button
+                type="submit"
+                disabled={isAILoading || !aiInputValue.trim()}
+                className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+              >
+                {isAILoading ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                ) : (
+                  'Fråga'
+                )}
+              </button>
+            </form>
+            
+            {/* AI Response Display */}
+            {aiResponse && (
+              <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium text-slate-700">AI Svar:</span>
+                  <button
+                    onClick={() => setAiResponse('')}
+                    className="text-slate-400 hover:text-slate-600 text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <div className="text-sm text-slate-800 whitespace-pre-wrap">
+                  {aiResponse}
+                </div>
+                {aiSources && aiSources.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100">
+                    <div className="text-xs text-slate-500 mb-1">Källor:</div>
+                    <div className="flex flex-wrap gap-1">
+                      {aiSources.map((source, index) => (
+                        <span
+                          key={index}
+                          className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded"
+                        >
+                          {source}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+            
+            <div className="text-xs text-slate-500 text-center">
+              <a 
+                href="https://www.spiris.se/kontakt" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-cyan-600 hover:text-cyan-700 underline"
+              >
+                {t('helpContactUs')}
+              </a>
+            </div>
           </div>
         </div>
 
@@ -702,14 +858,6 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
           onMouseDown={(e) => handleResizeStart(e, 'se')}
         />
       </div>
-
-      {/* AI Chatbot */}
-      <AIChatbot
-        isOpen={isAIChatbotOpen}
-        onClose={() => setIsAIChatbotOpen(false)}
-        context={context}
-        helpSections={helpSections}
-      />
     </>
   );
 };

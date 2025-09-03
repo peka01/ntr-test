@@ -39,15 +39,15 @@ npm install @google/genai
 
 ### 3. Integration
 
-The chatbot is automatically integrated into your `HelpSystem` component. Users can access it via the AI button (lightbulb icon) in the help window header.
+The AI chatbot is now integrated directly into the footer of your `HelpSystem` component. Users can access it as a search field at the bottom of the help window - no need to open a separate modal.
 
 ## Usage
 
 ### For Users
 
 1. **Open Help System**: Click the help button (?) anywhere in the app
-2. **Access AI Chat**: Click the AI button (💡) in the help window header
-3. **Ask Questions**: Type your question in natural language
+2. **Access AI Chat**: Scroll to the bottom of the help window to see the AI chat field
+3. **Ask Questions**: Type your question in the search field and press "Fråga"
 4. **Get Answers**: Receive intelligent responses with source citations
 
 ### Example Questions
@@ -109,15 +109,14 @@ You can modify `components/AIChatbot.tsx` to:
 
 ### Components
 
-1. **AIChatbot**: Main chatbot interface
-2. **HelpSystem**: Integrated help system with AI button
-3. **aiKnowledgeSources**: Configurable knowledge base
-4. **helpService**: External documentation access
+1. **HelpSystem**: Help system with integrated AI chat in footer
+2. **aiKnowledgeSources**: Configurable knowledge base
+3. **helpService**: External documentation access
 
 ### Data Flow
 
 ```
-User Question → AIChatbot → Context Preparation → Gemini AI → Response + Sources
+User Question → HelpSystem Footer → Context Preparation → Gemini AI → Response + Sources
 ```
 
 ### Context Preparation
