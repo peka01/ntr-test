@@ -391,7 +391,11 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
 
       // Add current context
       if (context) {
-        contextString += `## Current Context\n\nUser is currently on screen: **${context.screen}**\nLast action: **${context.action}**\n\n`;
+        let contextDetails = `## Current Context\n\nUser is currently on screen: **${context.screen}**\nLast action: **${context.action}**\n\n`;
+        if (Object.keys(context.data).length > 0) {
+          contextDetails += `Current form data:\n\`\`\`json\n${JSON.stringify(context.data, null, 2)}\n\`\`\`\n\n`;
+        }
+        contextString += contextDetails;
       }
 
       // If no help documentation is available, provide a fallback context
@@ -831,15 +835,6 @@ Användarens fråga: ${content}`;
 
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 bg-slate-50">
-          {/* User Context Display */}
-          <div className="mb-3 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-800">
-            <div className="font-medium mb-1">{t('aiHelpContextTitle')}</div>
-            <ul className="list-disc list-inside space-y-1">
-              <li><strong>{t('aiHelpContextScreen')}:</strong> {context.screen}</li>
-              <li><strong>{t('aiHelpContextAction')}:</strong> {context.action}</li>
-            </ul>
-          </div>
-          
           {/* AI Chat Search Field */}
           <div className="space-y-3">
             <form onSubmit={(e) => {
@@ -860,11 +855,12 @@ Användarens fråga: ${content}`;
                 type="submit"
                 disabled={isAILoading || !aiInputValue.trim()}
                 className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                title={`${t('aiHelpContextTitle')}\n- ${t('aiHelpContextScreen')}: ${context.screen}\n- ${t('aiHelpContextAction')}: ${context.action}${Object.keys(context.data).length > 0 ? `\n- Data: ${JSON.stringify(context.data)}` : ''}`}
               >
                 {isAILoading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                 ) : (
-                  'Fråga'
+                  t('aiHelpAskButton')
                 )}
               </button>
             </form>

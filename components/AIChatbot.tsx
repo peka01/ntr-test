@@ -85,7 +85,11 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({
 
     // Add current context
     if (context) {
-      contextString += `## Current Context\n\nUser is currently on screen: **${context.screen}**\nLast action: **${context.action}**\n\n`;
+      let contextDetails = `## Current Context\n\nUser is currently on screen: **${context.screen}**\nLast action: **${context.action}**\n\n`;
+      if (Object.keys(context.data).length > 0) {
+        contextDetails += `Current form data:\n\`\`\`json\n${JSON.stringify(context.data, null, 2)}\n\`\`\`\n\n`;
+      }
+      contextString += contextDetails;
     }
 
     return contextString;
@@ -225,15 +229,6 @@ Användarens fråga: ${content}`;
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
-          {/* User Context Display */}
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-800">
-            <div className="font-medium mb-1">{t('aiHelpContextTitle')}</div>
-            <ul className="list-disc list-inside space-y-1">
-              <li><strong>{t('aiHelpContextScreen')}:</strong> {context.screen}</li>
-              <li><strong>{t('aiHelpContextAction')}:</strong> {context.action}</li>
-            </ul>
-          </div>
-          
           {messages.map((message) => (
             <div
               key={message.id}
@@ -307,6 +302,7 @@ Användarens fråga: ${content}`;
               type="submit"
               disabled={isLoading || !inputValue.trim()}
               className="px-6 py-3 bg-cyan-500 text-white rounded-xl hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              title={`${t('aiHelpContextTitle')}\n- ${t('aiHelpContextScreen')}: ${context.screen}\n- ${t('aiHelpContextAction')}: ${context.action}${Object.keys(context.data).length > 0 ? `\n- Data: ${JSON.stringify(context.data)}` : ''}`}
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>

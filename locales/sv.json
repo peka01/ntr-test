@@ -73,6 +73,7 @@
   "aiHelpSourcesTitle": "Källor:",
   "aiHelpGoToSection": "Gå till avsnitt: {{sectionName}}",
   "aiHelpKnowledgeSourceTooltip": "Detta är en allmän kunskapskälla och kan inte navigeras till.",
+  "aiHelpAskButton": "Fråga",
   "aiChatTitle": "AI Hjälp",
   "aiChatDescription": "Fråga mig vad som helst om systemet",
   "aiChatWelcome": "Hej! Jag är här för att hjälpa dig med {{context}}. Vad kan jag hjälpa dig med idag?",

@@ -72,6 +72,7 @@
   "aiHelpSourcesTitle": "Sources:",
   "aiHelpGoToSection": "Go to section: {{sectionName}}",
   "aiHelpKnowledgeSourceTooltip": "This is a general knowledge source and cannot be navigated to.",
+  "aiHelpAskButton": "Ask",
   "aiChatTitle": "AI Help",
   "aiChatDescription": "Ask me anything about the system",
   "aiChatWelcome": "Hi! I'm here to help you with {{context}}. What can I help you with today?",
