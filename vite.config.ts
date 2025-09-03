@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
             "style-src 'self' 'unsafe-inline'",
             "img-src 'self' data: https:",
             "font-src 'self' data:",
-            "connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://peka01.github.io",
+            "connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://peka01.github.io https://generativelanguage.googleapis.com",
             "frame-src 'self'",
             "object-src 'none'",
             "base-uri 'self'",

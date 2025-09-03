@@ -160,9 +160,7 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
         url: configUrl,
         forceRefresh,
         apps: Object.keys(config.apps || {}),
-        ntrAppLocales: Object.keys(config.apps?.['ntr-test']?.locales || {}),
-        svSections: Object.keys(config.apps?.['ntr-test']?.locales?.['sv-se']?.file_paths || {}),
-        enSections: Object.keys(config.apps?.['ntr-test']?.locales?.['en-se']?.file_paths || {})
+        configContent: config,
       });
       return config;
     }
@@ -193,14 +191,14 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
     // Load configuration to get the correct file path
     const config = await loadHelpConfig(forceRefresh);
     
-    // Validate configuration structure - use 'ntr-test' as the app key
-    if (!config || !config.apps || !config.apps['ntr-test']) {
-      console.warn('Invalid configuration structure, falling back to static paths');
-      throw new Error('Invalid configuration structure');
+    // Validate configuration structure - use 'ntr-app' as the app key
+    if (!config || !config.apps || !config.apps['ntr-app']) {
+      console.warn('Invalid configuration structure, falling back to static paths. Available app keys:', config?.apps ? Object.keys(config.apps) : 'none');
+      throw new Error('Invalid configuration structure or "ntr-app" key missing.');
     }
     
     const localeKey = language === 'sv' ? 'sv-se' : 'en-se';
-    const appConfig = config.apps['ntr-test'];
+    const appConfig = config.apps['ntr-app'];
     
     if (!appConfig.locales || !appConfig.locales[localeKey]) {
       console.warn(`Locale ${localeKey} not found in configuration, falling back to static paths`);
@@ -389,7 +387,7 @@ export const helpService = {
     try {
       const config = await loadHelpConfig();
       const localeKey = language === 'sv' ? 'sv-se' : 'en-se';
-      const filePaths = config.apps['ntr-test'].locales[localeKey].file_paths;
+      const filePaths = config.apps['ntr-app'].locales[localeKey].file_paths;
       return Object.keys(filePaths);
     } catch (error) {
       console.error('Error getting available sections from external repository:', error);
@@ -430,11 +428,11 @@ export const helpService = {
       const config = await loadHelpConfig();
       
       // Validate configuration structure
-      if (!config || !config.apps || !config.apps['ntr-test']) {
+      if (!config || !config.apps || !config.apps['ntr-app']) {
         throw new Error('Invalid configuration structure for metadata check');
       }
       
-      const appConfig = config.apps['ntr-test'];
+      const appConfig = config.apps['ntr-app'];
       if (!appConfig.locales || !appConfig.locales['sv-se'] || !appConfig.locales['en-se']) {
         throw new Error('Missing locale configuration for metadata check');
       }
@@ -482,11 +480,11 @@ export const helpService = {
       const config = await loadHelpConfig();
       
       // Validate configuration structure
-      if (!config || !config.apps || !config.apps['ntr-test']) {
+      if (!config || !config.apps || !config.apps['ntr-app']) {
         throw new Error('Invalid configuration structure for metadata check');
       }
       
-      const appConfig = config.apps['ntr-test'];
+      const appConfig = config.apps['ntr-app'];
       if (!appConfig.locales || !appConfig.locales['sv-se'] || !appConfig.locales['en-se']) {
         throw new Error('Missing locale configuration for metadata check');
       }
