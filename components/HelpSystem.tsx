@@ -10,6 +10,12 @@ interface HelpSystemProps {
   isAdmin?: boolean; // Whether the current user is an admin
 }
 
+interface SourceInfo {
+  name: string;
+  id?: string;
+  type: 'help' | 'knowledge';
+}
+
 export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context, isAdmin = false }) => {
   const { t } = useTranslations();
   const { language } = useLanguage();
@@ -23,7 +29,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   // AI Chat state
   const [aiInputValue, setAiInputValue] = useState('');
   const [aiResponse, setAiResponse] = useState('');
-  const [aiSources, setAiSources] = useState<string[]>([]);
+  const [aiSources, setAiSources] = useState<SourceInfo[]>([]);
   const [isAILoading, setIsAILoading] = useState(false);
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -412,26 +418,23 @@ Användarens fråga: ${content}`;
       const text = result.text.trim();
 
       // Extract sources from response
-      const sources = [];
+      const sources: SourceInfo[] = [];
       
       try {
-        const allKeywords = helpSections.flatMap(s => s.keywords);
-        
         // Search for sources in additional knowledge
         const { searchSourcesByKeyword } = await import('../services/aiKnowledgeSources');
         const relevantSources = searchSourcesByKeyword(text);
         relevantSources.forEach(source => {
-          if (!sources.includes(source.name)) {
-            sources.push(source.name);
+          if (!sources.some(s => s.name === source.name)) {
+            sources.push({ name: source.name, type: 'knowledge' });
           }
         });
         
-        // Also check help sections
-        allKeywords.forEach(keyword => {
-          if (text.toLowerCase().includes(keyword.toLowerCase())) {
-            const source = helpSections.find(s => s.keywords.includes(keyword))?.title;
-            if (source && !sources.includes(source)) {
-              sources.push(source);
+        // Also check help sections by matching keywords and title
+        helpSections.forEach(section => {
+          if (text.toLowerCase().includes(section.title.toLowerCase()) || section.keywords.some(k => text.toLowerCase().includes(k.toLowerCase()))) {
+            if (!sources.some(s => s.name === section.title)) {
+              sources.push({ name: section.title, id: section.id, type: 'help' });
             }
           }
         });
@@ -857,12 +860,24 @@ Användarens fråga: ${content}`;
                     <div className="text-xs text-slate-500 mb-1">Källor:</div>
                     <div className="flex flex-wrap gap-1">
                       {aiSources.map((source, index) => (
-                        <span
-                          key={index}
-                          className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded"
-                        >
-                          {source}
-                        </span>
+                        source.type === 'help' && source.id ? (
+                          <button
+                            key={index}
+                            onClick={() => setSelectedSection(source.id!)}
+                            className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded hover:bg-cyan-200 transition-colors cursor-pointer"
+                            title={`Go to section: ${source.name}`}
+                          >
+                            {source.name}
+                          </button>
+                        ) : (
+                          <span
+                            key={index}
+                            className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded"
+                            title="This is a general knowledge source and cannot be navigated to."
+                          >
+                            {source.name}
+                          </span>
+                        )
                       ))}
                     </div>
                   </div>
