@@ -101,6 +101,33 @@ export interface HelpSectionConfig {
   category: 'admin' | 'user' | 'general';
 }
 
+let isProxyReady: Promise<void> | null = null;
+
+function ensureProxyIsReady(): Promise<void> {
+    if (isProxyReady) {
+        return isProxyReady;
+    }
+
+    isProxyReady = new Promise<void>((resolve, reject) => {
+        if (!('serviceWorker' in navigator)) {
+            console.warn('Service Worker not supported, help proxy will not work.');
+            // Resolve anyway, but fetches will fail with a clearer error.
+            resolve();
+            return;
+        }
+
+        navigator.serviceWorker.ready.then(registration => {
+            console.log('✅ Service Worker proxy is ready to handle requests.');
+            resolve();
+        }).catch(error => {
+            console.error('❌ Service Worker proxy failed to become ready.', error);
+            reject(error);
+        });
+    });
+
+    return isProxyReady;
+}
+
 // Enhanced cache-busting and refresh utilities
 function generateCacheBuster(): string {
   return `t=${Date.now()}&v=${Math.random().toString(36).substr(2, 9)}`;
@@ -138,6 +165,7 @@ async function forceReload(language: string = 'sv'): Promise<HelpSection[]> {
 // Load help configuration from external repository - MAIN FUNCTION
 async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
   try {
+    await ensureProxyIsReady(); // Wait for the service worker to be active
     const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
     
     // Always use service worker proxy to avoid CORS issues
@@ -424,6 +452,7 @@ export const helpService = {
   // Compare last update times between sv and en for a section - FUNCTION 1
   async isEnglishOutdated(sectionId: string): Promise<boolean> {
     try {
+      await ensureProxyIsReady(); // Wait for the service worker to be active
       // Load configuration to get the correct file paths
       const config = await loadHelpConfig();
       
@@ -476,6 +505,7 @@ export const helpService = {
   // Get last updated timestamps for sv and en docs - FUNCTION 2
   async getLastUpdatedTimes(sectionId: string): Promise<{ sv?: string; en?: string }> {
     try {
+      await ensureProxyIsReady(); // Wait for the service worker to be active
       // Load configuration to get the correct file paths
       const config = await loadHelpConfig();
       

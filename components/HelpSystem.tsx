@@ -25,6 +25,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   const [filter, setFilter] = useState<'all' | 'admin' | 'user' | 'general'>('all');
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
   
   // AI Chat state
   const [aiInputValue, setAiInputValue] = useState('');
@@ -56,11 +57,13 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
     const loadHelpContent = async () => {
       try {
         setLoading(true);
+        setError(null);
         // Force reload to bypass any stale cache
         const sections = await helpService.forceReload(language);
         setHelpSections(sections);
       } catch (error) {
         console.error('Error loading help content:', error);
+        setError(error);
         // Don't fail completely - set empty sections and continue
         setHelpSections([]);
         
@@ -534,7 +537,21 @@ Användarens fråga: ${content}`;
           className={`relative z-20 flex items-center justify-between ${isCompact ? 'p-4' : 'p-6'} border-b border-slate-200 cursor-move`}
           onMouseDown={handleMouseDown}
         >
-          <h2 className="text-2xl font-bold text-slate-900">{t('helpSystemTitle')}</h2>
+          <div className="flex items-center gap-3">
+            <span
+              className={`w-4 h-4 rounded-full ${
+                loading ? 'bg-yellow-400 animate-pulse' : error ? 'bg-red-500' : 'bg-green-500'
+              }`}
+              title={
+                loading
+                  ? t('helpStatusLoading')
+                  : error
+                  ? t('helpStatusError', { errorMessage: error.message })
+                  : t('helpStatusSuccess')
+              }
+            />
+            <h2 className="text-2xl font-bold text-slate-900">{t('helpSystemTitle')}</h2>
+          </div>
           <div className="flex items-center gap-2">
             {isCompact && (
               <button
