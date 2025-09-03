@@ -204,7 +204,8 @@ export const subscriptionService = {
   async subscribe(trainingId: string, userId: string): Promise<void> {
     const { error } = await supabase
       .from('subscriptions')
-      .insert([{ training_id: trainingId, user_id: userId }]);
+      .insert([{ training_id: trainingId, user_id: userId }])
+      .select();
 
     if (error) {
       console.error('Error creating subscription:', error);
