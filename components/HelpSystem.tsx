@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { helpService, type HelpSection } from '../services/helpService';
+import { AIChatbot } from './AIChatbot';
 
 interface HelpSystemProps {
   isOpen: boolean;
@@ -19,6 +20,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   const [filter, setFilter] = useState<'all' | 'admin' | 'user' | 'general'>('all');
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isAIChatbotOpen, setIsAIChatbotOpen] = useState(false);
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 1200, height: 800 });
@@ -371,20 +373,21 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
   if (!isOpen) return null;
 
   return (
-    <div 
-      ref={modalRef}
-      className="fixed bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 z-50 select-none"
-      style={
-        {
-          left: `${position.x}px`,
-          top: `${position.y}px`,
-          width: isCompact ? `${Math.min(size.width, window.innerWidth - 32)}px` : `${size.width}px`,
-          height: isCompact ? `${Math.min(size.height, window.innerHeight - 32)}px` : `${size.height}px`,
-          cursor: isDragging ? 'grabbing' : 'default'
+    <>
+      <div 
+        ref={modalRef}
+        className="fixed bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 z-50 select-none"
+        style={
+          {
+            left: `${position.x}px`,
+            top: `${position.y}px`,
+            width: isCompact ? `${Math.min(size.width, window.innerWidth - 32)}px` : `${size.width}px`,
+            height: isCompact ? `${Math.min(size.height, window.innerHeight - 32)}px` : `${size.height}px`,
+            cursor: isDragging ? 'grabbing' : 'default'
+          }
         }
-      }
-      onClick={handleWindowClick}
-    >
+        onClick={handleWindowClick}
+      >
         {/* Header */}
         <div 
           className={`relative z-20 flex items-center justify-between ${isCompact ? 'p-4' : 'p-6'} border-b border-slate-200 cursor-move`}
@@ -458,6 +461,16 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4V2a1 1 0 011-1h8a1 1 0 011 1v2m-9 0h10m-10 0a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V6a2 2 0 00-2-2" />
                 </svg>
               )}
+            </button>
+            <button
+              onClick={() => setIsAIChatbotOpen(true)}
+              className="p-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+              title="AI Hjälp - Fråga AI:n om systemet"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
             </button>
             <button
               onClick={handleManualRefresh}
@@ -688,6 +701,15 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, context
           className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize z-50 hover:bg-blue-500 hover:opacity-50" 
           onMouseDown={(e) => handleResizeStart(e, 'se')}
         />
-     </div>
-   );
- };
+      </div>
+
+      {/* AI Chatbot */}
+      <AIChatbot
+        isOpen={isAIChatbotOpen}
+        onClose={() => setIsAIChatbotOpen(false)}
+        context={context}
+        helpSections={helpSections}
+      />
+    </>
+  );
+};
