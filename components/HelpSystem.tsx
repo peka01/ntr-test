@@ -739,7 +739,10 @@ Användarens fråga: ${content}`;
                   {filteredSections.map((section) => (
                     <button
                       key={section.id}
-                      onClick={() => setSelectedSection(section.id)}
+                      onClick={() => {
+                        console.log(`TOC Click: Setting section to '${section.id}'`);
+                        setSelectedSection(section.id);
+                      }}
                       className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                         selectedSection === section.id
                           ? 'bg-cyan-500 text-white'
@@ -784,7 +787,11 @@ Användarens fråga: ${content}`;
                     {filteredSections.map((section) => (
                       <button
                         key={section.id}
-                        onClick={() => { setSelectedSection(section.id); setShowToc(false); }}
+                        onClick={() => {
+                          console.log(`Compact TOC Click: Setting section to '${section.id}'`);
+                          setSelectedSection(section.id);
+                          setShowToc(false);
+                        }}
                         className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
                           selectedSection === section.id
                             ? 'bg-cyan-500 text-white'
