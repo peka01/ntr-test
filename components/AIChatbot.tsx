@@ -56,13 +56,13 @@ export const AIChatbot: React.FC<AIChatbotProps> = ({
       const welcomeMessage: Message = {
         id: 'welcome',
         type: 'assistant',
-        content: `Hej! Jag är här för att hjälpa dig med ${context}. Vad kan jag hjälpa dig med idag?`,
+        content: t('aiChatWelcome', { context }),
         timestamp: new Date(),
         sources: []
       };
       setMessages([welcomeMessage]);
     }
-  }, [context, helpSections, messages.length]);
+  }, [context, helpSections, messages.length, t, context]);
 
   // Prepare context for AI
   const prepareContext = (): string => {
@@ -175,7 +175,7 @@ Användarens fråga: ${content}`;
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: 'Tyvärr kunde jag inte svara just nu. Kontrollera att din API-nyckel är korrekt konfigurerad och försök igen.',
+        content: t('aiChatError'),
         timestamp: new Date()
       };
 
@@ -208,7 +208,11 @@ Användarens fråga: ${content}`;
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl h-[80vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-end p-4 border-b border-slate-200">
+        <div className="flex items-center justify-between p-6 border-b border-slate-200">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">{t('aiChatTitle')}</h2>
+            <p className="text-slate-600">{t('aiChatDescription')}</p>
+          </div>
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors p-2"
@@ -236,7 +240,7 @@ Användarens fråga: ${content}`;
                 <div className="whitespace-pre-wrap">{message.content}</div>
                 {message.sources && message.sources.length > 0 && (
                   <div className="mt-2 pt-2 border-t border-slate-200">
-                    <p className="text-xs opacity-75">Källor:</p>
+                    <p className="text-xs opacity-75">{t('aiChatSourcesTitle')}</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {message.sources.map((source, index) => (
                         <span
@@ -265,7 +269,7 @@ Användarens fråga: ${content}`;
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                     <div className="w-2 h-2 bg-slate-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
-                  <span className="text-sm text-slate-500">Skriver...</span>
+                  <span className="text-sm text-slate-500">{t('aiChatTyping')}</span>
                 </div>
               </div>
             </div>
@@ -283,7 +287,7 @@ Användarens fråga: ${content}`;
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ställ din fråga här... (Shift+Enter för ny rad)"
+                placeholder={t('aiChatPlaceholder')}
                 className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none"
                 rows={1}
                 style={{ minHeight: '48px', maxHeight: '120px' }}
@@ -306,7 +310,7 @@ Användarens fråga: ${content}`;
           </form>
           
           <div className="mt-3 text-xs text-slate-500 text-center">
-            AI:n använder all tillgänglig dokumentation och systemkunskap för att svara på dina frågor
+            {t('aiChatFooter')}
           </div>
         </div>
       </div>

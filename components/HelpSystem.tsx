@@ -447,7 +447,7 @@ Användarens fråga: ${content}`;
       setAiInputValue(''); // Clear input after successful response
     } catch (error) {
       console.error('Error sending message to AI:', error);
-      setAiResponse('Tyvärr kunde jag inte svara just nu. Kontrollera att din API-nyckel är korrekt konfigurerad och försök igen.');
+      setAiResponse(t('aiHelpError'));
     } finally {
       setIsAILoading(false);
     }
@@ -844,7 +844,7 @@ Användarens fråga: ${content}`;
             {aiResponse && (
               <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-slate-700">AI Svar:</span>
+                  <span className="text-xs font-medium text-slate-700">{t('aiHelpResponseTitle')}</span>
                   <button
                     onClick={() => setAiResponse('')}
                     className="text-slate-400 hover:text-slate-600 text-xs"
@@ -857,15 +857,18 @@ Användarens fråga: ${content}`;
                 </div>
                 {aiSources && aiSources.length > 0 && (
                   <div className="pt-2 border-t border-slate-100">
-                    <div className="text-xs text-slate-500 mb-1">Källor:</div>
+                    <div className="text-xs text-slate-500 mb-1">{t('aiHelpSourcesTitle')}</div>
                     <div className="flex flex-wrap gap-1">
                       {aiSources.map((source, index) => (
                         source.type === 'help' && source.id ? (
                           <button
                             key={index}
-                            onClick={() => setSelectedSection(source.id!)}
+                            onClick={() => {
+                              setSelectedSection(source.id!);
+                              onClose();
+                            }}
                             className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded hover:bg-cyan-200 transition-colors cursor-pointer"
-                            title={`Go to section: ${source.name}`}
+                            title={t('aiHelpGoToSection', { sectionName: source.name })}
                           >
                             {source.name}
                           </button>
@@ -873,7 +876,7 @@ Användarens fråga: ${content}`;
                           <span
                             key={index}
                             className="text-xs bg-slate-100 text-slate-600 px-2 py-1 rounded"
-                            title="This is a general knowledge source and cannot be navigated to."
+                            title={t('aiHelpKnowledgeSourceTooltip')}
                           >
                             {source.name}
                           </span>
