@@ -100,8 +100,9 @@ export const useData = () => {
       setSubscriptions(prev => {
         const newSubs = new Map(prev);
         const userIds = newSubs.get(trainingId) || new Set();
-        userIds.add(userId);
-        newSubs.set(trainingId, userIds);
+        const newUserIds = new Set(userIds); // Create a new Set for immutability
+        newUserIds.add(userId);
+        newSubs.set(trainingId, newUserIds);
         return newSubs;
       });
     } catch (err) {
@@ -117,8 +118,9 @@ export const useData = () => {
         const newSubs = new Map(prev);
         const userIds = newSubs.get(trainingId);
         if (userIds) {
-          userIds.delete(userId);
-          newSubs.set(trainingId, userIds);
+          const newUserIds = new Set(userIds); // Create a new Set for immutability
+          newUserIds.delete(userId);
+          newSubs.set(trainingId, newUserIds);
         }
         return newSubs;
       });
@@ -140,8 +142,9 @@ export const useData = () => {
         setAttendance(prev => {
           const newAttendance = new Map(prev);
           const attendees = newAttendance.get(trainingId) || new Set();
-          attendees.add(userId);
-          newAttendance.set(trainingId, attendees);
+          const newAttendees = new Set(attendees); // Create a new Set for immutability
+          newAttendees.add(userId);
+          newAttendance.set(trainingId, newAttendees);
           return newAttendance;
         });
       }
@@ -163,8 +166,9 @@ export const useData = () => {
           const newAttendance = new Map(prev);
           const attendees = newAttendance.get(trainingId);
           if (attendees) {
-            attendees.delete(userId);
-            newAttendance.set(trainingId, attendees);
+            const newAttendees = new Set(attendees); // Create a new Set for immutability
+            newAttendees.delete(userId);
+            newAttendance.set(trainingId, newAttendees);
           }
           return newAttendance;
         });
