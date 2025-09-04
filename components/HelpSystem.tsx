@@ -500,6 +500,24 @@ Användarens fråga: ${content}`;
       }
 
       setAiResponse(interpolatedText);
+
+      // Parse lightweight action hints in AI output, e.g.:
+      // [action:navigate view=public]
+      // We surface as buttons under the answer; clicking dispatches a window event
+      const actionRegex = /\[action:([^\]\s]+)([^\]]*)\]/g;
+      const actions: { type: string; payload: Record<string, string> }[] = [];
+      let match: RegExpExecArray | null;
+      while ((match = actionRegex.exec(text)) !== null) {
+        const type = match[1];
+        const params = match[2] || '';
+        const payload: Record<string, string> = {};
+        params.trim().split(/\s+/).forEach(kv => {
+          const [k, v] = kv.split('=');
+          if (k && v) payload[k] = v;
+        });
+        actions.push({ type, payload });
+      }
+      setSuggestedActions(actions);
       setAiSources(sources);
       setAiInputValue(''); // Clear input after successful response
     } catch (error) {
@@ -580,6 +598,8 @@ Användarens fråga: ${content}`;
     
     return html;
   };
+
+  const [suggestedActions, setSuggestedActions] = useState<{ type: string; payload: Record<string, string> }[]>([]);
 
   if (!isOpen) return null;
 
@@ -922,6 +942,24 @@ Användarens fråga: ${content}`;
                 <div className="text-sm text-slate-800 whitespace-pre-wrap">
                   {aiResponse}
                 </div>
+                {suggestedActions && suggestedActions.length > 0 && (
+                  <div className="pt-2 border-t border-slate-100 flex flex-wrap gap-2">
+                    {suggestedActions.map((a, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          // Confirm for destructive or changing actions in the future
+                          const detail = { type: a.type, payload: a.payload };
+                          window.dispatchEvent(new CustomEvent('ai-action', { detail }));
+                        }}
+                        className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded hover:bg-cyan-200 transition-colors cursor-pointer"
+                        title={`${a.type} ${Object.entries(a.payload).map(([k,v]) => `${k}=${v}`).join(' ')}`}
+                      >
+                        {a.type}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 {aiSources && aiSources.length > 0 && (
                   <div className="pt-2 border-t border-slate-100">
                     <div className="text-xs text-slate-500 mb-1">{t('aiHelpSourcesTitle')}</div>

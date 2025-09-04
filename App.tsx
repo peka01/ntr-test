@@ -48,6 +48,20 @@ const AppContent: React.FC = () => {
         setHelpOpen(true);
     };
 
+    // Listen for AI action events (navigation, etc.)
+    React.useEffect(() => {
+        const handler = (event: Event) => {
+            const custom = event as CustomEvent<any>;
+            if (!custom.detail) return;
+            const { type, payload } = custom.detail;
+            if (type === 'navigate' && payload?.view) {
+                setView(payload.view);
+            }
+        };
+        window.addEventListener('ai-action', handler as EventListener);
+        return () => window.removeEventListener('ai-action', handler as EventListener);
+    }, []);
+
     const handleCreateUser = async (name: string, email: string) => {
         try {
             await createUser(name, email);
