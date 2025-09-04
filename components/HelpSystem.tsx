@@ -448,6 +448,18 @@ Instruktioner:
 - Håll svaret koncist men informativt
 - Om dokumentationen inte är tillgänglig, svara baserat på din allmänna kunskap om systemadministration
 
+Interaktiva åtgärder (machine-action hints):
+- Efter ditt svar, om det är relevant, lägg till en eller flera åtgärdshints på separata rader i formatet [action:NAMN nyckel=värde ...]
+- Stödda åtgärder:
+  - navigate view=public|admin|attendance
+  - set_search value="text"
+  - open_help id=overview|vouchers|user-management|training-management|subscriptions|attendance|troubleshooting
+  - toggle_source value=local|remote
+  - unsubscribe trainingId="..." userId="..." (använd endast som förslag)
+- Exempel: [action:navigate view=public]
+
+Viktigt: Skriv alltid din naturliga text först. Lägg därefter (om relevant) till åtgärdshints på egna rader.
+
 Användarens fråga: ${content}`;
 
       const result = await ai.models.generateContent({
@@ -600,6 +612,33 @@ Användarens fråga: ${content}`;
   };
 
   const [suggestedActions, setSuggestedActions] = useState<{ type: string; payload: Record<string, string> }[]>([]);
+
+  // Clear suggested actions when user edits input
+  useEffect(() => {
+    if (aiInputValue.trim().length > 0) {
+      setSuggestedActions([]);
+    }
+  }, [aiInputValue]);
+
+  // Handle AI actions relevant to HelpSystem (open_help, toggle_source)
+  useEffect(() => {
+    const handler = (event: Event) => {
+      const custom = event as CustomEvent<any>;
+      if (!custom.detail) return;
+      const { type, payload } = custom.detail;
+      if (type === 'open_help' && payload?.id) {
+        setSelectedSection(String(payload.id));
+      }
+      if (type === 'toggle_source' && payload?.value) {
+        const val = payload.value === 'remote' ? 'remote' : 'local';
+        setContentSource(val);
+        helpContentSource.set(val);
+        handleManualRefresh();
+      }
+    };
+    window.addEventListener('ai-action', handler as EventListener);
+    return () => window.removeEventListener('ai-action', handler as EventListener);
+  }, []);
 
   if (!isOpen) return null;
 
@@ -942,7 +981,7 @@ Användarens fråga: ${content}`;
                 <div className="text-sm text-slate-800 whitespace-pre-wrap">
                   {aiResponse}
                 </div>
-                {suggestedActions && suggestedActions.length > 0 && (
+                {(suggestedActions && suggestedActions.length > 0) ? (
                   <div className="pt-2 border-t border-slate-100 flex flex-wrap gap-2">
                     {suggestedActions.map((a, idx) => (
                       <button
@@ -958,6 +997,28 @@ Användarens fråga: ${content}`;
                         {a.type}
                       </button>
                     ))}
+                  </div>
+                ) : (
+                  <div className="pt-2 border-t border-slate-100 flex flex-wrap gap-2">
+                    {/* Fallback quick actions */}
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'public' } } }))}
+                      className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
+                    >
+                      navigate public
+                    </button>
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'admin' } } }))}
+                      className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
+                    >
+                      navigate admin
+                    </button>
+                    <button
+                      onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'attendance' } } }))}
+                      className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
+                    >
+                      navigate attendance
+                    </button>
                   </div>
                 )}
                 {aiSources && aiSources.length > 0 && (
