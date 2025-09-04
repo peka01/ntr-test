@@ -107,6 +107,28 @@ export const userService = {
     };
   },
 
+  // Update user information
+  async update(userId: string, name: string, email: string): Promise<User> {
+    const { data, error } = await supabase
+      .from('users')
+      .update({ name, email })
+      .eq('id', userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
+
+    return {
+      id: data.id,
+      name: data.name,
+      email: data.email,
+      voucherBalance: data.voucher_balance
+    };
+  },
+
   // Update user voucher balance
   async updateVoucherBalance(userId: string, newBalance: number): Promise<void> {
     const { error } = await supabase

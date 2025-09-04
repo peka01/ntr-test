@@ -52,6 +52,19 @@ export const useData = () => {
     }
   }, []);
 
+  const updateUser = useCallback(async (userId: string, name: string, email: string) => {
+    try {
+      const updatedUser = await userService.update(userId, name, email);
+      setUsers(prev => prev.map(user => 
+        user.id === userId ? updatedUser : user
+      ));
+      return updatedUser;
+    } catch (err) {
+      console.error('Error updating user:', err);
+      throw err;
+    }
+  }, []);
+
   const updateUserVoucherBalance = useCallback(async (userId: string, newBalance: number) => {
     try {
       await userService.updateVoucherBalance(userId, newBalance);
@@ -191,6 +204,7 @@ export const useData = () => {
     // Operations
     loadData,
     createUser,
+    updateUser,
     updateUserVoucherBalance,
     createTraining,
     updateTraining,

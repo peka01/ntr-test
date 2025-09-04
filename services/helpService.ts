@@ -29,7 +29,7 @@ const helpConfig = {
         sv: "Användarhantering (Admin)",
         en: "User Management (Admin)"
       },
-      keywords: ["create user", "add user", "manage vouchers", "admin", "user list"],
+      keywords: ["create user", "add user", "manage vouchers", "admin", "user list", "användare", "användarhantering", "skapa användare", "redigera användare", "klippkort", "vouchers", "användarlista", "användaröversikt", "lägg till användare", "uppdatera användare", "creating a new user", "editing user", "users page", "viewing users list"],
       category: "admin" as const
     },
     {
@@ -38,7 +38,7 @@ const helpConfig = {
         sv: "Träningshantering (Admin)",
         en: "Training Management (Admin)"
       },
-      keywords: ["create training", "edit training", "admin training", "training management"],
+      keywords: ["create training", "edit training", "admin training", "training management", "träningar", "träningshantering", "skapa träning", "redigera träning", "träningslista", "träningsöversikt", "träningspass", "lägg till träning", "uppdatera träning", "creating new training", "editing training", "trainings page", "viewing trainings list"],
       category: "admin" as const
     },
     {
@@ -47,7 +47,7 @@ const helpConfig = {
         sv: "Träningsanmälningar (Användare)",
         en: "Training Subscriptions (User)"
       },
-      keywords: ["subscribe", "unsubscribe", "subscription", "public view", "user subscription"],
+      keywords: ["subscribe", "unsubscribe", "subscription", "public view", "user subscription", "subscription page", "viewing subscriptions", "anmälan"],
       category: "user" as const
     },
     {
@@ -56,7 +56,7 @@ const helpConfig = {
         sv: "Närvarohantering (Användare)",
         en: "Attendance Management (User)"
       },
-      keywords: ["mark attendance", "cancel attendance", "attendance view", "voucher deduction", "refund"],
+      keywords: ["mark attendance", "cancel attendance", "attendance view", "voucher deduction", "refund", "attendance page", "viewing attendance", "närvaro", "närvarohantering"],
       category: "user" as const
     },
     {
@@ -237,7 +237,7 @@ export const helpService = {
               id: fullPath,
               title,
               content,
-              keywords: [],
+              keywords: sectionInfo.keywords || [],
               category,
               pathSegments: [folderName, sectionId],
               folderPath: folderName,

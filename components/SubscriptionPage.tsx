@@ -124,13 +124,13 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
             </div>
             
             {trainings.length > 0 && (
-                <div className="mb-6 max-w-lg mx-auto">
+                <div className="mb-6">
                     <input
                         type="text"
                         placeholder={t('subSearchPlaceholder')}
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full bg-white border border-slate-300 rounded-md p-3 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200"
+                        className="w-full bg-white border border-slate-300 rounded-lg p-3 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 transition duration-200"
                     />
                 </div>
             )}

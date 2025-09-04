@@ -2,9 +2,10 @@
 import React, { useState } from 'react';
 import type { Training } from './types';
 import type { User } from '@supabase/supabase-js';
-import { AdminDashboard } from './components/AdminDashboard';
 import { SubscriptionPage } from './components/SubscriptionPage';
 import { AttendancePage } from './components/AttendancePage';
+import { TrainingsPage } from './components/TrainingsPage';
+import { UsersPage } from './components/UsersPage';
 import { useTranslations } from './hooks/useTranslations';
 import { useData } from './hooks/useData';
 import { LoadingSpinner } from './components/LoadingSpinner';
@@ -16,7 +17,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserMenu } from './components/UserMenu';
 import { LoginForm } from './components/LoginForm';
 
-type View = 'admin' | 'public' | 'attendance';
+type View = 'public' | 'attendance' | 'trainings' | 'users';
 
 const AppContent: React.FC = () => {
     const { t } = useTranslations();
@@ -34,6 +35,7 @@ const AppContent: React.FC = () => {
         loading,
         error,
         createUser,
+        updateUser,
         updateUserVoucherBalance,
         createTraining,
         updateTraining,
@@ -67,6 +69,14 @@ const AppContent: React.FC = () => {
             await createUser(name, email);
         } catch (err) {
             console.error('Failed to create user:', err);
+        }
+    };
+
+    const handleUpdateUser = async (userId: string, name: string, email: string) => {
+        try {
+            await updateUser(userId, name, email);
+        } catch (err) {
+            console.error('Failed to update user:', err);
         }
     };
 
@@ -171,16 +181,28 @@ const AppContent: React.FC = () => {
                             {user ? (
                                 <>
                                     {isAdmin && (
-                                        <button
-                                            onClick={() => setView('admin')}
-                                            className={`px-3 py-2 rounded-md text-sm font-medium ${
-                                                view === 'admin' 
-                                                    ? 'bg-blue-100 text-blue-700' 
-                                                    : 'text-slate-600 hover:text-slate-900'
-                                            }`}
-                                        >
-                                            {t('navAdmin')}
-                                        </button>
+                                        <>
+                                            <button
+                                                onClick={() => setView('trainings')}
+                                                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                                    view === 'trainings' 
+                                                        ? 'bg-blue-100 text-blue-700' 
+                                                        : 'text-slate-600 hover:text-slate-900'
+                                                }`}
+                                            >
+                                                {t('navTrainings')}
+                                            </button>
+                                            <button
+                                                onClick={() => setView('users')}
+                                                className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                                    view === 'users' 
+                                                        ? 'bg-blue-100 text-blue-700' 
+                                                        : 'text-slate-600 hover:text-slate-900'
+                                                }`}
+                                            >
+                                                {t('navUsers')}
+                                            </button>
+                                        </>
                                     )}
                                     <button
                                         onClick={() => setView('public')}
@@ -257,20 +279,6 @@ const AppContent: React.FC = () => {
                     </div>
                 ) : (
                     <>
-                        {view === 'admin' && (
-                            <ProtectedRoute requireAdmin={true}>
-                                <AdminDashboard
-                                    users={users}
-                                    trainings={trainings}
-                                    onCreateUser={handleCreateUser}
-                                    onCreateTraining={handleCreateTraining}
-                                    onUpdateTraining={handleUpdateTraining}
-                                    onAddVoucher={handleAddVoucher}
-                                    onRemoveVoucher={handleRemoveVoucher}
-                                    onHelpClick={handleHelpClick}
-                                />
-                            </ProtectedRoute>
-                        )}
 
                         {view === 'public' && (
                             <SubscriptionPage
@@ -292,6 +300,30 @@ const AppContent: React.FC = () => {
                                     attendance={attendance}
                                     onMarkAttendance={handleMarkAttendance}
                                     onUnmarkAttendance={handleUnmarkAttendance}
+                                    onHelpClick={handleHelpClick}
+                                />
+                            </ProtectedRoute>
+                        )}
+
+                        {view === 'trainings' && (
+                            <ProtectedRoute requireAdmin={true}>
+                                <TrainingsPage
+                                    trainings={trainings}
+                                    onCreateTraining={handleCreateTraining}
+                                    onUpdateTraining={handleUpdateTraining}
+                                    onHelpClick={handleHelpClick}
+                                />
+                            </ProtectedRoute>
+                        )}
+
+                        {view === 'users' && (
+                            <ProtectedRoute requireAdmin={true}>
+                                <UsersPage
+                                    users={users}
+                                    onCreateUser={handleCreateUser}
+                                    onUpdateUser={handleUpdateUser}
+                                    onAddVoucher={handleAddVoucher}
+                                    onRemoveVoucher={handleRemoveVoucher}
                                     onHelpClick={handleHelpClick}
                                 />
                             </ProtectedRoute>

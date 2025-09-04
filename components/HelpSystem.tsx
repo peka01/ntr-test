@@ -197,6 +197,37 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
         setError(null);
         const sections = await helpService.getAllSections(language, true);
         setHelpSections(sections);
+        
+        // When language changes, try to find the corresponding section
+        if (selectedSection && sections.length > 0) {
+          // First try to find exact match
+          let correspondingSection = sections.find(section => section.id === selectedSection);
+          
+          // If no exact match, try to find by section name (last part of the path)
+          if (!correspondingSection) {
+            const currentSectionName = selectedSection.split('/').pop();
+            correspondingSection = sections.find(section => 
+              section.id.split('/').pop() === currentSectionName
+            );
+          }
+          
+          // If still no match, try to find by title similarity
+          if (!correspondingSection) {
+            const currentSection = helpSections.find(s => s.id === selectedSection);
+            if (currentSection) {
+              correspondingSection = sections.find(section => 
+                section.title.toLowerCase() === currentSection.title.toLowerCase()
+              );
+            }
+          }
+          
+          if (correspondingSection) {
+            setSelectedSection(correspondingSection.id);
+          } else {
+            // Fallback to first section if no match found
+            setSelectedSection(sections[0]?.id || 'overview');
+          }
+        }
       } catch (error) {
         console.error('Error loading help content:', error);
         setError(error);
@@ -417,8 +448,8 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       const contextString = `${context.screen} ${context.action}`.toLowerCase();
       
       // First, try to find exact matches for user-specific contexts
-      const userContexts = ['subscribe', 'unsubscribe', 'subscription', 'public view'];
-      const adminContexts = ['create user', 'add user', 'manage vouchers', 'create training', 'edit training'];
+      const userContexts = ['subscribe', 'unsubscribe', 'subscription', 'public view', 'attendance', 'subscription page', 'viewing subscriptions', 'attendance page', 'viewing attendance'];
+      const adminContexts = ['create user', 'add user', 'manage vouchers', 'create training', 'edit training', 'creating a new user', 'editing user', 'creating new training', 'editing training', 'users page', 'trainings page'];
       
       // Check if this is a user context
       const isUserContext = userContexts.some(userCtx => contextString.includes(userCtx));
@@ -438,6 +469,35 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
           section.category === 'admin' && 
           section.keywords.some(keyword => contextString.includes(keyword.toLowerCase()))
         );
+        
+        // If no keyword match, try direct ID matching for specific pages
+        if (!relevantSection) {
+          if (contextString.includes('subscription page') || contextString.includes('viewing subscriptions') || contextString.includes('subscription')) {
+            relevantSection = helpSections.find(section => 
+              section.id === 'subscriptions' || 
+              section.id.endsWith('/subscriptions') ||
+              section.id.includes('subscriptions')
+            );
+          } else if (contextString.includes('attendance page') || contextString.includes('viewing attendance') || contextString.includes('attendance')) {
+            relevantSection = helpSections.find(section => 
+              section.id === 'attendance' || 
+              section.id.endsWith('/attendance') ||
+              section.id.includes('attendance')
+            );
+          } else if (contextString.includes('users page') || contextString.includes('user')) {
+            relevantSection = helpSections.find(section => 
+              section.id === 'user-management' || 
+              section.id.endsWith('/user-management') ||
+              section.id.includes('user-management')
+            );
+          } else if (contextString.includes('trainings page') || contextString.includes('training')) {
+            relevantSection = helpSections.find(section => 
+              section.id === 'training-management' || 
+              section.id.endsWith('/training-management') ||
+              section.id.includes('training-management')
+            );
+          }
+        }
       }
       
       // If no specific match found, fall back to general matching
