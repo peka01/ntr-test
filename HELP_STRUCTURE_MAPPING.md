@@ -75,7 +75,7 @@ The system supports these predefined icons:
 
 Your documentation files should be organized as:
 ```
-public/docs/
+docs/                           # Main documentation folder (NOT public/docs/)
 ├── structure-map.json          # Structure mapping configuration
 ├── sv/                         # Swedish documentation
 │   ├── overview.md
@@ -98,6 +98,8 @@ public/docs/
         ├── subscriptions.md
         └── vouchers.md
 ```
+
+**Important**: The help system uses **build-time discovery** from the `docs/` folder, not the `public/docs/` folder. The `public/docs/` folder is only used as a fallback for runtime fetching.
 
 ## Benefits
 

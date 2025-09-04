@@ -129,6 +129,15 @@ export const helpService = {
   // Load structure map from JSON file
   async loadStructureMap(): Promise<StructureMap | null> {
     try {
+      // First try to load from build-time discovered docs
+      const discovered = this.discoverDocs('sv'); // Use any language to get the structure map
+      if (discovered['structure-map']) {
+        const structureMap = JSON.parse(discovered['structure-map']);
+        console.log('✅ Structure map loaded from build-time discovery');
+        return structureMap as StructureMap;
+      }
+      
+      // Fallback to runtime fetch from public folder
       const base = (import.meta as any).env?.BASE_URL || '/';
       const response = await fetch(`${base}docs/structure-map.json?t=${Date.now()}`, {
         cache: 'no-store',
@@ -139,7 +148,7 @@ export const helpService = {
       
       if (response.ok) {
         const structureMap = await response.json();
-        console.log('✅ Structure map loaded successfully');
+        console.log('✅ Structure map loaded from runtime fetch');
         return structureMap as StructureMap;
       } else {
         console.warn('⚠️ Could not load structure map, falling back to auto-discovery');
@@ -328,9 +337,9 @@ export const helpService = {
     try {
       const langFolder = language === 'sv' ? 'sv' : 'en';
       // @ts-ignore Vite-specific API
-      const globA: Record<string, string> = (import.meta as any).glob('/docs/**/*.md', { as: 'raw', eager: true });
+      const globA: Record<string, string> = (import.meta as any).glob('/docs/**/*.md', { query: '?raw', import: 'default', eager: true });
       // @ts-ignore Vite-specific API
-      const globB: Record<string, string> = (import.meta as any).glob('../docs/**/*.md', { as: 'raw', eager: true });
+      const globB: Record<string, string> = (import.meta as any).glob('../docs/**/*.md', { query: '?raw', import: 'default', eager: true });
       // Merge results (support different path resolutions across environments)
       const modules: Record<string, string> = { ...globA, ...globB } as any;
       const result: Record<string, string> = {};
