@@ -227,7 +227,9 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
     if (getContentSource() === 'local') {
       const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
       const langFolder = language === 'sv' ? 'sv' : 'en';
-      const localUrl = `./docs/${langFolder}/${sectionId}.md?${cacheParams}`;
+      // Serve from public/docs and respect Vite base url for prod (e.g., /ntr-test/)
+      const base = (import.meta as any).env?.BASE_URL || '/';
+      const localUrl = `${base}docs/${langFolder}/${sectionId}.md?${cacheParams}`;
       const res = await fetch(localUrl, { cache: 'no-store' });
       if (res.ok) {
         return await res.text();
