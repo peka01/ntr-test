@@ -1,4 +1,4 @@
-# Registrera dig för träning
+# Registrera träning
 
 ## Översikt
 
