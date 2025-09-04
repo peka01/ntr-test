@@ -20,8 +20,6 @@ export default defineConfig(({ mode }) => {
     return {
       base: '/ntr-test/',
       plugins: [react()],
-      // Serve docs folder directly without needing to sync to public
-      publicDir: 'public',
       define: {
         'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(geminiApiKey),
         'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
@@ -34,10 +32,6 @@ export default defineConfig(({ mode }) => {
         assetsDir: 'assets'
       },
       server: {
-        // Allow serving files from docs folder
-        fs: {
-          allow: ['..', './docs']
-        },
         headers: {
           // Content Security Policy to allow external content
           'Content-Security-Policy': [

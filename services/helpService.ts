@@ -145,8 +145,9 @@ export const helpService = {
     try {
       // Always use aggressive cache busting to ensure fresh content
       const timestamp = Date.now();
-      const randomId = Math.random().toString(36).substr(2, 9);
-      const cacheParams = `?t=${timestamp}&v=${randomId}&_fresh=${Date.now()}`;
+      const randomId = Math.random().toString(36).substr(2, 15);
+      const sessionId = Math.random().toString(36).substr(2, 10);
+      const cacheParams = `?t=${timestamp}&v=${randomId}&_fresh=${Date.now()}&_session=${sessionId}&_bust=${Math.random()}`;
       const langFolder = language === 'sv' ? 'sv' : 'en';
       
       // Try to fetch from local docs folder (served directly by Vite)
@@ -163,13 +164,59 @@ export const helpService = {
           'Pragma': 'no-cache',
           'Expires': '0',
           'If-Modified-Since': '0',
-          'If-None-Match': '*'
+          'If-None-Match': '*',
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-Cache-Buster': `${timestamp}-${randomId}-${sessionId}`
         }
       });
       
       if (response.ok) {
         const content = await response.text();
         console.log(`✅ Content loaded for ${sectionId} (${language}) from local docs.`);
+        return content;
+      }
+      
+      // Handle 304 Not Modified - this means the content is cached but we want fresh content
+      if (response.status === 304) {
+        console.warn(`⚠️ Got 304 Not Modified for ${sectionId}, retrying with different cache buster...`);
+        // Retry with a completely different cache buster
+        const newTimestamp = Date.now() + Math.random() * 1000;
+        const newRandomId = Math.random().toString(36).substr(2, 15);
+        const newCacheParams = `?t=${newTimestamp}&v=${newRandomId}&_fresh=${Date.now()}&_retry=${Math.random()}`;
+        const retryUrl = `${base}docs/${langFolder}/${sectionId}.md${newCacheParams}`;
+        
+        console.log(`🔄 Retrying with new URL: ${retryUrl}`);
+        
+        const retryResponse = await fetch(retryUrl, {
+          cache: 'no-store',
+          method: 'GET',
+          headers: {
+            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+            'Pragma': 'no-cache',
+            'Expires': '0',
+            'If-Modified-Since': '0',
+            'If-None-Match': '*'
+          }
+        });
+        
+        if (retryResponse.ok) {
+          const content = await retryResponse.text();
+          console.log(`✅ Content loaded for ${sectionId} (${language}) on retry.`);
+          return content;
+        }
+      }
+      
+      // Final fallback: try without any cache busting at all
+      console.warn(`⚠️ All cache busting attempts failed, trying simple request...`);
+      const simpleUrl = `${base}docs/${langFolder}/${sectionId}.md`;
+      const simpleResponse = await fetch(simpleUrl, {
+        cache: 'no-store',
+        method: 'GET'
+      });
+      
+      if (simpleResponse.ok) {
+        const content = await simpleResponse.text();
+        console.log(`✅ Content loaded for ${sectionId} (${language}) with simple request.`);
         return content;
       }
       
