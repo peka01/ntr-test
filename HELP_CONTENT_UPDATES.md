@@ -19,9 +19,10 @@ Edit files directly in `public/docs/`:
 ## Why This Works
 
 - **Vite Development**: Serves files directly from `public/` folder
-- **GitHub Pages**: Built files include `public/` contents in `dist/`
+- **GitHub Pages**: Vite automatically includes `public/` contents in the build
 - **No Caching Issues**: Aggressive cache busting ensures fresh content
 - **No Syncing**: Files are already in the right place
+- **No Copying**: Docs are served directly from `public/docs/` - no duplication needed
 
 ## File Structure
 

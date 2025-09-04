@@ -9,25 +9,7 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Cross-platform copy function
-function copyDir(src, dest) {
-  if (!fs.existsSync(dest)) {
-    fs.mkdirSync(dest, { recursive: true });
-  }
-  
-  const entries = fs.readdirSync(src, { withFileTypes: true });
-  
-  for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
-    
-    if (entry.isDirectory()) {
-      copyDir(srcPath, destPath);
-    } else {
-      fs.copyFileSync(srcPath, destPath);
-    }
-  }
-}
+// Simple build script - no copying needed since docs are served directly from public/
 
 console.log('🔧 Building with .nojekyll file...');
 
@@ -50,21 +32,13 @@ try {
     fs.writeFileSync(publicNojekyllPath, '');
   }
   
-  // Copy docs to dist folder for production
-  const publicDocsPath = path.join(process.cwd(), 'public', 'docs');
-  const distDocsPath = path.join(process.cwd(), 'dist', 'docs');
-  if (fs.existsSync(publicDocsPath)) {
-    console.log('📁 Copying docs to dist folder...');
-    copyDir(publicDocsPath, distDocsPath);
-  }
+  // Docs are served directly from public/docs/ - no copying needed
   
   console.log('✅ Build completed with .nojekyll files!');
   console.log('📁 Files created:');
   console.log('   - dist/.nojekyll');
   console.log('   - public/.nojekyll');
-  if (fs.existsSync(publicDocsPath)) {
-    console.log('   - dist/docs/ (copied from public/docs/)');
-  }
+  console.log('📚 Docs served directly from public/docs/ (no copying needed)');
   
 } catch (error) {
   console.error('❌ Build failed:', error.message);
