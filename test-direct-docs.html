@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Docs Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+        button { padding: 10px 20px; margin: 5px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>Direct Docs Access Test</h1>
+    <p>Testing if Vite can serve docs directly from the <code>docs/</code> folder without syncing to <code>public/</code>.</p>
+    
+    <div>
+        <button onclick="testDirectDocs()">📁 Test Direct Docs Access</button>
+        <button onclick="testPublicDocs()">📁 Test Public Docs Access</button>
+        <button onclick="clearResults()">🗑️ Clear Results</button>
+    </div>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        function addResult(title, content, type = 'info') {
+            const resultsDiv = document.getElementById('test-results');
+            resultsDiv.innerHTML += `
+                <div class="test-section ${type}">
+                    <h3>${title}</h3>
+                    <div>${content}</div>
+                </div>
+            `;
+        }
+        
+        function clearResults() {
+            document.getElementById('test-results').innerHTML = '';
+        }
+        
+        async function testDirectDocs() {
+            addResult('📁 Testing Direct Docs Access', 'Testing if Vite serves docs directly from docs/ folder...', 'info');
+            
+            try {
+                const url = '/docs/sv/overview.md?t=' + Date.now();
+                console.log('Testing direct docs URL:', url);
+                
+                const response = await fetch(url, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+                
+                if (response.ok) {
+                    const content = await response.text();
+                    addResult('✅ Direct Docs Access Works!', `
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Content Length:</strong> ${content.length} characters</p>
+                        <p><strong>Content Preview:</strong></p>
+                        <pre>${content.substring(0, 200)}...</pre>
+                        <p><strong>Conclusion:</strong> No syncing needed! Vite serves docs directly from docs/ folder.</p>
+                    `, 'success');
+                } else {
+                    addResult('❌ Direct Docs Access Failed', `
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Conclusion:</strong> Syncing to public/ folder is required.</p>
+                    `, 'error');
+                }
+            } catch (error) {
+                addResult('❌ Direct Docs Access Error', `
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Conclusion:</strong> Syncing to public/ folder is required.</p>
+                `, 'error');
+            }
+        }
+        
+        async function testPublicDocs() {
+            addResult('📁 Testing Public Docs Access', 'Testing if docs are accessible from public/docs/ folder...', 'info');
+            
+            try {
+                const url = '/docs/sv/overview.md?t=' + Date.now();
+                console.log('Testing public docs URL:', url);
+                
+                const response = await fetch(url, {
+                    cache: 'no-store',
+                    headers: {
+                        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
+                        'Pragma': 'no-cache',
+                        'Expires': '0'
+                    }
+                });
+                
+                if (response.ok) {
+                    const content = await response.text();
+                    addResult('✅ Public Docs Access Works', `
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                        <p><strong>Content Length:</strong> ${content.length} characters</p>
+                        <p><strong>Content Preview:</strong></p>
+                        <pre>${content.substring(0, 200)}...</pre>
+                    `, 'success');
+                } else {
+                    addResult('❌ Public Docs Access Failed', `
+                        <p><strong>URL:</strong> ${url}</p>
+                        <p><strong>Status:</strong> ${response.status} ${response.statusText}</p>
+                    `, 'error');
+                }
+            } catch (error) {
+                addResult('❌ Public Docs Access Error', `
+                    <p><strong>Error:</strong> ${error.message}</p>
+                `, 'error');
+            }
+        }
+        
+        // Auto-run tests when page loads
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testDirectDocs();
+                setTimeout(testPublicDocs, 1000);
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help System Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Help System Test</h1>
+    <p>This page tests the help system's ability to load content from local docs.</p>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        async function testHelpSystem() {
+            const resultsDiv = document.getElementById('test-results');
+            
+            // Test 1: Load Swedish overview
+            try {
+                const response = await fetch('/docs/sv/overview.md?t=' + Date.now());
+                if (response.ok) {
+                    const content = await response.text();
+                    resultsDiv.innerHTML += `
+                        <div class="test-section success">
+                            <h3>✅ Test 1: Swedish Overview</h3>
+                            <p>Successfully loaded Swedish overview content (${content.length} characters)</p>
+                            <pre>${content.substring(0, 200)}...</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="test-section error">
+                        <h3>❌ Test 1: Swedish Overview</h3>
+                        <p>Failed to load: ${error.message}</p>
+                    </div>
+                `;
+            }
+            
+            // Test 2: Load English overview
+            try {
+                const response = await fetch('/docs/en/overview.md?t=' + Date.now());
+                if (response.ok) {
+                    const content = await response.text();
+                    resultsDiv.innerHTML += `
+                        <div class="test-section success">
+                            <h3>✅ Test 2: English Overview</h3>
+                            <p>Successfully loaded English overview content (${content.length} characters)</p>
+                            <pre>${content.substring(0, 200)}...</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="test-section error">
+                        <h3>❌ Test 2: English Overview</h3>
+                        <p>Failed to load: ${error.message}</p>
+                    </div>
+                `;
+            }
+            
+            // Test 3: Test non-existent file
+            try {
+                const response = await fetch('/docs/sv/nonexistent.md?t=' + Date.now());
+                if (response.ok) {
+                    resultsDiv.innerHTML += `
+                        <div class="test-section error">
+                            <h3>❌ Test 3: Non-existent File</h3>
+                            <p>Expected 404 but got success - this might indicate a problem</p>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML += `
+                        <div class="test-section success">
+                            <h3>✅ Test 3: Non-existent File</h3>
+                            <p>Correctly returned ${response.status} for non-existent file</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="test-section success">
+                        <h3>✅ Test 3: Non-existent File</h3>
+                        <p>Correctly failed to load non-existent file: ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Run tests when page loads
+        window.addEventListener('load', testHelpSystem);
+    </script>
+</body>
+</html>

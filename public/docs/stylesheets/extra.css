@@ -1,0 +1,109 @@
+/* Custom styles for Training Management System Help */
+
+/* Improve readability */
+.md-content {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+/* Style for role-based sections */
+.role-section {
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    margin: 1rem 0;
+}
+
+/* Language switcher styling */
+.language-switcher {
+    display: inline-block;
+    margin: 0.5rem 0;
+}
+
+.language-switcher a {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    margin: 0 0.25rem;
+    background: var(--md-primary-fg-color);
+    color: var(--md-primary-bg-color);
+    text-decoration: none;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+}
+
+.language-switcher a:hover {
+    background: var(--md-accent-fg-color);
+    color: var(--md-accent-bg-color);
+}
+
+/* Quick start cards */
+.quick-start-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1rem;
+    margin: 2rem 0;
+}
+
+.quick-start-card {
+    border: 1px solid var(--md-default-fg-color--lightest);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    background: var(--md-default-bg-color);
+    transition: box-shadow 0.2s ease;
+}
+
+.quick-start-card:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.quick-start-card h3 {
+    margin-top: 0;
+    color: var(--md-primary-fg-color);
+}
+
+/* Feature list styling */
+.feature-list {
+    list-style: none;
+    padding: 0;
+}
+
+.feature-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--md-default-fg-color--lightest);
+}
+
+.feature-list li:last-child {
+    border-bottom: none;
+}
+
+/* Emoji styling */
+.emoji {
+    font-size: 1.2em;
+    margin-right: 0.5rem;
+}
+
+/* Responsive design improvements */
+@media (max-width: 768px) {
+    .quick-start-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .md-content {
+        font-size: 14px;
+    }
+}
+
+/* Print styles */
+@media print {
+    .md-header,
+    .md-nav,
+    .md-footer {
+        display: none !important;
+    }
+    
+    .md-content {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+}
