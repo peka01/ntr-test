@@ -1,4 +1,4 @@
-# Välkommen till din nya ubildningsvärld!
+# Välkommen till din nya test!
 Här gör vi det enkelt!. En galet enkel och smidig lösning för att organisera träningar - så att du kan fokusera på det som verkligen betyder något.
 ## Vad får du ut av det?
 ### Som deltagare:
