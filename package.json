@@ -6,7 +6,8 @@
   "homepage": "https://peka01.github.io/ntr-test",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "node scripts/build-with-nojekyll.js",
+    "build:simple": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist"

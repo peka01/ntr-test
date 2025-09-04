@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MIME Type Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .info { background-color: #d1ecf1; border-color: #bee5eb; }
+        pre { background-color: #f8f9fa; padding: 10px; border-radius: 3px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>MIME Type Test for GitHub Pages</h1>
+    <p>Testing if JavaScript files are served with correct MIME types.</p>
+    
+    <div id="test-results"></div>
+    
+    <script>
+        async function testMimeTypes() {
+            const resultsDiv = document.getElementById('test-results');
+            
+            // Test the main JavaScript file
+            try {
+                const response = await fetch('/ntr-test/assets/index-Bzx_Hneu.js');
+                const contentType = response.headers.get('content-type');
+                
+                if (contentType && contentType.includes('javascript')) {
+                    resultsDiv.innerHTML += `
+                        <div class="test-section success">
+                            <h3>✅ JavaScript MIME Type Correct</h3>
+                            <p><strong>Content-Type:</strong> ${contentType}</p>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p>JavaScript files are being served with the correct MIME type.</p>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML += `
+                        <div class="test-section error">
+                            <h3>❌ JavaScript MIME Type Incorrect</h3>
+                            <p><strong>Content-Type:</strong> ${contentType || 'Not set'}</p>
+                            <p><strong>Status:</strong> ${response.status}</p>
+                            <p>JavaScript files are being served with incorrect MIME type. This causes the module script error.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="test-section error">
+                        <h3>❌ Error Testing MIME Types</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+            
+            // Test if .nojekyll file exists
+            try {
+                const response = await fetch('/ntr-test/.nojekyll');
+                if (response.ok) {
+                    resultsDiv.innerHTML += `
+                        <div class="test-section success">
+                            <h3>✅ .nojekyll File Present</h3>
+                            <p>The .nojekyll file is present, which should prevent Jekyll processing.</p>
+                        </div>
+                    `;
+                } else {
+                    resultsDiv.innerHTML += `
+                        <div class="test-section error">
+                            <h3>❌ .nojekyll File Missing</h3>
+                            <p>Status: ${response.status}</p>
+                            <p>The .nojekyll file is missing, which may cause Jekyll to process files incorrectly.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultsDiv.innerHTML += `
+                    <div class="test-section error">
+                        <h3>❌ Error Testing .nojekyll</h3>
+                        <p><strong>Error:</strong> ${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Run test when page loads
+        window.addEventListener('load', testMimeTypes);
+    </script>
+</body>
+</html>
