@@ -36,11 +36,11 @@ export default defineConfig(({ mode }) => {
           // Content Security Policy to allow external content
           'Content-Security-Policy': [
             "default-src 'self'",
-            "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
-            "style-src 'self' 'unsafe-inline'",
+            "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com",
+            "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
             "img-src 'self' data: https:",
             "font-src 'self' data:",
-            "connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://peka01.github.io https://generativelanguage.googleapis.com",
+            "connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://peka01.github.io https://generativelanguage.googleapis.com https://bumphnqhbbtmlhiwokmy.supabase.co",
             "frame-src 'self'",
             "object-src 'none'",
             "base-uri 'self'",
