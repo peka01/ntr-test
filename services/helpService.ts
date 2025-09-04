@@ -100,7 +100,8 @@ export const helpService = {
       for (const sectionConfig of helpConfig.sections) {
         try {
           const content = await this.loadMarkdownContent(sectionConfig.id, language, forceRefresh);
-          const title = sectionConfig.title[language as keyof typeof sectionConfig.title] || sectionConfig.id;
+          const extractedTitle = this.extractMarkdownTitle(content);
+          const title = extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title] || sectionConfig.id;
           const keywords = sectionConfig.keywords || [];
           const category = sectionConfig.category || 'general';
           sections.push({ id: sectionConfig.id, title, content, keywords, category });
@@ -125,10 +126,10 @@ export const helpService = {
       if (!sectionConfig) return null;
 
       const content = await this.loadMarkdownContent(sectionId, language, forceRefresh);
-      
+      const extractedTitle = this.extractMarkdownTitle(content);
       return {
         id: sectionConfig.id,
-        title: sectionConfig.title[language as keyof typeof sectionConfig.title],
+        title: extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title],
         content: content,
         keywords: sectionConfig.keywords,
         category: sectionConfig.category
@@ -137,6 +138,23 @@ export const helpService = {
       console.error(`Error loading help content for section ${sectionId}:`, error);
     }
     
+    return null;
+  },
+
+  // Extract the first-level heading (H1) from markdown content
+  extractMarkdownTitle(markdown: string): string | null {
+    if (!markdown) return null;
+    const lines = markdown.split(/\r?\n/);
+    for (const rawLine of lines) {
+      const line = rawLine.trim();
+      if (!line) continue;
+      // Match '# Title' heading
+      if (line.startsWith('# ')) {
+        return line.replace(/^#\s+/, '').trim();
+      }
+      // Some docs might use frontmatter or start with other content; stop after first non-empty if no heading
+      // Continue scanning to allow front matter or comments at top.
+    }
     return null;
   },
 

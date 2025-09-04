@@ -28,10 +28,11 @@ interface HelpContentProps {
 }
 
 const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn, onNavigate, overviewSectionId, categorySectionId }) => {
+  const { t } = useTranslations();
   if (!section) {
     return (
       <div className="text-center text-slate-500 py-8">
-        <p>Select a section to begin.</p>
+        <p>{t('helpSelectSection')}</p>
       </div>
     );
   }
@@ -40,18 +41,26 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
     <>
       <div className="mb-6 flex items-center space-x-2 text-sm text-slate-600">
         {overviewSectionId ? (
-          <button className="text-cyan-600 hover:underline" onClick={() => onNavigate(overviewSectionId)}>Help</button>
+          <button className="text-cyan-600 hover:underline" onClick={() => onNavigate(overviewSectionId)}>{t('helpButtonText')}</button>
         ) : (
-          <span>Help</span>
+          <span>{t('helpButtonText')}</span>
         )}
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        {categorySectionId ? (
-          <button className="capitalize text-cyan-600 hover:underline" onClick={() => onNavigate(categorySectionId)}>
-            {section.category}
-          </button>
-        ) : (
-          <span className="capitalize">{section.category}</span>
-        )}
+        {(() => {
+          const categoryMap: Record<string, string> = {
+            general: t('helpCategoryGeneral'),
+            admin: t('helpCategoryAdmin'),
+            user: t('helpCategoryUser')
+          };
+          const categoryLabel = categoryMap[section.category] ?? section.category;
+          return categorySectionId ? (
+            <button className="capitalize text-cyan-600 hover:underline" onClick={() => onNavigate(categorySectionId)}>
+              {categoryLabel}
+            </button>
+          ) : (
+            <span className="capitalize">{categoryLabel}</span>
+          );
+        })()}
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
         <button className="font-medium text-slate-800 hover:underline" onClick={() => onNavigate(section.id)}>
           {section.title}
