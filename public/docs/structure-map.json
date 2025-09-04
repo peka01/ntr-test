@@ -1,0 +1,134 @@
+{
+  "version": "1.0",
+  "languages": {
+    "sv": {
+      "name": "Svenska",
+      "folders": {
+        "Administratör": {
+          "title": "Administratör",
+          "description": "Administrativa funktioner och användarhantering",
+          "icon": "settings",
+          "order": 1,
+          "sections": {
+            "user-management": {
+              "title": "Användarhantering",
+              "description": "Skapa och hantera användarkonton",
+              "order": 1,
+              "keywords": ["användare", "användarhantering", "skapa användare", "redigera användare", "klippkort", "vouchers", "användarlista", "användaröversikt", "creating a new user", "editing user", "users page", "viewing users list"]
+            },
+            "training-management": {
+              "title": "Träningshantering", 
+              "description": "Skapa och organisera träningspass",
+              "order": 2,
+              "keywords": ["träningar", "träningshantering", "skapa träning", "redigera träning", "träningslista", "träningsöversikt", "träningspass", "creating new training", "editing training", "trainings page", "viewing trainings list"]
+            }
+          }
+        },
+        "Användare": {
+          "title": "Användare",
+          "description": "Användarfunktioner och träningsanmälningar",
+          "icon": "user",
+          "order": 2,
+          "sections": {
+            "attendance": {
+              "title": "Närvarohantering",
+              "description": "Markera närvaro och hantera schema",
+              "order": 1,
+              "keywords": ["närvaro", "närvarohantering", "attendance page", "viewing attendance", "mark attendance", "cancel attendance"]
+            },
+            "subscriptions": {
+              "title": "Träningsanmälningar",
+              "description": "Anmäl dig till träningspass",
+              "order": 2,
+              "keywords": ["anmälan", "träningsanmälningar", "subscription page", "viewing subscriptions", "subscribe", "unsubscribe"]
+            },
+            "vouchers": {
+              "title": "Klippkortssystem",
+              "description": "Förstå hur kreditsystemet fungerar",
+              "order": 3
+            }
+          }
+        }
+      },
+      "rootSections": {
+        "overview": {
+          "title": "Systemöversikt",
+          "description": "Översikt över systemets funktioner och arkitektur",
+          "order": 1
+        },
+        "troubleshooting": {
+          "title": "Felsökning",
+          "description": "Vanliga problem och lösningar",
+          "order": 2
+        }
+      }
+    },
+    "en": {
+      "name": "English",
+      "folders": {
+        "Administrator": {
+          "title": "Administrator",
+          "description": "Administrative functions and user management",
+          "icon": "settings",
+          "order": 1,
+          "sections": {
+            "user-management": {
+              "title": "User Management",
+              "description": "Create and manage user accounts",
+              "order": 1,
+              "keywords": ["users", "user management", "create user", "edit user", "vouchers", "user list", "user overview", "creating a new user", "editing user", "users page", "viewing users list"]
+            },
+            "training-management": {
+              "title": "Training Management",
+              "description": "Create and organize training sessions",
+              "order": 2,
+              "keywords": ["trainings", "training management", "create training", "edit training", "training list", "training overview", "training sessions", "creating new training", "editing training", "trainings page", "viewing trainings list"]
+            }
+          }
+        },
+        "User": {
+          "title": "User",
+          "description": "User functions and training subscriptions",
+          "icon": "user",
+          "order": 2,
+          "sections": {
+            "attendance": {
+              "title": "Attendance Management",
+              "description": "Mark attendance and manage schedule",
+              "order": 1,
+              "keywords": ["attendance", "attendance management", "attendance page", "viewing attendance", "mark attendance", "cancel attendance"]
+            },
+            "subscriptions": {
+              "title": "Training Subscriptions",
+              "description": "Subscribe to training sessions",
+              "order": 2,
+              "keywords": ["subscriptions", "training subscriptions", "subscription page", "viewing subscriptions", "subscribe", "unsubscribe"]
+            },
+            "vouchers": {
+              "title": "Voucher System",
+              "description": "Understand how the credit system works",
+              "order": 3
+            }
+          }
+        }
+      },
+      "rootSections": {
+        "overview": {
+          "title": "System Overview",
+          "description": "Overview of system features and architecture",
+          "order": 1
+        },
+        "troubleshooting": {
+          "title": "Troubleshooting",
+          "description": "Common problems and solutions",
+          "order": 2
+        }
+      }
+    }
+  },
+  "metadata": {
+    "lastUpdated": "2024-01-15",
+    "version": "1.0.0",
+    "description": "Structure map for help documentation hierarchy"
+  }
+}
