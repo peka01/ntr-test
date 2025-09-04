@@ -78,6 +78,10 @@ export interface HelpSection {
   keywords: string[];
   category: string;
   pathSegments?: string[];
+  folderPath?: string;
+  description?: string;
+  order?: number;
+  icon?: string;
 }
 
 export interface HelpSectionConfig {
@@ -90,26 +94,76 @@ export interface HelpSectionConfig {
   category: 'admin' | 'user' | 'general';
 }
 
+export interface StructureMapSection {
+  title: string;
+  description: string;
+  order: number;
+}
+
+export interface StructureMapFolder {
+  title: string;
+  description: string;
+  icon: string;
+  order: number;
+  sections: Record<string, StructureMapSection>;
+}
+
+export interface StructureMapLanguage {
+  name: string;
+  folders: Record<string, StructureMapFolder>;
+  rootSections: Record<string, StructureMapSection>;
+}
+
+export interface StructureMap {
+  version: string;
+  languages: Record<string, StructureMapLanguage>;
+  metadata: {
+    lastUpdated: string;
+    version: string;
+    description: string;
+  };
+}
+
 // Generic help service that can be reused across different applications
 export const helpService = {
+  // Load structure map from JSON file
+  async loadStructureMap(): Promise<StructureMap | null> {
+    try {
+      const base = (import.meta as any).env?.BASE_URL || '/';
+      const response = await fetch(`${base}docs/structure-map.json?t=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0'
+        }
+      });
+      
+      if (response.ok) {
+        const structureMap = await response.json();
+        console.log('✅ Structure map loaded successfully');
+        return structureMap as StructureMap;
+      } else {
+        console.warn('⚠️ Could not load structure map, falling back to auto-discovery');
+        return null;
+      }
+    } catch (error) {
+      console.warn('⚠️ Error loading structure map:', error);
+      return null;
+    }
+  },
+
   // Get all help sections for a specific language
   async getAllSections(language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection[]> {
     console.log(`Loading help sections for language: ${language}${forceRefresh ? ' (forced refresh)' : ''}`);
     let sections: HelpSection[] = [];
     
     try {
+      // Try to load structure map first
+      const structureMap = await this.loadStructureMap();
+      
       // First try to discover docs from the repository docs folder at build-time
       const discovered = this.discoverDocs(language);
       if (Object.keys(discovered).length > 0) {
-        sections = Object.keys(discovered)
-          .sort()
-          .map((sectionId) => {
-            const content = discovered[sectionId];
-            const title = this.extractMarkdownTitle(content) || sectionId.split('/').pop() || sectionId;
-            const category = this.deriveCategoryFromId(sectionId) || 'general';
-            const pathSegments = this.splitPathSegments(sectionId);
-            return { id: sectionId, title, content, keywords: [], category, pathSegments } as HelpSection;
-          });
+        sections = await this.buildSectionsFromStructure(discovered, language, structureMap);
       } else {
         // Fallback to configured sections using fetch from public docs
         for (const sectionConfig of helpConfig.sections) {
@@ -134,6 +188,86 @@ export const helpService = {
     
     console.log(`Loaded ${sections.length} help sections`);
     return sections;
+  },
+
+  // Build sections from discovered docs using structure map
+  async buildSectionsFromStructure(discovered: Record<string, string>, language: string, structureMap: StructureMap | null): Promise<HelpSection[]> {
+    const sections: HelpSection[] = [];
+    const langData = structureMap?.languages[language];
+    
+    // Process root sections first
+    if (langData?.rootSections) {
+      for (const [sectionId, sectionInfo] of Object.entries(langData.rootSections)) {
+        if (discovered[sectionId]) {
+          const content = discovered[sectionId];
+          const title = this.extractMarkdownTitle(content) || sectionInfo.title;
+          sections.push({
+            id: sectionId,
+            title,
+            content,
+            keywords: [],
+            category: 'general',
+            pathSegments: [sectionId],
+            description: sectionInfo.description,
+            order: sectionInfo.order
+          });
+        }
+      }
+    }
+    
+    // Process folder sections
+    if (langData?.folders) {
+      for (const [folderName, folderInfo] of Object.entries(langData.folders)) {
+        for (const [sectionId, sectionInfo] of Object.entries(folderInfo.sections)) {
+          const fullPath = `${folderName}/${sectionId}`;
+          if (discovered[fullPath]) {
+            const content = discovered[fullPath];
+            const title = this.extractMarkdownTitle(content) || sectionInfo.title;
+            const category = this.deriveCategoryFromId(folderName) || 'general';
+            sections.push({
+              id: fullPath,
+              title,
+              content,
+              keywords: [],
+              category,
+              pathSegments: [folderName, sectionId],
+              folderPath: folderName,
+              description: sectionInfo.description,
+              order: sectionInfo.order,
+              icon: folderInfo.icon
+            });
+          }
+        }
+      }
+    }
+    
+    // Fallback: process any remaining discovered docs not in structure map
+    for (const [sectionId, content] of Object.entries(discovered)) {
+      const existingSection = sections.find(s => s.id === sectionId);
+      if (!existingSection) {
+        const title = this.extractMarkdownTitle(content) || sectionId.split('/').pop() || sectionId;
+        const category = this.deriveCategoryFromId(sectionId) || 'general';
+        const pathSegments = this.splitPathSegments(sectionId);
+        sections.push({
+          id: sectionId,
+          title,
+          content,
+          keywords: [],
+          category,
+          pathSegments
+        });
+      }
+    }
+    
+    // Sort sections by order and then by title
+    return sections.sort((a, b) => {
+      if (a.order !== undefined && b.order !== undefined) {
+        return a.order - b.order;
+      }
+      if (a.order !== undefined) return -1;
+      if (b.order !== undefined) return 1;
+      return a.title.localeCompare(b.title);
+    });
   },
 
   // Get a specific help section
