@@ -39,6 +39,20 @@ As an administrator, you now have a dedicated page for managing all trainings. O
 - **Description**: Change or improve the description
 - **All changes are immediately visible** to all users
 
+## Delete trainings
+
+### Here's how you do it
+1. Find the training in the list
+2. Click on the **delete icon** (trash can) next to the training
+3. Confirm the deletion in the popup dialog
+4. The training is permanently removed
+
+### Important notes
+- **This action cannot be undone** - the training will be permanently deleted
+- **All subscriptions** to this training will also be removed
+- **Users will no longer see** this training in their available options
+- **Make sure you really want to delete** before confirming
+
 ## Search and filter trainings
 
 ### Here's how you do it
@@ -56,6 +70,7 @@ As an administrator, you now have a dedicated page for managing all trainings. O
 ### What you see for each training
 - **Title and description**: Basic information about the training
 - **Edit button**: Pen icon to edit the training
+- **Delete button**: Trash can icon to delete the training
 - **Card format**: Easy to overview all trainings
 
 ### Organize trainings smartly

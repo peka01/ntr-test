@@ -34,6 +34,21 @@ As an administrator, you are in control of the training offer. It contains every
 - **Description**: Change or improve the description
 - **All changes are immediately visible** to all users
 
+## Delete training courses
+
+### Here's how you do it
+1. Go to the **Admin** view
+2. Find the training in the list
+3. Click on the **delete icon** (trash can) next to the training
+4. Confirm the deletion in the popup dialog
+5. The training is permanently removed
+
+### Important notes
+- **This action cannot be undone** - the training will be permanently deleted
+- **All subscriptions** to this training will also be removed
+- **Users will no longer see** this training in their available options
+- **Make sure you really want to delete** before confirming
+
 ## Tips for managing exercises
 
 ### Name trainings in a smart way

@@ -195,6 +195,19 @@ export const trainingService = {
       console.error('Error updating training:', error);
       throw error;
     }
+  },
+
+  // Delete a training
+  async delete(trainingId: string): Promise<void> {
+    const { error } = await supabase
+      .from('trainings')
+      .delete()
+      .eq('id', trainingId);
+
+    if (error) {
+      console.error('Error deleting training:', error);
+      throw error;
+    }
   }
 };
 

@@ -39,6 +39,20 @@ Som administratör har du nu en dedikerad sida för att hantera alla träningar.
 - **Beskrivning**: Ändra eller förbättra beskrivningen
 - **Alla ändringar är omedelbart synliga** för alla användare
 
+## Ta bort träningar
+
+### Så här gör du
+1. Hitta träningen i listan
+2. Klicka på **papperskorgen** (soptunna) bredvid träningen
+3. Bekräfta borttagningen i popup-dialogen
+4. Träningen tas bort permanent
+
+### Viktiga anteckningar
+- **Denna åtgärd kan inte ångras** - träningen kommer att tas bort permanent
+- **Alla anmälningar** till denna träning tas också bort
+- **Användarna kommer inte längre att se** denna träning i sina tillgängliga alternativ
+- **Se till att du verkligen vill ta bort** innan du bekräftar
+
 ## Söka och filtrera träningar
 
 ### Så här gör du
@@ -56,6 +70,7 @@ Som administratör har du nu en dedikerad sida för att hantera alla träningar.
 ### Vad du ser för varje träning
 - **Titel och beskrivning**: Grundinformation om träningen
 - **Redigeringsknapp**: Pennikon för att redigera träningen
+- **Ta bort-knapp**: Papperskorgsikon för att ta bort träningen
 - **Kortformat**: Enkelt att överskåda alla träningar
 
 ### Organisera träningar smart

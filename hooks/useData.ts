@@ -106,6 +106,21 @@ export const useData = () => {
     }
   }, []);
 
+  const deleteTraining = useCallback(async (trainingId: string) => {
+    try {
+      await trainingService.delete(trainingId);
+      setTrainings(prev => prev.filter(training => training.id !== trainingId));
+      setSubscriptions(prev => {
+        const newSubs = new Map(prev);
+        newSubs.delete(trainingId);
+        return newSubs;
+      });
+    } catch (err) {
+      console.error('Error deleting training:', err);
+      throw err;
+    }
+  }, []);
+
   // Subscription operations
   const subscribe = useCallback(async (trainingId: string, userId: string) => {
     try {
@@ -208,6 +223,7 @@ export const useData = () => {
     updateUserVoucherBalance,
     createTraining,
     updateTraining,
+    deleteTraining,
     subscribe,
     unsubscribe,
     markAttendance,

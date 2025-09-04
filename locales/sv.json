@@ -155,5 +155,7 @@
   "removeVoucherTooltip": "Ta bort klippkort",
   "adminCreateUser": "Skapa användare",
   "adminEditUser": "Redigera användare",
-  "adminUpdateBtn": "Uppdatera"
+  "adminUpdateBtn": "Uppdatera",
+  "adminDeleteBtn": "Ta bort",
+  "confirmDeleteTraining": "Är du säker på att du vill ta bort träningen \"{name}\"? Denna åtgärd kan inte ångras."
 }

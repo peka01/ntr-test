@@ -154,5 +154,7 @@
   "removeVoucherTooltip": "Remove voucher",
   "adminCreateUser": "Create User",
   "adminEditUser": "Edit User",
-  "adminUpdateBtn": "Update"
+  "adminUpdateBtn": "Update",
+  "adminDeleteBtn": "Delete",
+  "confirmDeleteTraining": "Are you sure you want to delete the training \"{name}\"? This action cannot be undone."
 }

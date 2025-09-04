@@ -4,11 +4,13 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
+import { TrashIcon } from './icons/TrashIcon';
 
 interface TrainingsPageProps {
     trainings: Training[];
     onCreateTraining: (name: string, description: string) => void;
     onUpdateTraining: (trainingId: string, name: string, description: string) => void;
+    onDeleteTraining: (trainingId: string) => void;
     onHelpClick?: (context?: string) => void;
 }
 
@@ -48,6 +50,7 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
     trainings, 
     onCreateTraining, 
     onUpdateTraining, 
+    onDeleteTraining,
     onHelpClick 
 }) => {
     const { user } = useAuth();
@@ -96,6 +99,12 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
         setTrainingTitle(training.name);
         setTrainingDescription(training.description);
         setShowAddForm(false);
+    };
+
+    const handleDeleteClick = (training: Training) => {
+        if (window.confirm(t('confirmDeleteTraining', { name: training.name }))) {
+            onDeleteTraining(training.id);
+        }
     };
 
     const handleCancelEdit = () => {
@@ -227,16 +236,26 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                                 <div key={training.id} className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-start justify-between mb-3">
                                         <h3 className="font-semibold text-cyan-600 text-lg">{training.name}</h3>
-                                        <button
-                                            onClick={() => handleEditClick(training)}
-                                            disabled={isEditing || showAddForm}
-                                            title={t('adminEditBtn')}
-                                            className="p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
-                                        >
-                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                            </svg>
-                                        </button>
+                                        <div className="flex items-center space-x-2">
+                                            <button
+                                                onClick={() => handleEditClick(training)}
+                                                disabled={isEditing || showAddForm}
+                                                title={t('adminEditBtn')}
+                                                className="p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
+                                            >
+                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                </svg>
+                                            </button>
+                                            <button
+                                                onClick={() => handleDeleteClick(training)}
+                                                disabled={isEditing || showAddForm}
+                                                title={t('adminDeleteBtn')}
+                                                className="p-2 text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
+                                            >
+                                                <TrashIcon className="w-4 h-4" />
+                                            </button>
+                                        </div>
                                     </div>
                                     {training.description && (
                                         <p className="text-sm text-slate-600">{training.description}</p>

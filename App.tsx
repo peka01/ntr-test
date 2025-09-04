@@ -39,6 +39,7 @@ const AppContent: React.FC = () => {
         updateUserVoucherBalance,
         createTraining,
         updateTraining,
+        deleteTraining,
         subscribe,
         unsubscribe,
         markAttendance,
@@ -93,6 +94,14 @@ const AppContent: React.FC = () => {
             await updateTraining(trainingId, name, description);
         } catch (err) {
             console.error('Failed to update training:', err);
+        }
+    };
+
+    const handleDeleteTraining = async (trainingId: string) => {
+        try {
+            await deleteTraining(trainingId);
+        } catch (err) {
+            console.error('Failed to delete training:', err);
         }
     };
 
@@ -311,6 +320,7 @@ const AppContent: React.FC = () => {
                                     trainings={trainings}
                                     onCreateTraining={handleCreateTraining}
                                     onUpdateTraining={handleUpdateTraining}
+                                    onDeleteTraining={handleDeleteTraining}
                                     onHelpClick={handleHelpClick}
                                 />
                             </ProtectedRoute>

@@ -34,6 +34,21 @@ Som administratör har du kontroll över utbildningserbjudandet. Det innehåller
 - **Beskrivning**: Ändra eller förbättra beskrivningen
 - **Alla ändringar är omedelbart synliga** för alla användare
 
+## Ta bort utbildningskurser
+
+### Så här gör du
+1. Gå till vyn **Admin**
+2. Leta upp träningen i listan
+3. Klicka på **papperskorgen** (soptunna) bredvid träningen
+4. Bekräfta borttagningen i popup-dialogen
+5. Träningen tas bort permanent
+
+### Viktiga anteckningar
+- **Denna åtgärd kan inte ångras** - träningen kommer att tas bort permanent
+- **Alla anmälningar** till denna träning tas också bort
+- **Användarna kommer inte längre att se** denna träning i sina tillgängliga alternativ
+- **Se till att du verkligen vill ta bort** innan du bekräftar
+
 ## Tips för att hantera övningar
 
 ### Namnge utbildningar på ett smart sätt
