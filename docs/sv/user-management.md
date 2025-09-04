@@ -1,4 +1,4 @@
-# Användarhantering - För dig som är administratör
+# Användarhantering - För administratörer
 
 ## Översikt
 
