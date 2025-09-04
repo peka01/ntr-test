@@ -1,4 +1,4 @@
-# Registrera dig för träningar LOKALT REPO
+# Registrera dig för träningar
 
 ## Översikt
 
