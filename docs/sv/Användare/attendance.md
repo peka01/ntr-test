@@ -1,6 +1,6 @@
 # Närvarohantering - Delta i utbildningar
 
-## Översikt
+## Översikter
 
 Här markerar du när du faktiskt deltar i utbildningar och hanterar ditt utbildningskort. Det är hjärtat i plattformen - enkelt och smidigt.
 
