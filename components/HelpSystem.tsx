@@ -457,6 +457,23 @@ Användarens fråga: ${content}`;
 
       const text = result.text.trim();
 
+      // Interpolate UI placeholders like {{navPublic}} in AI output
+      const interpolatePlaceholders = (input: string) => {
+        try {
+          return input.replace(/\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g, (_m, key) => {
+            try {
+              const val = t(key);
+              return typeof val === 'string' ? val : String(val);
+            } catch {
+              return key;
+            }
+          });
+        } catch {
+          return input;
+        }
+      };
+      const interpolatedText = interpolatePlaceholders(text);
+
       // Extract sources from response
       const sources: SourceInfo[] = [];
       
@@ -482,7 +499,7 @@ Användarens fråga: ${content}`;
         console.warn('Could not extract sources:', sourceError);
       }
 
-      setAiResponse(text);
+      setAiResponse(interpolatedText);
       setAiSources(sources);
       setAiInputValue(''); // Clear input after successful response
     } catch (error) {
