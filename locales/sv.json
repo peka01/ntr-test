@@ -87,7 +87,7 @@
   "aiChatError": "Tyvärr kunde jag inte svara just nu. Kontrollera att din API-nyckel är korrekt konfigurerad och försök igen.",
   "aiChatSourcesTitle": "Källor:",
   "aiChatTyping": "Skriver...",
-  "aiChatPlaceholder": "Låt mig hjälpa dig - fråga mig vad du vill",
+  "aiChatPlaceholder": "Låt mig hjälpa till - fråga vad du vill",
   "aiChatFooter": "AI:n använder all tillgänglig dokumentation och systemkunskap för att svara på dina frågor.",
   "kioskCode": "Kioskkod",
   "kioskCodePlaceholder": "Ange kioskkod för att logga in",

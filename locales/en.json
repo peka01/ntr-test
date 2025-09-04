@@ -86,7 +86,7 @@
   "aiChatError": "Sorry, I couldn't get a response right now. Please check your API key configuration and try again.",
   "aiChatSourcesTitle": "Sources:",
   "aiChatTyping": "Typing...",
-  "aiChatPlaceholder": "Let me help you – ask me anything",
+  "aiChatPlaceholder": "Let me help – ask me anything",
   "aiChatFooter": "The AI uses all available documentation and system knowledge to answer your questions.",
   "kioskCode": "Kiosk Code",
   "kioskCodePlaceholder": "Enter kiosk code to log in",
