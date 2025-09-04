@@ -1,46 +1,85 @@
-# Administratör - så jobbar du
+# Träningshantering
 
 ## Översikt
 
-Som administratör har du kontroll över utbildningserbjudandet. Det innehåller allt du behöver för att skapa, redigera och hantera utbildningstillfällen på ett enkelt och effektivt sätt.
+Som administratör har du nu en dedikerad sida för att hantera alla träningar. På sidan **Träningar** hittar du allt du behöver för att skapa, redigera och organisera träningspass på ett enkelt och effektivt sätt.
 
-## Skapa nya träningspass
+## Komma åt träningshanteringen
 
 ### Så här gör du
-1. Gå till vyn **Admin**
-2. Hitta "Skapa utbildning"
-3. Fyll i:
-   - **Namn**: Ett tydligt namn för utbildningen (t.ex. "React Basics")
-   - **Beskrivning: En beskrivning av vad utbildningen handlar om
-4. Klicka på **"Skapa utbildning"**
+1. Logga in som administratör
+2. Klicka på **Träningar** i navigationsmenyn
+3. Du ser nu en översikt över alla träningar
+
+## Skapa nya träningar
+
+### Så här gör du
+1. Klicka på **Lägg till träning** (knappen med plussymbol)
+2. Fyll i:
+   - **Titel**: Ett tydligt namn för träningen (t.ex. "React Grundkurs")
+   - **Beskrivning**: En beskrivning av vad träningen handlar om
+3. Klicka på **Skapa träning**
 
 ### Vad händer härnäst?
-- Utbildningen skapas direkt
-- Den visas i listan för alla användare
-- Användarna kan registrera sig direkt
-- Du kan redigera utbildningen när som helst
+- Träningen skapas direkt
+- Den visas i träningslistan
+- Användarna kan anmäla sig direkt
+- Du kan redigera träningen när som helst
 
-## Redigera utbildningskurser
+## Redigera befintliga träningar
 
 ### Så här gör du
-1. Gå till vyn **Admin**
-2. Leta upp övningen i listan
-3. Klicka på **redigeringsikonen** (pennan) bredvid övningen
-4. Ändra namn och/eller beskrivning
-5. Klicka på **"Spara"**
+1. Hitta träningen i listan
+2. Klicka på **redigeringsikonen** (pennan) bredvid träningen
+3. Ändra titel och/eller beskrivning
+4. Klicka på **Uppdatera**
 
 ### Vad du kan ändra
-- **Namn**: Uppdatera titeln på övningen
+- **Titel**: Uppdatera namnet på träningen
 - **Beskrivning**: Ändra eller förbättra beskrivningen
 - **Alla ändringar är omedelbart synliga** för alla användare
 
-## Tips för att hantera övningar
+## Ta bort träningar
 
-### Namnge utbildningar på ett smart sätt
-- **Använd tydliga namn**: "React Basics" istället för "Utbildning 1"
+### Så här gör du
+1. Hitta träningen i listan
+2. Klicka på **papperskorgen** (soptunna) bredvid träningen
+3. Bekräfta borttagningen i popup-dialogen
+4. Träningen tas bort permanent
+
+### Viktiga anteckningar
+- **Denna åtgärd kan inte ångras** - träningen kommer att tas bort permanent
+- **Alla anmälningar** till denna träning tas också bort
+- **Användarna kommer inte längre att se** denna träning i sina tillgängliga alternativ
+- **Se till att du verkligen vill ta bort** innan du bekräftar
+
+## Söka och filtrera träningar
+
+### Så här gör du
+1. Använd sökfältet högst upp på sidan
+2. Skriv in namn eller beskrivning för att filtrera
+3. Resultaten uppdateras automatiskt
+
+### Tips för sökning
+- Sök på delar av namnet eller beskrivningen
+- Sökningen är inte känslig för stora/små bokstäver
+- Töm sökfältet för att se alla träningar igen
+
+## Träningsöversikt
+
+### Vad du ser för varje träning
+- **Titel och beskrivning**: Grundinformation om träningen
+- **Redigeringsknapp**: Pennikon för att redigera träningen
+- **Ta bort-knapp**: Papperskorgsikon för att ta bort träningen
+- **Kortformat**: Enkelt att överskåda alla träningar
+
+### Organisera träningar smart
+- **Använd tydliga titlar**: "React Grundkurs" istället för "Träning 1"
 - **Inkludera nivå**: "JavaScript för nybörjare", "Avancerad CSS"
-- **Lägg till datum**: "React Workshop 2024"
-- **Var konsekvent**: Använd samma mönster för liknande utbildningar
+- **Lägg till detaljer**: "React Workshop 2024"
+- **Var konsekvent**: Använd samma mönster för liknande träningar
+
+## Tips för effektiv träningshantering
 
 ### Skriv bra beskrivningar
 - **Lärandemål**: Vad ska deltagarna lära sig?
@@ -51,64 +90,52 @@ Som administratör har du kontroll över utbildningserbjudandet. Det innehåller
 
 ### Exempel på en bra beskrivning
 ```
-"React Basics - En introduktion till React för webbutvecklare som redan kan HTML, CSS och JavaScript. Vi går igenom komponenter, state och props. Praktisk workshop med hands-on övningar. Lämplig för nybörjare på React."
+"React Grundkurs - En introduktion till React för webbutvecklare som redan kan HTML, CSS och JavaScript. Vi går igenom komponenter, state och props. Praktisk workshop med hands-on övningar. Lämplig för nybörjare på React."
 ```
 
-## Organisera utbildningserbjudandet
-
-### Kategorisera smart
-- **Gruppera liknande kurser**: Skapa logiska kategorier
-- **Använd samma termer**: Konsekvent språk
-- **Skapa progression**: Från grundläggande till avancerad
-
 ### Planera i förväg
-- **Skapa utbildningar tidigt**: Ge användarna tid att registrera sig
-- **Balansera erbjudandet**: Blanda olika typer av utbildningar
+- **Skapa träningar tidigt**: Ge användarna tid att anmäla sig
+- **Balansera erbjudandet**: Blanda olika typer av träningar
 - **Lyssna på feedback**: Anpassa efter användarnas preferenser
-
-## Hantera kvalitet
-
-### Granska regelbundet
-- **Granskningslista**: Ta bort föråldrade utbildningar
-- **Uppdatera beskrivningar**: Håll dem uppdaterade
-- **Samla in feedback**: Fråga användarna vad de tycker
-
-### Förbättra kontinuerligt
-- **Lägga till nya kurser**: Baserat på intressen
-- **Förbättra befintliga**: Uppdatera baserat på feedback
-- **Experiment**: Testa nya format
 
 ## Felsökning
 
 ### Vanliga problem
-**Kan inte skapa utbildning**
+**Kan inte skapa träning**
 - Kontrollera att alla fält är ifyllda
 - Se till att du har rätt behörigheter
 - Uppdatera sidan och försök igen
 
 **Ändringar sparas inte**
-- Kontrollera att du klickade på "Spara"
+- Kontrollera att du klickade på **Uppdatera**
 - Uppdatera sidan för att se ändringarna
 - Kontakta support om problemet kvarstår
 
-**Träningspasset visas inte**
-- Kontrollera att träningspasset är korrekt skapat
-- Se till att det inte är dolt
+**Träningen visas inte**
+- Kontrollera att träningen är korrekt skapad
+- Se till att den inte är dold
 - Uppdatera plattformen om det behövs
+
+## Säkerhet och behörigheter
+
+- Endast administratörer kan komma åt träningshanteringen
+- Alla ändringar sparas automatiskt
+- Träningsdata skyddas enligt regler för dataskydd
+- Säkerhetsuppdateringar görs automatiskt
 
 ## Tips för effektiv administration
 
 ### Kommunikation
-- **Informera användarna**: Berätta för dem när nya utbildningar läggs till
+- **Informera användarna**: Berätta för dem när nya träningar läggs till
 - **Samla in feedback**: Fråga vad användarna vill ha
 - **Dokumentera**: Hålla reda på vad som fungerar
 
-### Automatisera
-- **Skapa mallar**: För liknande utbildningar
-- **Använd replikering**: Kopiera befintliga som en utgångspunkt
-- **Planera framåt**: Skapa utbildningar för kommande perioder
-
 ### Kvalitetssäkring
-- **Granska regelbundet**: Granska erbjudandet
-- **Uppdatera kontinuerligt**: Håll innehållet uppdaterat
-- **Mät framgång**: Spåra användning och feedback
+- **Granska regelbundet**: Ta bort föråldrade träningar
+- **Uppdatera beskrivningar**: Håll dem uppdaterade
+- **Samla in feedback**: Fråga användarna vad de tycker
+
+### Förbättra kontinuerligt
+- **Lägga till nya träningar**: Baserat på intressen
+- **Förbättra befintliga**: Uppdatera baserat på feedback
+- **Experimentera**: Testa nya format
