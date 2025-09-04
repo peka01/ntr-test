@@ -95,21 +95,36 @@ export const helpService = {
   // Get all help sections for a specific language
   async getAllSections(language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection[]> {
     console.log(`Loading help sections for language: ${language}${forceRefresh ? ' (forced refresh)' : ''}`);
-    const sections: HelpSection[] = [];
+    let sections: HelpSection[] = [];
     
     try {
-      for (const sectionConfig of helpConfig.sections) {
-        try {
-          const content = await this.loadMarkdownContent(sectionConfig.id, language, forceRefresh);
-          const extractedTitle = this.extractMarkdownTitle(content);
-          const title = extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title] || sectionConfig.id;
-          const keywords = sectionConfig.keywords || [];
-          const category = this.deriveCategoryFromId(sectionConfig.id) || sectionConfig.category || 'general';
-          const pathSegments = this.splitPathSegments(sectionConfig.id);
-          sections.push({ id: sectionConfig.id, title, content, keywords, category, pathSegments });
-        } catch (error) {
-          console.error(`Error loading help content for section ${sectionConfig.id}:`, error);
-          // Skip sections that cannot be loaded
+      // First try to discover docs from the repository docs folder at build-time
+      const discovered = this.discoverDocs(language);
+      if (Object.keys(discovered).length > 0) {
+        sections = Object.keys(discovered)
+          .sort()
+          .map((sectionId) => {
+            const content = discovered[sectionId];
+            const title = this.extractMarkdownTitle(content) || sectionId.split('/').pop() || sectionId;
+            const category = this.deriveCategoryFromId(sectionId) || 'general';
+            const pathSegments = this.splitPathSegments(sectionId);
+            return { id: sectionId, title, content, keywords: [], category, pathSegments } as HelpSection;
+          });
+      } else {
+        // Fallback to configured sections using fetch from public docs
+        for (const sectionConfig of helpConfig.sections) {
+          try {
+            const content = await this.loadMarkdownContent(sectionConfig.id, language, forceRefresh);
+            const extractedTitle = this.extractMarkdownTitle(content);
+            const title = extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title] || sectionConfig.id;
+            const keywords = sectionConfig.keywords || [];
+            const category = this.deriveCategoryFromId(sectionConfig.id) || sectionConfig.category || 'general';
+            const pathSegments = this.splitPathSegments(sectionConfig.id);
+            sections.push({ id: sectionConfig.id, title, content, keywords, category, pathSegments });
+          } catch (error) {
+            console.error(`Error loading help content for section ${sectionConfig.id}:`, error);
+            // Skip sections that cannot be loaded
+          }
         }
       }
     } catch (error) {
@@ -124,6 +139,17 @@ export const helpService = {
   // Get a specific help section
   async getSection(sectionId: string, language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection | null> {
     try {
+      // Prefer discovered docs
+      const discovered = this.discoverDocs(language);
+      if (discovered[sectionId]) {
+        const content = discovered[sectionId];
+        const title = this.extractMarkdownTitle(content) || sectionId.split('/').pop() || sectionId;
+        const category = this.deriveCategoryFromId(sectionId) || 'general';
+        const pathSegments = this.splitPathSegments(sectionId);
+        return { id: sectionId, title, content, keywords: [], category, pathSegments };
+      }
+
+      // Fallback to configured sections and public fetch
       const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
       if (!sectionConfig) return null;
 
@@ -161,6 +187,38 @@ export const helpService = {
       // Continue scanning to allow front matter or comments at top.
     }
     return null;
+  },
+
+  // Discover docs from repository 'docs/{lang}/**/*.md' using Vite glob import
+  discoverDocs(language: string): Record<string, string> {
+    try {
+      const langFolder = language === 'sv' ? 'sv' : 'en';
+      // @ts-ignore Vite-specific API
+      const globA: Record<string, string> = (import.meta as any).glob('/docs/**/*.md', { as: 'raw', eager: true });
+      // @ts-ignore Vite-specific API
+      const globB: Record<string, string> = (import.meta as any).glob('../docs/**/*.md', { as: 'raw', eager: true });
+      // Merge results (support different path resolutions across environments)
+      const modules: Record<string, string> = { ...globA, ...globB } as any;
+      const result: Record<string, string> = {};
+      Object.keys(modules).forEach((fullPath) => {
+        // Normalize path like '/docs/sv/admin/page.md'
+        const normalized = fullPath.replace(/\\/g, '/');
+        const needle = `/docs/${langFolder}/`;
+        if (normalized.startsWith(needle)) {
+          const rel = normalized.substring(needle.length);
+          if (rel.toLowerCase().endsWith('.md')) {
+            const id = rel.substring(0, rel.length - 3);
+            // @ts-ignore Vite glob eager returns raw content string
+            const content = (modules as any)[fullPath];
+            result[id] = content as unknown as string;
+          }
+        }
+      });
+      return result;
+    } catch (e) {
+      console.warn('Doc discovery via import.meta.glob failed; falling back to static config.', e);
+      return {};
+    }
   },
 
   // Derive category from section id path (e.g., "admin/attendance" -> "admin").
