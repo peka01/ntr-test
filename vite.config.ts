@@ -1,5 +1,7 @@
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
+import fs from 'fs';
 
 export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
@@ -17,14 +19,33 @@ export default defineConfig(({ mode }) => {
       supabaseAnonKey: supabaseAnonKey ? 'set' : 'not set'
     });
     
+    // Custom plugin to serve docs folder
+    const serveDocsPlugin = () => ({
+      name: 'serve-docs',
+      configureServer(server) {
+        server.middlewares.use('/docs', (req, res, next) => {
+          const filePath = resolve(__dirname, 'docs', req.url);
+          if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.end(fs.readFileSync(filePath, 'utf-8'));
+          } else {
+            next();
+          }
+        });
+      }
+    });
+
     return {
       base: '/ntr-test/',
-      plugins: [react()],
+      plugins: [react(), serveDocsPlugin()],
       define: {
         'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(geminiApiKey),
         'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
         'import.meta.env.VITE_SUPABASE_ANON_KEY': JSON.stringify(supabaseAnonKey)
       },
+      // Configure Vite to serve docs folder as static assets
+      publicDir: 'public',
+      assetsInclude: ['**/*.md', '**/*.json'],
       build: {
         outDir: 'dist',
         sourcemap: false,

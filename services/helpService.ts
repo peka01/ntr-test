@@ -129,15 +129,7 @@ export const helpService = {
   // Load structure map from JSON file
   async loadStructureMap(): Promise<StructureMap | null> {
     try {
-      // First try to load from build-time discovered docs
-      const discovered = this.discoverDocs('sv'); // Use any language to get the structure map
-      if (discovered['structure-map']) {
-        const structureMap = JSON.parse(discovered['structure-map']);
-        console.log('✅ Structure map loaded from build-time discovery');
-        return structureMap as StructureMap;
-      }
-      
-      // Fallback to runtime fetch from docs folder
+      // Load structure map from docs folder
       const base = (import.meta as any).env?.BASE_URL || '/';
       const response = await fetch(`${base}docs/structure-map.json?t=${Date.now()}`, {
         cache: 'no-store',
