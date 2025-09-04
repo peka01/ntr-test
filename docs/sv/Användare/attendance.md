@@ -7,7 +7,7 @@ Här markerar du när du faktiskt deltar i utbildningar och hanterar ditt utbild
 ## Markera närvaro
 
 ### Så här gör du
-1. Gå till vyn **Presence**
+1. Gå till vyn **Närvaro**
 2. Leta upp den utbildning du vill delta i i listan
 3. Leta efter ditt namn i listan över deltagare
 4. Klicka på **"Markera närvaro"** bredvid ditt namn
@@ -33,7 +33,7 @@ Du kan avbryta din närvaro om du:
 - Behöver frigöra vouchern för en annan kurs
 
 ### Hur man avbokar
-1. Gå till vyn **Närvaro** (**Attendance**)
+1. Gå till vyn **Närvaro**
 2. Hitta den kurs där du markerat närvaro
 3. Klicka på **"Avboka närvaro"** bredvid ditt namn
 4. Bekräfta att du vill avboka din närvaro
@@ -53,7 +53,7 @@ Du kan avbryta din närvaro om du:
 ### Tidsramar
 - **Ingen tidsgräns**: Du kan avboka din närvaro när som helst
 - **Omedelbar återbetalning**: Vouchers återbetalas omedelbart när du avbokar
-- **Planera i förväg**: Anmäl dig till utbildningar i förväg, markera närvaro när du är säker på att
+- **Planera i förväg**: Anmäl dig till utbildningar i förväg, markera närvaro när du är säker på att du kan delta
 
 ## Tips för smart närvarohantering
 

@@ -13,9 +13,9 @@ Här gör vi det enkelt!. En galet enkel och smidig lösning för att organisera
 - **Följ vad som händer**: Visa statistik och rapporter
 ## Så här fungerar det
 Det är enkelt! Vi har tre saker som vi tittar på:
-1. **Users** - Deltagare som vill gå med i utbildningar
-2. **Trainings** - Kurser och aktiviteter som användare kan delta i
-3. **Clipboard** - Det som används för att delta i utbildningar
+1. **Användare** - Deltagare som vill gå med i utbildningar
+2. **Träningar** - Kurser och aktiviteter som användare kan delta i
+3. **Klippkort** - Det som används för att delta i utbildningar
 ## Teknisk bas
 - ** Fungerar överallt**: Öppnas i alla webbläsare
 - **Uppdateras omedelbart**: Ändringar syns omedelbart utan omladdning

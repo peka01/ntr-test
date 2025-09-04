@@ -137,7 +137,7 @@ export const helpService = {
         return structureMap as StructureMap;
       }
       
-      // Fallback to runtime fetch from public folder
+      // Fallback to runtime fetch from docs folder
       const base = (import.meta as any).env?.BASE_URL || '/';
       const response = await fetch(`${base}docs/structure-map.json?t=${Date.now()}`, {
         cache: 'no-store',
@@ -174,7 +174,7 @@ export const helpService = {
       if (Object.keys(discovered).length > 0) {
         sections = await this.buildSectionsFromStructure(discovered, language, structureMap);
       } else {
-        // Fallback to configured sections using fetch from public docs
+        // Fallback to configured sections using fetch from docs folder
         for (const sectionConfig of helpConfig.sections) {
           try {
             const content = await this.loadMarkdownContent(sectionConfig.id, language, forceRefresh);

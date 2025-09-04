@@ -18,7 +18,7 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
 
 **Här är hur du löser det:**
 1. **Kontrollera saldot på din voucher**
-   - Gå till Admin view eller kolla din profil
+   - Gå till administratörsvyn eller kolla din profil
    - Du behöver minst 1 stämpelkort för att markera närvaro
 
 2. **Kontrollera din registrering**

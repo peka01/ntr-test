@@ -1,15 +1,15 @@
 # Help Content Updates - Simple & Immediate
 
-## ✅ **NO SYNCING NEEDED!**
+## ✅ **SINGLE SOURCE OF TRUTH!**
 
-Your help documentation is now served directly from `public/docs/` folder. Changes are **immediately visible** without any syncing required.
+Your help documentation is served directly from `docs/` folder. Changes are **immediately visible** without any syncing required.
 
 ## How to Update Help Content
 
 ### 1. Edit Documentation
-Edit files directly in `public/docs/`:
-- `public/docs/sv/` - Swedish documentation  
-- `public/docs/en/` - English documentation
+Edit files directly in `docs/`:
+- `docs/sv/` - Swedish documentation  
+- `docs/en/` - English documentation
 
 ### 2. Changes Are Immediate
 - Save your changes
@@ -18,25 +18,24 @@ Edit files directly in `public/docs/`:
 
 ## Why This Works
 
-- **Vite Development**: Serves files directly from `public/` folder
-- **GitHub Pages**: Vite automatically includes `public/` contents in the build
+- **Vite Development**: Serves files directly from `docs/` folder
+- **GitHub Pages**: Vite automatically includes `docs/` contents in the build
 - **No Caching Issues**: Aggressive cache busting ensures fresh content
 - **No Syncing**: Files are already in the right place
-- **No Copying**: Docs are served directly from `public/docs/` - no duplication needed
+- **No Duplication**: Docs are served directly from `docs/` - single source of truth
 
 ## File Structure
 
 ```
-public/
-└── docs/
-    ├── sv/
-    │   ├── overview.md
-    │   ├── vouchers.md
-    │   └── [other help files]
-    └── en/
-        ├── overview.md
-        ├── vouchers.md
-        └── [other help files]
+docs/
+├── sv/
+│   ├── overview.md
+│   ├── vouchers.md
+│   └── [other help files]
+└── en/
+    ├── overview.md
+    ├── vouchers.md
+    └── [other help files]
 ```
 
 ## Benefits
@@ -52,7 +51,7 @@ public/
 If changes aren't visible:
 1. **Hard Refresh**: Press Ctrl+Shift+R
 2. **Use Refresh Button**: Click 🔄 in help system
-3. **Check File Location**: Ensure files are in `public/docs/`
+3. **Check File Location**: Ensure files are in `docs/`
 4. **Check Console**: Look for cache busting URLs
 
 That's it! Simple and immediate help content updates. 🎉

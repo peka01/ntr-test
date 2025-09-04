@@ -15,6 +15,7 @@ Use this prompt after implementing new functionality to ensure proper documentat
 - Write in Swedish first, then translate to English
 - Place in correct folders: `docs/sv/Administratör/` and `docs/en/Administrator/` (or `Användare`/`User`)
 - **CRITICAL: Use English file names for ALL languages** (e.g., `user-management.md`, `training-management.md`)
+- **SINGLE SOURCE OF TRUTH**: Only edit files in `docs/` folder - no duplication needed
 - Use translation variables for UI references: `{{navUsers}}`
 
 ### 3. Update Configuration Files
