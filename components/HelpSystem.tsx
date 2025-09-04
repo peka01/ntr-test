@@ -93,16 +93,12 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       try {
         setLoading(true);
         setError(null);
-        // Force reload to bypass any stale cache
-        const sections = await helpService.forceReload(language);
+        const sections = await helpService.getAllSections(language, true);
         setHelpSections(sections);
       } catch (error) {
         console.error('Error loading help content:', error);
         setError(error);
-        // Don't fail completely - set empty sections and continue
         setHelpSections([]);
-        
-        // Show a user-friendly message in the content area
         console.warn('Help content unavailable, but AI chat will still work with additional knowledge sources');
       } finally {
         setLoading(false);
@@ -112,7 +108,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
     if (isOpen) {
       loadHelpContent();
     }
-  }, [isOpen, language]);
+  }, [isOpen, language, contentSource]);
 
 
 
@@ -122,11 +118,13 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       setLoading(true);
       console.log('Refreshing help content from repository...');
       
-      // Clear all caches first for a complete refresh
-      await helpService.clearAllCaches();
+      // Clear SW caches only in remote mode; in local mode, bypass to avoid stale SW interactions
+      if (contentSource === 'remote') {
+        await helpService.clearAllCaches();
+      }
       
       // Force reload with cache busting
-      const sections = await helpService.forceReload(language);
+      const sections = await helpService.getAllSections(language, true);
       setHelpSections(sections);
       
       console.log('Help content refreshed successfully');

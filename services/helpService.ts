@@ -105,7 +105,7 @@ let isProxyReady: Promise<void> | null = null;
 
 // Content source selector
 type HelpContentSource = 'remote' | 'local';
-let currentContentSource: HelpContentSource = 'remote';
+let currentContentSource: HelpContentSource = 'local';
 
 function setContentSource(source: HelpContentSource) {
   currentContentSource = source;
@@ -227,23 +227,23 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
     if (getContentSource() === 'local') {
       const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
       const langFolder = language === 'sv' ? 'sv' : 'en';
-      // 1) Prefer latest from GitHub raw of this repo so edits are visible without rebuild
-      const rawUrl = `https://raw.githubusercontent.com/peka01/ntr-test/main/docs/${langFolder}/${sectionId}.md?${cacheParams}`;
+      // 1) Prefer locally served /public/docs (reflects local edits via Vite plugin/sync)
+      const base = (import.meta as any).env?.BASE_URL || '/';
+      const localUrl = `${base}docs/${langFolder}/${sectionId}.md?${cacheParams}`;
       try {
-        const rawRes = await fetch(rawUrl, { cache: 'no-store' });
-        if (rawRes.ok) {
-          return await rawRes.text();
+        const res = await fetch(localUrl, { cache: 'no-store' });
+        if (res.ok) {
+          return await res.text();
         }
       } catch (_) {}
 
-      // 2) Fallback to locally served /public/docs in case offline or raw unavailable
-      const base = (import.meta as any).env?.BASE_URL || '/';
-      const localUrl = `${base}docs/${langFolder}/${sectionId}.md?${cacheParams}`;
-      const res = await fetch(localUrl, { cache: 'no-store' });
-      if (res.ok) {
-        return await res.text();
+      // 2) Fallback to GitHub raw of this repo so it also works in hosted environments
+      const rawUrl = `https://raw.githubusercontent.com/peka01/ntr-test/main/docs/${langFolder}/${sectionId}.md?${cacheParams}`;
+      const rawRes = await fetch(rawUrl, { cache: 'no-store' });
+      if (rawRes.ok) {
+        return await rawRes.text();
       }
-      throw new Error(`Local docs not found: ${localUrl} (${res.status} ${res.statusText})`);
+      throw new Error(`Local docs not found: ${localUrl}`);
     }
     // Load configuration to get the correct file path
     const config = await loadHelpConfig(forceRefresh);
