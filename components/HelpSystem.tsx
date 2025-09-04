@@ -122,6 +122,9 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const searchInputRef = useRef<HTMLInputElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
+  // TOC tree state
+  const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
+
   // Bring window to front when clicked
   const handleWindowClick = () => {
     if (modalRef.current) {
@@ -195,6 +198,109 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
     
     return matchesSearch && matchesFilter;
   });
+
+  // Build hierarchical TOC tree from filtered sections
+  interface TocNode {
+    name: string;
+    path: string;
+    children: Map<string, TocNode>;
+    section?: HelpSection;
+  }
+
+  const buildTocTree = React.useCallback((sections: HelpSection[]): TocNode => {
+    const root: TocNode = { name: '', path: '', children: new Map() };
+    sections.forEach(sec => {
+      const segs = sec.pathSegments && sec.pathSegments.length > 0 ? sec.pathSegments : [sec.id];
+      let node = root;
+      let accum = '';
+      for (let i = 0; i < segs.length; i++) {
+        const seg = segs[i];
+        accum = accum ? `${accum}/${seg}` : seg;
+        if (!node.children.has(seg)) {
+          node.children.set(seg, { name: seg, path: accum, children: new Map() });
+        }
+        node = node.children.get(seg)!;
+        if (i === segs.length - 1) {
+          node.section = sec;
+        }
+      }
+    });
+    return root;
+  }, []);
+
+  const tocRoot = React.useMemo(() => buildTocTree(filteredSections), [filteredSections, buildTocTree]);
+
+  // Auto-expand ancestors of the selected section
+  useEffect(() => {
+    if (!selectedSection) return;
+    const parts = selectedSection.replace(/^\/+|\/+$/g, '').split('/').filter(Boolean);
+    const next = new Set<string>();
+    let accum = '';
+    for (let i = 0; i < parts.length - 1; i++) {
+      accum = accum ? `${accum}/${parts[i]}` : parts[i];
+      next.add(accum);
+    }
+    setExpandedPaths(next);
+  }, [selectedSection]);
+
+  const toggleExpand = (path: string) => {
+    setExpandedPaths(prev => {
+      const next = new Set(prev);
+      if (next.has(path)) next.delete(path); else next.add(path);
+      return next;
+    });
+  };
+
+  const renderTocNode = (node: TocNode, depth: number, isCompactMode: boolean) => {
+    const items: React.ReactNode[] = [];
+    const children = Array.from(node.children.values());
+    children.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
+    children.forEach(child => {
+      const hasChildren = child.children.size > 0;
+      const isExpanded = expandedPaths.has(child.path);
+      const isSelected = child.section && child.section.id === selectedSection;
+      const padding = 8 * depth;
+      items.push(
+        <div key={child.path} className="flex flex-col">
+          <div className={`flex items-center ${isSelected ? 'bg-cyan-500 text-white' : 'hover:bg-slate-100 text-slate-700'} rounded-lg`} style={{ paddingLeft: padding }}>
+            {hasChildren ? (
+              <button
+                className={`w-6 h-6 flex items-center justify-center text-slate-500 ${isSelected ? 'text-white/80' : ''}`}
+                onClick={() => toggleExpand(child.path)}
+                title={isExpanded ? t('helpMinimizeTitle') : t('helpMaximizeTitle')}
+              >
+                <svg className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            ) : (
+              <span className="w-6 h-6" />
+            )}
+            {child.section ? (
+              <button
+                onClick={() => {
+                  setSelectedSection(child.section!.id);
+                  if (isCompactMode) setShowToc(false);
+                }}
+                className={`flex-1 text-left px-3 py-2 rounded-lg ${isSelected ? '' : ''}`}
+              >
+                <div className="font-medium">{child.section.title}</div>
+                {depth === 1 && <div className="text-xs opacity-75 capitalize">{child.section.category}</div>}
+              </button>
+            ) : (
+              <div className="flex-1 px-3 py-2 text-slate-600 capitalize">{child.name}</div>
+            )}
+          </div>
+          {hasChildren && isExpanded && (
+            <div className="mt-1">
+              {renderTocNode(child, depth + 1, isCompactMode)}
+            </div>
+          )}
+        </div>
+      );
+    });
+    return <>{items}</>;
+  };
 
   // Auto-select relevant section based on context
   useEffect(() => {
@@ -910,31 +1016,16 @@ Användarens fråga: ${content}`;
               })()}
             </div>
 
-            {/* Navigation */}
+            {/* Navigation - hierarchical TOC */}
             <div className="flex-1 overflow-y-auto p-4">
-                          {loading ? (
-              <div className="text-center text-slate-500 py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
-                <p className="mt-2">{t('helpLoadingText')}</p>
-              </div>
-            ) : (
-                <nav className="space-y-2">
-                  {filteredSections.map((section) => (
-                    <button
-                      key={section.id}
-                      onClick={() => {
-                        setSelectedSection(section.id);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                        selectedSection === section.id
-                          ? 'bg-cyan-500 text-white'
-                          : 'hover:bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      <div className="font-medium">{section.title}</div>
-                      <div className="text-xs opacity-75 capitalize">{section.category}</div>
-                    </button>
-                  ))}
+              {loading ? (
+                <div className="text-center text-slate-500 py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mx-auto"></div>
+                  <p className="mt-2">{t('helpLoadingText')}</p>
+                </div>
+              ) : (
+                <nav className="space-y-1">
+                  {renderTocNode(tocRoot, 0, false)}
                 </nav>
               )}
             </div>
@@ -965,24 +1056,8 @@ Användarens fråga: ${content}`;
                     <p className="mt-2">{t('helpLoadingText')}</p>
                   </div>
                 ) : (
-                  <nav className="space-y-2">
-                    {filteredSections.map((section) => (
-                      <button
-                        key={section.id}
-                        onClick={() => {
-                          setSelectedSection(section.id);
-                          setShowToc(false);
-                        }}
-                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
-                          selectedSection === section.id
-                            ? 'bg-cyan-500 text-white'
-                            : 'hover:bg-slate-100 text-slate-700'
-                        }`}
-                      >
-                        <div className="font-medium">{section.title}</div>
-                        <div className="text-xs opacity-75 capitalize">{section.category}</div>
-                      </button>
-                    ))}
+                  <nav className="space-y-1">
+                    {renderTocNode(tocRoot, 0, true)}
                   </nav>
                 )}
               </div>
