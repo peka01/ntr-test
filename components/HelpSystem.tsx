@@ -18,7 +18,16 @@ interface SourceInfo {
 }
 
 // NEW: Content rendering sub-component
-const HelpContent: React.FC<{ section: HelpSection | undefined; svFallback: string | null; renderFn: (content: string) => string }> = ({ section, svFallback, renderFn }) => {
+interface HelpContentProps {
+  section: HelpSection | undefined;
+  svFallback: string | null;
+  renderFn: (content: string) => string;
+  onNavigate: (id: string) => void;
+  overviewSectionId?: string;
+  categorySectionId?: string;
+}
+
+const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn, onNavigate, overviewSectionId, categorySectionId }) => {
   if (!section) {
     return (
       <div className="text-center text-slate-500 py-8">
@@ -30,14 +39,27 @@ const HelpContent: React.FC<{ section: HelpSection | undefined; svFallback: stri
   return (
     <>
       <div className="mb-6 flex items-center space-x-2 text-sm text-slate-600">
-        <span>Help</span>
+        {overviewSectionId ? (
+          <button className="text-cyan-600 hover:underline" onClick={() => onNavigate(overviewSectionId)}>Help</button>
+        ) : (
+          <span>Help</span>
+        )}
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        <span className="capitalize">{section.category}</span>
+        {categorySectionId ? (
+          <button className="capitalize text-cyan-600 hover:underline" onClick={() => onNavigate(categorySectionId)}>
+            {section.category}
+          </button>
+        ) : (
+          <span className="capitalize">{section.category}</span>
+        )}
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        <span className="font-medium text-slate-800">{section.title}</span>
+        <button className="font-medium text-slate-800 hover:underline" onClick={() => onNavigate(section.id)}>
+          {section.title}
+        </button>
       </div>
-      <div className="prose prose-slate max-w-none">
+      <div className="prose prose-slate max-w-none overflow-x-auto">
         <div 
+          style={{ whiteSpace: 'pre' }}
           dangerouslySetInnerHTML={{ 
             __html: renderFn(svFallback ?? section.content)
           }} 
@@ -519,7 +541,9 @@ Användarens fråga: ${content}`;
         console.warn('Could not extract sources:', sourceError);
       }
 
-      setAiResponse(interpolatedText);
+      // Remove visible action placeholders from the displayed response
+      const textWithoutActions = interpolatedText.replace(/\[action:[^\]]*\]/g, '').trim();
+      setAiResponse(textWithoutActions);
 
       // Parse lightweight action hints in AI output, e.g.:
       // [action:navigate view=public]
@@ -617,6 +641,51 @@ Användarens fråga: ${content}`;
     html = html.replace(/\n/g, '<br>');
     
     return html;
+  };
+
+  // Format AI responses (basic markdown) and sanitize
+  const renderAIResponse = (content: string): string => {
+    if (!content) return '';
+    // Escape HTML
+    let html = content
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/\"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+
+    // Bold, italic, inline code, links
+    html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+    html = html.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-100 rounded">$1<\/code>');
+    html = html.replace(/\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:underline">$1<\/a>');
+
+    // Newlines to <br>
+    html = html.replace(/\n/g, '<br>');
+    return html;
+  };
+
+  const getActionLabel = (action: { type: string; payload: Record<string, string> }): string => {
+    const { type, payload } = action || { type: '', payload: {} };
+    if (type === 'navigate') {
+      switch ((payload?.view || '').toLowerCase()) {
+        case 'public':
+          return t('aiActionNavigatePublic');
+        case 'admin':
+          return t('aiActionNavigateAdmin');
+        case 'attendance':
+          return t('aiActionNavigateAttendance');
+        default:
+          return t('aiActionNavigate');
+      }
+    }
+    if (type === 'open_help') {
+      return t('aiActionOpenHelp');
+    }
+    if (type === 'set_search') {
+      return t('aiActionSetSearch', { value: String(payload?.value || '') });
+    }
+    return t('aiActionUnknown');
   };
 
   const [suggestedActions, setSuggestedActions] = useState<{ type: string; payload: Record<string, string> }[]>([]);
@@ -918,6 +987,9 @@ Användarens fråga: ${content}`;
                 section={selectedSectionData} 
                 svFallback={svFallbackContent}
                 renderFn={renderContent}
+                onNavigate={(id: string) => setSelectedSection(id)}
+                overviewSectionId={(helpSections.find(s => s.id === 'overview') || helpSections[0])?.id}
+                categorySectionId={selectedSectionData ? (helpSections.find(s => s.category === selectedSectionData.category) || helpSections[0])?.id : undefined}
               />
             )}
           </div>
@@ -967,8 +1039,8 @@ Användarens fråga: ${content}`;
                     ✕
                   </button>
                 </div>
-                <div className="text-sm text-slate-800 whitespace-pre-wrap">
-                  {aiResponse}
+                <div className="text-sm text-slate-800">
+                  <div dangerouslySetInnerHTML={{ __html: renderAIResponse(aiResponse) }} />
                 </div>
                 {(suggestedActions && suggestedActions.length > 0) ? (
                   <div className="pt-2 border-t border-slate-100 flex flex-wrap gap-2">
@@ -983,33 +1055,11 @@ Användarens fråga: ${content}`;
                         className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded hover:bg-cyan-200 transition-colors cursor-pointer"
                         title={`${a.type} ${Object.entries(a.payload).map(([k,v]) => `${k}=${v}`).join(' ')}`}
                       >
-                        {a.type}
+                        {getActionLabel(a)}
                       </button>
                     ))}
                   </div>
-                ) : (
-                  <div className="pt-2 border-t border-slate-100 flex flex-wrap gap-2">
-                    {/* Fallback quick actions */}
-                    <button
-                      onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'public' } } }))}
-                      className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
-                    >
-                      navigate public
-                    </button>
-                    <button
-                      onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'admin' } } }))}
-                      className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
-                    >
-                      navigate admin
-                    </button>
-                    <button
-                      onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'attendance' } } }))}
-                      className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
-                    >
-                      navigate attendance
-                    </button>
-                  </div>
-                )}
+                ) : null}
                 {aiSources && aiSources.length > 0 && (
                   <div className="pt-2 border-t border-slate-100">
                     <div className="text-xs text-slate-500 mb-1">{t('aiHelpSourcesTitle')}</div>
@@ -1045,27 +1095,7 @@ Användarens fråga: ${content}`;
               </div>
             )}
 
-            {/* Always-visible quick actions */}
-            <div className="mt-3 flex flex-wrap gap-2">
-              <button
-                onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'public' } } }))}
-                className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
-              >
-                navigate public
-              </button>
-              <button
-                onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'admin' } } }))}
-                className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
-              >
-                navigate admin
-              </button>
-              <button
-                onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'attendance' } } }))}
-                className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
-              >
-                navigate attendance
-              </button>
-            </div>
+            {/* Quick actions removed as requested */}
             
             <div className="text-xs text-slate-500 text-center">
               <a 
