@@ -1055,6 +1055,28 @@ Användarens fråga: ${content}`;
                 )}
               </div>
             )}
+
+            {/* Always-visible quick actions */}
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'public' } } }))}
+                className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
+              >
+                navigate public
+              </button>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'admin' } } }))}
+                className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
+              >
+                navigate admin
+              </button>
+              <button
+                onClick={() => window.dispatchEvent(new CustomEvent('ai-action', { detail: { type: 'navigate', payload: { view: 'attendance' } } }))}
+                className="text-xs bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200"
+              >
+                navigate attendance
+              </button>
+            </div>
             
             <div className="text-xs text-slate-500 text-center">
               <a 
