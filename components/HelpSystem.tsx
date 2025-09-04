@@ -59,7 +59,7 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
       </div>
       <div className="prose prose-slate max-w-none overflow-x-auto">
         <div 
-          style={{ whiteSpace: 'nowrap' }}
+          style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', wordBreak: 'break-word' }}
           dangerouslySetInnerHTML={{ 
             __html: renderFn(svFallback ?? section.content)
           }} 
