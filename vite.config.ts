@@ -26,7 +26,21 @@ export default defineConfig(({ mode }) => {
         server.middlewares.use('/docs', (req, res, next) => {
           const filePath = resolve(__dirname, 'docs', req.url);
           if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
-            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            // Set appropriate MIME type based on file extension
+            const ext = filePath.split('.').pop()?.toLowerCase();
+            let contentType = 'text/plain; charset=utf-8';
+            
+            if (ext === 'md') {
+              contentType = 'text/markdown; charset=utf-8';
+            } else if (ext === 'json') {
+              contentType = 'application/json; charset=utf-8';
+            } else if (ext === 'css') {
+              contentType = 'text/css; charset=utf-8';
+            } else if (ext === 'js') {
+              contentType = 'application/javascript; charset=utf-8';
+            }
+            
+            res.setHeader('Content-Type', contentType);
             res.end(fs.readFileSync(filePath, 'utf-8'));
           } else {
             next();
@@ -45,7 +59,6 @@ export default defineConfig(({ mode }) => {
       },
       // Configure Vite to serve docs folder as static assets
       publicDir: 'public',
-      assetsInclude: ['**/*.md', '**/*.json'],
       build: {
         outDir: 'dist',
         sourcemap: false,
