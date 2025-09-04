@@ -135,13 +135,6 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings
         <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-3xl font-bold text-slate-800">{t('navAttendance')}</h1>
-                {onHelpClick && (
-                    <HelpButton 
-                        onClick={onHelpClick}
-                        context="mark attendance cancel attendance attendance view voucher deduction refund"
-                        variant="text"
-                    />
-                )}
             </div>
             
             {trainings.length > 0 ? (

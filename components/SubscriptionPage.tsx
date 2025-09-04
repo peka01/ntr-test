@@ -121,13 +121,6 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
         <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-3xl font-bold text-slate-800">{t('navPublic')}</h1>
-                {onHelpClick && (
-                    <HelpButton 
-                        onClick={onHelpClick}
-                        context="subscribe unsubscribe subscription public view user subscription"
-                        variant="text"
-                    />
-                )}
             </div>
             
             {trainings.length > 0 && (
