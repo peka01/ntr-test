@@ -103,6 +103,18 @@ export interface HelpSectionConfig {
 
 let isProxyReady: Promise<void> | null = null;
 
+// Content source selector
+type HelpContentSource = 'remote' | 'local';
+let currentContentSource: HelpContentSource = 'remote';
+
+function setContentSource(source: HelpContentSource) {
+  currentContentSource = source;
+}
+
+function getContentSource(): HelpContentSource {
+  return currentContentSource;
+}
+
 function ensureProxyIsReady(): Promise<void> {
     if (isProxyReady) {
         return isProxyReady;
@@ -211,6 +223,17 @@ async function loadHelpConfig(forceRefresh: boolean = false): Promise<any> {
 async function loadMarkdownContent(sectionId: string, language: string, forceRefresh: boolean = false): Promise<string> {
   
   try {
+    // Branch based on selected source
+    if (getContentSource() === 'local') {
+      const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
+      const langFolder = language === 'sv' ? 'sv' : 'en';
+      const localUrl = `./docs/${langFolder}/${sectionId}.md?${cacheParams}`;
+      const res = await fetch(localUrl, { cache: 'no-store' });
+      if (res.ok) {
+        return await res.text();
+      }
+      throw new Error(`Local docs not found: ${localUrl} (${res.status} ${res.statusText})`);
+    }
     // Load configuration to get the correct file path
     const config = await loadHelpConfig(forceRefresh);
     
@@ -324,37 +347,31 @@ export const helpService = {
     const sections: HelpSection[] = [];
     
     try {
-      // Get sections from external configuration
-      const availableSections = await this.getAvailableSections(language);
-      
+      let availableSections: string[] = [];
+      if (getContentSource() === 'local') {
+        // Use static config order for local docs
+        availableSections = helpConfig.sections.map(s => s.id);
+      } else {
+        // Get sections from external configuration
+        availableSections = await this.getAvailableSections(language);
+      }
+
       for (const sectionId of availableSections) {
         try {
           const content = await loadMarkdownContent(sectionId, language, forceRefresh);
-          
-          // Find matching static config for title and metadata
           const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
           const title = sectionConfig?.title[language as keyof typeof sectionConfig.title] || sectionId;
           const keywords = sectionConfig?.keywords || [];
           const category = sectionConfig?.category || 'general';
-          
-          sections.push({
-            id: sectionId,
-            title: title,
-            content: content,
-            keywords: keywords,
-            category: category
-          });
+          sections.push({ id: sectionId, title, content, keywords, category });
         } catch (error) {
           console.error(`Error loading help content for section ${sectionId}:`, error);
-          // Skip sections that can't be loaded - external repository is required
-          console.error(`Skipping section ${sectionId} - external content required`);
+          // Skip sections that cannot be loaded
         }
       }
     } catch (error) {
-      console.error('Error loading external help sections:', error);
-      
-      // No fallback - external repository is required
-      throw new Error(`External help repository is required and unavailable: ${error.message}`);
+      console.error('Error loading help sections:', error);
+      throw new Error(`Failed to load help sections: ${error instanceof Error ? error.message : String(error)}`);
     }
     
     // console.log(`Loaded ${sections.length} help sections`);
@@ -400,6 +417,9 @@ export const helpService = {
 
   // Get available sections from external configuration
   async getAvailableSections(language: string = 'sv'): Promise<string[]> {
+    if (getContentSource() === 'local') {
+      return helpConfig.sections.map(s => s.id);
+    }
     try {
       const config = await loadHelpConfig();
       const localeKey = language === 'sv' ? 'sv-se' : 'en-se';
@@ -407,8 +427,7 @@ export const helpService = {
       return Object.keys(filePaths);
     } catch (error) {
       console.error('Error getting available sections from external repository:', error);
-      // No fallback - external repository is required
-      throw new Error(`External help repository is required and unavailable: ${error.message}`);
+      throw new Error(`External help repository is required and unavailable: ${error instanceof Error ? error.message : String(error)}`);
     }
   },
 
@@ -544,3 +563,6 @@ export const helpService = {
     }
   }
 };
+
+// Expose content source controls
+export const helpContentSource = { set: setContentSource, get: getContentSource };

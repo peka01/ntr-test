@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { useLanguage } from '../contexts/LanguageContext';
-import { helpService, type HelpSection } from '../services/helpService';
+import { helpService, type HelpSection, helpContentSource } from '../services/helpService';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 
 interface HelpSystemProps {
@@ -60,6 +60,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+  const [contentSource, setContentSource] = useState<'remote' | 'local'>(helpContentSource.get());
   
   // AI Chat state
   const [aiInputValue, setAiInputValue] = useState('');
@@ -499,6 +500,20 @@ Användarens fråga: ${content}`;
 
   const renderContent = (content: string) => {
     let html = content;
+
+    // Interpolate translation variables like {{navPublic}} using current i18n
+    try {
+      html = html.replace(/\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g, (_match, p1) => {
+        try {
+          const val = t(p1);
+          return typeof val === 'string' ? val : String(val);
+        } catch {
+          return p1;
+        }
+      });
+    } catch {
+      // If interpolation fails, continue with original content
+    }
     
     // Process headers first (before other replacements)
     html = html.replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mb-2 mt-4">$1</h3>');
@@ -588,7 +603,22 @@ Användarens fråga: ${content}`;
                   : t('helpStatusSuccess')
               }
             />
-            <h2 className="text-2xl font-bold text-slate-900">{t('helpSystemTitle')}</h2>
+            {/* Replace title with help source selector */}
+            <select
+              value={contentSource}
+              onChange={async (e) => {
+                const val = e.target.value === 'local' ? 'local' : 'remote';
+                setContentSource(val);
+                helpContentSource.set(val);
+                await handleManualRefresh();
+              }}
+              className="px-2 py-1 text-sm border border-slate-300 rounded-md bg-white text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+              title="Hjälpkälla"
+              onMouseDown={(e) => e.stopPropagation()}
+            >
+              <option value="remote">Hjälp (Remote repo)</option>
+              <option value="local">Hjälp (Local repo)</option>
+            </select>
           </div>
           <div className="flex items-center gap-2">
             {isCompact && (
@@ -671,12 +701,29 @@ Användarens fråga: ${content}`;
               </svg>
             </button>
             <a
-                              href={`https://github.com/peka01/helpdoc/edit/main/ntr-test/docs/${language}/${selectedSection}.md`}
+              href={contentSource === 'local' 
+                ? '#' 
+                : `https://github.com/peka01/helpdoc/edit/main/ntr-test/docs/${language}/${selectedSection}.md`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors"
               title={t('helpEditButton')}
               onMouseDown={(e) => e.stopPropagation()}
+              onClick={(e) => {
+                if (contentSource === 'local') {
+                  e.preventDefault();
+                  try {
+                    const content = (helpSections.find(s => s.id === selectedSection)?.content) || '';
+                    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
+                    const url = URL.createObjectURL(blob);
+                    window.open(url, '_blank', 'noopener,noreferrer');
+                    // Revoke after a short delay to allow opening
+                    setTimeout(() => URL.revokeObjectURL(url), 10000);
+                  } catch (err) {
+                    console.error('Failed to open local markdown content:', err);
+                  }
+                }
+              }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

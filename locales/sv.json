@@ -138,5 +138,6 @@
   "adminTrainingTitleLabel": "Titel",
   "adminTrainingDescLabel": "Beskrivning",
   "adminTrainingDateLabel": "Datum",
-  "adminTrainingTimeLabel": "Tid"
+  "adminTrainingTimeLabel": "Tid",
+  "unsubscribeTooltip": "Avboka"
 }

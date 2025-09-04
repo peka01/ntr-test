@@ -137,5 +137,6 @@
   "adminTrainingTitleLabel": "Title",
   "adminTrainingDescLabel": "Description",
   "adminTrainingDateLabel": "Date",
-  "adminTrainingTimeLabel": "Time"
+  "adminTrainingTimeLabel": "Time",
+  "unsubscribeTooltip": "Unsubscribe"
 }

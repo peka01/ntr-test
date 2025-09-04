@@ -5,21 +5,26 @@ import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
+import { TrashIcon } from './icons/TrashIcon';
 
 interface SubscriptionPageProps {
     users: User[];
     trainings: Training[];
     subscriptions: Map<string, Set<string>>;
     onSubscribe: (trainingId: string, userId: string) => void;
+    onUnsubscribe: (trainingId: string, userId: string) => void;
     onHelpClick?: (context?: string) => void;
 }
 
-const TrainingCard: React.FC<{
+interface TrainingCardProps {
     training: Training;
     allUsers: User[];
     subscribedUserIds: Set<string>;
     onSubscribe: (trainingId: string, userId: string) => void;
-}> = ({ training, allUsers, subscribedUserIds, onSubscribe }) => {
+    onUnsubscribe: (trainingId: string, userId: string) => void;
+}
+
+const TrainingCard: React.FC<TrainingCardProps> = ({ training, allUsers, subscribedUserIds, onSubscribe, onUnsubscribe }) => {
     const { t } = useTranslations();
     const [selectedUserId, setSelectedUserId] = useState<string>('');
 
@@ -47,9 +52,21 @@ const TrainingCard: React.FC<{
                 <h3 className="text-lg font-semibold text-slate-600 mb-2">{t('subSubscribedUsers')}</h3>
                 {subscribedUsers.length > 0 ? (
                     <ul className="space-y-2">
-                        {subscribedUsers.map(user => (
-                            <li key={user.id} className="text-slate-700 bg-slate-100 px-3 py-1 rounded-md">{user.name}</li>
-                        ))}
+                        {subscribedUsers.map(subscribedUser => {
+                            return (
+                                <li key={subscribedUser.id} className="flex items-center justify-between text-slate-700 bg-slate-100 px-3 py-1 rounded-md">
+                                    <span>{subscribedUser.name}</span>
+                                    <button
+                                        onClick={() => onUnsubscribe(training.id, subscribedUser.id)}
+                                        className="p-1 text-slate-500 hover:text-red-600 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 opacity-60 hover:opacity-100 transition-opacity"
+                                        aria-label={`Unsubscribe ${subscribedUser.name}`}
+                                        title={t('unsubscribeTooltip')}
+                                    >
+                                        <TrashIcon className="w-5 h-5" />
+                                    </button>
+                                </li>
+                            );
+                        })}
                     </ul>
                 ) : (
                     <p className="text-slate-500 italic">{t('subNoUsersSubscribed')}</p>
@@ -84,7 +101,7 @@ const TrainingCard: React.FC<{
     );
 };
 
-export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, trainings, subscriptions, onSubscribe, onHelpClick }) => {
+export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, trainings, subscriptions, onSubscribe, onUnsubscribe, onHelpClick }) => {
     const { user } = useAuth();
     const { t } = useTranslations();
     const { setContext } = useUserInteraction();
@@ -135,6 +152,7 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
                                 allUsers={users}
                                 subscribedUserIds={subscriptions.get(training.id) || new Set()}
                                 onSubscribe={onSubscribe}
+                                onUnsubscribe={onUnsubscribe}
                             />
                         ))}
                     </div>
