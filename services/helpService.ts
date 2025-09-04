@@ -76,7 +76,8 @@ export interface HelpSection {
   title: string;
   content: string;
   keywords: string[];
-  category: 'admin' | 'user' | 'general';
+  category: string;
+  pathSegments?: string[];
 }
 
 export interface HelpSectionConfig {
@@ -103,8 +104,9 @@ export const helpService = {
           const extractedTitle = this.extractMarkdownTitle(content);
           const title = extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title] || sectionConfig.id;
           const keywords = sectionConfig.keywords || [];
-          const category = sectionConfig.category || 'general';
-          sections.push({ id: sectionConfig.id, title, content, keywords, category });
+          const category = this.deriveCategoryFromId(sectionConfig.id) || sectionConfig.category || 'general';
+          const pathSegments = this.splitPathSegments(sectionConfig.id);
+          sections.push({ id: sectionConfig.id, title, content, keywords, category, pathSegments });
         } catch (error) {
           console.error(`Error loading help content for section ${sectionConfig.id}:`, error);
           // Skip sections that cannot be loaded
@@ -127,12 +129,15 @@ export const helpService = {
 
       const content = await this.loadMarkdownContent(sectionId, language, forceRefresh);
       const extractedTitle = this.extractMarkdownTitle(content);
+      const derivedCategory = this.deriveCategoryFromId(sectionConfig.id) || sectionConfig.category;
+      const pathSegments = this.splitPathSegments(sectionConfig.id);
       return {
         id: sectionConfig.id,
         title: extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title],
         content: content,
         keywords: sectionConfig.keywords,
-        category: sectionConfig.category
+        category: derivedCategory || 'general',
+        pathSegments
       };
     } catch (error) {
       console.error(`Error loading help content for section ${sectionId}:`, error);
@@ -156,6 +161,25 @@ export const helpService = {
       // Continue scanning to allow front matter or comments at top.
     }
     return null;
+  },
+
+  // Derive category from section id path (e.g., "admin/attendance" -> "admin").
+  deriveCategoryFromId(sectionId: string): string {
+    if (!sectionId) return 'general';
+    const normalized = sectionId.replace(/^\/+|\/+$/g, '');
+    const slashIndex = normalized.indexOf('/');
+    if (slashIndex === -1) return 'general';
+    const category = normalized.substring(0, slashIndex).trim();
+    return category || 'general';
+  },
+
+  // Split an id path into its segments, excluding language.
+  splitPathSegments(sectionId: string): string[] {
+    if (!sectionId) return [];
+    return sectionId
+      .replace(/^\/+|\/+$/g, '')
+      .split('/')
+      .filter(Boolean);
   },
 
   // Load markdown content from local docs folder

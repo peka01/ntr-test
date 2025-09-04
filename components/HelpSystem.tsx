@@ -45,26 +45,37 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
         ) : (
           <span>{t('helpButtonText')}</span>
         )}
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
         {(() => {
-          const categoryMap: Record<string, string> = {
-            general: t('helpCategoryGeneral'),
-            admin: t('helpCategoryAdmin'),
-            user: t('helpCategoryUser')
-          };
-          const categoryLabel = categoryMap[section.category] ?? section.category;
-          return categorySectionId ? (
-            <button className="capitalize text-cyan-600 hover:underline" onClick={() => onNavigate(categorySectionId)}>
-              {categoryLabel}
-            </button>
-          ) : (
-            <span className="capitalize">{categoryLabel}</span>
+          const chevron = (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           );
+          const segments = (section.pathSegments || []).slice(0, Math.max(0, (section.pathSegments || []).length - 1));
+          const parts: React.ReactNode[] = [];
+          let accumPath = '';
+          segments.forEach((seg, idx) => {
+            accumPath = accumPath ? `${accumPath}/${seg}` : seg;
+            parts.push(chevron);
+            const existing = typeof categorySectionId === 'string' ? categorySectionId : undefined;
+            const targetId = existing || accumPath;
+            const clickable = true; // We allow navigation even if not listed; HelpSystem will show if exists
+            parts.push(
+              clickable ? (
+                <button key={`seg-${idx}`} className="capitalize text-cyan-600 hover:underline" onClick={() => onNavigate(targetId)}>
+                  {seg}
+                </button>
+              ) : (
+                <span key={`seg-${idx}`} className="capitalize">{seg}</span>
+              )
+            );
+          });
+          parts.push(chevron);
+          parts.push(
+            <button key="leaf" className="font-medium text-slate-800 hover:underline" onClick={() => onNavigate(section.id)}>
+              {section.title}
+            </button>
+          );
+          return parts;
         })()}
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
-        <button className="font-medium text-slate-800 hover:underline" onClick={() => onNavigate(section.id)}>
-          {section.title}
-        </button>
       </div>
       <div className="prose prose-slate max-w-none overflow-x-auto">
         <div 
@@ -87,7 +98,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const [isCompact, setIsCompact] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSection, setSelectedSection] = useState<string>('overview');
-  const [filter, setFilter] = useState<'all' | 'admin' | 'user' | 'general'>('all');
+  const [filter, setFilter] = useState<string>('all');
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -882,16 +893,21 @@ Användarens fråga: ${content}`;
 
             {/* Category Filter */}
             <div className="p-4 border-b border-slate-200">
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as any)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
-              >
-                <option value="all">{t('helpCategoryAll')}</option>
-                <option value="general">{t('helpCategoryGeneral')}</option>
-                <option value="admin">{t('helpCategoryAdmin')}</option>
-                <option value="user">{t('helpCategoryUser')}</option>
-              </select>
+              {(() => {
+                const categories = Array.from(new Set(helpSections.map(s => s.category))).sort();
+                return (
+                  <select
+                    value={filter}
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                  >
+                    <option value="all">{t('helpCategoryAll')}</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                );
+              })()}
             </div>
 
             {/* Navigation */}
@@ -994,7 +1010,7 @@ Användarens fråga: ${content}`;
                 svFallback={svFallbackContent}
                 renderFn={renderContent}
                 onNavigate={(id: string) => setSelectedSection(id)}
-                overviewSectionId={(helpSections.find(s => s.id === 'overview') || helpSections[0])?.id}
+                overviewSectionId={(helpSections.find(s => s.id.endsWith('/overview') || s.id === 'overview') || helpSections[0])?.id}
                 categorySectionId={selectedSectionData ? (helpSections.find(s => s.category === selectedSectionData.category) || helpSections[0])?.id : undefined}
               />
             )}
