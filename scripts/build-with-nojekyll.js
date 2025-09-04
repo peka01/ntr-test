@@ -32,14 +32,30 @@ try {
     fs.writeFileSync(publicNojekyllPath, '');
   }
   
-  // Documentation is served directly from docs/ folder by Vite
-  // No copying needed - single source of truth maintained
+  // Copy docs folder to dist for production serving
+  console.log('📚 Copying docs folder to dist...');
+  const docsSource = path.join(process.cwd(), 'docs');
+  const docsDest = path.join(process.cwd(), 'dist', 'docs');
+  
+  if (fs.existsSync(docsSource)) {
+    // Remove existing docs folder in dist if it exists
+    if (fs.existsSync(docsDest)) {
+      fs.rmSync(docsDest, { recursive: true, force: true });
+    }
+    
+    // Copy docs folder to dist
+    fs.cpSync(docsSource, docsDest, { recursive: true });
+    console.log('✅ Docs folder copied to dist/docs/');
+  } else {
+    console.warn('⚠️ Docs folder not found at source location');
+  }
   
   console.log('✅ Build completed with .nojekyll files!');
   console.log('📁 Files created:');
   console.log('   - dist/.nojekyll');
   console.log('   - public/.nojekyll');
-  console.log('📚 Docs served directly from docs/ (single source of truth)');
+  console.log('   - dist/docs/ (copied from docs/)');
+  console.log('📚 Docs available at production URL: /docs/');
   
 } catch (error) {
   console.error('❌ Build failed:', error.message);
