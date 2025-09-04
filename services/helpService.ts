@@ -227,7 +227,16 @@ async function loadMarkdownContent(sectionId: string, language: string, forceRef
     if (getContentSource() === 'local') {
       const cacheParams = forceRefresh ? generateForceRefreshParams() : generateCacheBuster();
       const langFolder = language === 'sv' ? 'sv' : 'en';
-      // Serve from public/docs and respect Vite base url for prod (e.g., /ntr-test/)
+      // 1) Prefer latest from GitHub raw of this repo so edits are visible without rebuild
+      const rawUrl = `https://raw.githubusercontent.com/peka01/ntr-test/main/docs/${langFolder}/${sectionId}.md?${cacheParams}`;
+      try {
+        const rawRes = await fetch(rawUrl, { cache: 'no-store' });
+        if (rawRes.ok) {
+          return await rawRes.text();
+        }
+      } catch (_) {}
+
+      // 2) Fallback to locally served /public/docs in case offline or raw unavailable
       const base = (import.meta as any).env?.BASE_URL || '/';
       const localUrl = `${base}docs/${langFolder}/${sectionId}.md?${cacheParams}`;
       const res = await fetch(localUrl, { cache: 'no-store' });

@@ -701,29 +701,14 @@ Användarens fråga: ${content}`;
               </svg>
             </button>
             <a
-              href={contentSource === 'local' 
-                ? '#' 
+              href={contentSource === 'local'
+                ? `https://github.com/peka01/ntr-test/edit/main/docs/${language}/${selectedSection}.md`
                 : `https://github.com/peka01/helpdoc/edit/main/ntr-test/docs/${language}/${selectedSection}.md`}
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors"
               title={t('helpEditButton')}
               onMouseDown={(e) => e.stopPropagation()}
-              onClick={(e) => {
-                if (contentSource === 'local') {
-                  e.preventDefault();
-                  try {
-                    const content = (helpSections.find(s => s.id === selectedSection)?.content) || '';
-                    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
-                    const url = URL.createObjectURL(blob);
-                    window.open(url, '_blank', 'noopener,noreferrer');
-                    // Revoke after a short delay to allow opening
-                    setTimeout(() => URL.revokeObjectURL(url), 10000);
-                  } catch (err) {
-                    console.error('Failed to open local markdown content:', err);
-                  }
-                }
-              }}
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
