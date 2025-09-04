@@ -1143,7 +1143,7 @@ Användarens fråga: ${content}`;
 
           {/* Compact TOC overlay */}
           {isCompact && showToc && (
-            <div className="absolute left-0 top-0 bottom-0 w-80 bg-white border-r border-slate-200 shadow-lg z-60 flex flex-col">
+            <div className="absolute left-0 top-0 bottom-0 w-80 bg-white border-r border-slate-200 shadow-lg z-[60] flex flex-col">
               <div className="p-4 border-b border-slate-200 flex items-center justify-between">
                 <span className="font-semibold text-slate-800">{t('helpContentsTitle')}</span>
                 <button className="text-slate-500 hover:text-slate-700" onClick={() => setShowToc(false)}>✕</button>
