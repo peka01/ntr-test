@@ -637,9 +637,6 @@ Användarens fråga: ${content}`;
     
     html = lines.join('\n');
     
-    // Convert remaining newlines to breaks
-    html = html.replace(/\n/g, '<br>');
-    
     return html;
   };
 
