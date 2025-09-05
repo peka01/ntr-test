@@ -135,7 +135,7 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
 
     useEffect(() => {
         setContext({ screen: 'Subscription Page', action: 'Viewing subscriptions' });
-    }, [setContext]);
+    }, []); // Remove setContext from dependencies to prevent infinite loop
 
     const [searchQuery, setSearchQuery] = useState('');
 

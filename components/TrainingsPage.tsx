@@ -60,7 +60,7 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
 
     useEffect(() => {
         setContext({ screen: 'Trainings Page', action: 'Viewing trainings list', data: {} });
-    }, [setContext]);
+    }, []); // Remove setContext from dependencies to prevent infinite loop
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingTrainingId, setEditingTrainingId] = useState<string | null>(null);

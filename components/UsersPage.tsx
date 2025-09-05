@@ -49,7 +49,7 @@ export const UsersPage: React.FC<UsersPageProps> = ({
 
     useEffect(() => {
         setContext({ screen: 'Users Page', action: 'Viewing users list', data: {} });
-    }, [setContext]);
+    }, []); // Remove setContext from dependencies to prevent infinite loop
 
     const [showAddForm, setShowAddForm] = useState(false);
     const [editingUserId, setEditingUserId] = useState<string | null>(null);

@@ -253,38 +253,22 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
     }
   }, [isOpen, language]);
 
-  // Handle section mapping when language changes
+  // Handle section mapping when help sections change
   useEffect(() => {
-    if (selectedSection && helpSections.length > 0) {
-      // First try to find exact match
-      let correspondingSection = helpSections.find(section => section.id === selectedSection);
-      
-      // If no exact match, try to find by section name (last part of the path)
-      if (!correspondingSection) {
-        const currentSectionName = selectedSection.split('/').pop();
-        correspondingSection = helpSections.find(section => 
-          section.id.split('/').pop() === currentSectionName
+    if (helpSections.length > 0) {
+      // If no section is selected or the selected section doesn't exist, select the first available section
+      if (!selectedSection || !helpSections.find(section => section.id === selectedSection)) {
+        // Try to find overview section first, otherwise use the first section
+        const overviewSection = helpSections.find(section => 
+          section.id === 'overview' || section.id.endsWith('/overview')
         );
-      }
-      
-      // If still no match, try to find by title similarity
-      if (!correspondingSection) {
-        const currentSection = helpSections.find(s => s.id === selectedSection);
-        if (currentSection) {
-          correspondingSection = helpSections.find(section => 
-            section.title.toLowerCase() === currentSection.title.toLowerCase()
-          );
+        const firstSection = overviewSection || helpSections[0];
+        if (firstSection) {
+          setSelectedSection(firstSection.id);
         }
       }
-      
-      if (correspondingSection && correspondingSection.id !== selectedSection) {
-        setSelectedSection(correspondingSection.id);
-      } else if (!correspondingSection && helpSections[0]?.id !== selectedSection) {
-        // Fallback to first section if no match found
-        setSelectedSection(helpSections[0]?.id || 'overview');
-      }
     }
-  }, [helpSections, language]);
+  }, [helpSections]); // Removed language from dependencies to prevent infinite loop
 
 
 
@@ -343,6 +327,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
 
   const buildTocTree = React.useCallback((sections: HelpSection[]): TocNode => {
     const root: TocNode = { name: '', path: '', children: new Map() };
+    
     sections.forEach(sec => {
       const segs = sec.pathSegments && sec.pathSegments.length > 0 ? sec.pathSegments : [sec.id];
       let node = root;
@@ -367,6 +352,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
         }
       }
     });
+    
     return root;
   }, []);
 

@@ -117,9 +117,9 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings
       const { t } = useTranslations();
      const { setContext } = useUserInteraction();
 
-     useEffect(() => {
-         setContext({ screen: 'Attendance Page', action: 'Viewing attendance' });
-     }, [setContext]);
+         useEffect(() => {
+        setContext({ screen: 'Attendance Page', action: 'Viewing attendance' });
+    }, []); // Remove setContext from dependencies to prevent infinite loop
 
       const [kioskModeTraining, setKioskModeTraining] = useState<Training | null>(null);
 

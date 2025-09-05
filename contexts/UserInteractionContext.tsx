@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useState, useContext, ReactNode, useCallback } from 'react';
 
 export interface InteractionContextState {
   screen: string;
@@ -20,9 +20,9 @@ export const UserInteractionProvider: React.FC<{ children: ReactNode }> = ({ chi
     data: {},
   });
 
-  const setContext = (newContext: Partial<InteractionContextState>) => {
+  const setContext = useCallback((newContext: Partial<InteractionContextState>) => {
     setContextState(prevContext => ({ ...prevContext, ...newContext }));
-  };
+  }, []);
 
   return (
     <UserInteractionContext.Provider value={{ context, setContext }}>
