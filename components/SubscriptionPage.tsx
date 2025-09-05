@@ -161,10 +161,10 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
                     <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
                         
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
-                            Kommande träningar hos oss
+                            {t('upcomingTrainingsTitle')}
                         </h1>
                         <p className="text-lg md:text-xl lg:text-2xl text-blue-100 max-w-2xl drop-shadow-md">
-                            Boka din plats och häng med på nästa pass
+                            {t('bookYourSpotMessage')}
                         </p>
                         
                         {/* Decorative elements */}
