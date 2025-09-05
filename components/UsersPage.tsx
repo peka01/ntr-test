@@ -162,11 +162,6 @@ export const UsersPage: React.FC<UsersPageProps> = ({
                             </svg>
                         </button>
                     </div>
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
-                        <p className="text-sm text-blue-800">
-                            <strong>{t('adminNoteLabel')}:</strong> {t('adminNoteText')}
-                        </p>
-                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <FormInput 
                             id="user-name" 

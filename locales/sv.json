@@ -17,8 +17,6 @@
   "adminVouchersLabel": "Träningar",
   "adminNoUserMatches": "Inga användare matchar din sökning.",
   "adminNoUsers": "Inga användare har skapats än.",
-  "adminNoteLabel": "Notera",
-  "adminNoteText": "Användare skapas med 0 klippkort som standard. Använd + och - knapparna för att hantera deras klippkortssaldo.",
   "subSearchPlaceholder": "Sök efter en träning...",
   "subSubscribedUsers": "Anmälda användare",
   "subNoUsersSubscribed": "Inga användare anmälda än.",

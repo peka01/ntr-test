@@ -17,8 +17,6 @@
   "adminVouchersLabel": "Vouchers",
   "adminNoUserMatches": "No users match your search.",
   "adminNoUsers": "No users created yet.",
-  "adminNoteLabel": "Note",
-  "adminNoteText": "Users are created with 0 vouchers by default. Use the + and - buttons to manage their voucher balance.",
   "subSearchPlaceholder": "Search for a training...",
   "subSubscribedUsers": "Subscribed Users",
   "subNoUsersSubscribed": "No users subscribed yet.",
