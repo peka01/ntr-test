@@ -4,8 +4,8 @@ Här gör vi det enkelt! En galet enkel och smidig lösning för att organisera 
 ### Som deltagare:
 - **Lätt att gå med**: Registrera dig för träningar på några sekunder
 - **Klippkort som fungerar**: Använd dina kort för att delta i träningar
-- **Markera närvaro enkelt**: Klicka och klart - inget krångel
-- **Allt på ett ställe**: Se dina registreringar och närvaro direkt
+- **Markera incheckning enkelt**: Klicka och klart - inget krångel
+- **Allt på ett ställe**: Se dina registreringar och incheckning direkt
 ### Som administratör:
 - **Hantera användare enkelt**: Skapa och uppdatera konton med lätthet
 - **Organisera träningar på ett smidigt sätt**: Skapa, redigera och planera aktiviteter

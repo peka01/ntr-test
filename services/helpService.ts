@@ -53,10 +53,10 @@ const helpConfig = {
     {
       id: "attendance",
       title: {
-        sv: "Närvarohantering (Användare)",
+        sv: "Incheckninghantering (Användare)",
         en: "Attendance Management (User)"
       },
-      keywords: ["mark attendance", "cancel attendance", "attendance view", "voucher deduction", "refund", "attendance page", "viewing attendance", "närvaro", "närvarohantering"],
+      keywords: ["mark attendance", "cancel attendance", "attendance view", "voucher deduction", "refund", "attendance page", "viewing attendance", "incheckning", "incheckninghantering"],
       category: "user" as const
     },
     {

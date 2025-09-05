@@ -65,9 +65,9 @@ Användaren tas omedelbart bort från prenumerationslistan. Denna åtgärd påve
 
 ## Regler som vi vill att du ska känna till
 
-### Registrering vs närvaro
+### Registrering vs incheckning
 - **Registrering är gratis**: Du kan anmäla dig till så många träningar du vill
-- **Närvaro kostar**: Klippkort dras endast när du markerar närvaro
+- **Incheckning kostar**: Klippkort dras endast när du markerar incheckning
 - **Ingen skyldighet**: Registrering innebär inte att du måste delta
 
 ### Tidsramar
@@ -104,10 +104,10 @@ Du kommer att få ett meddelande om att träningen är full och du kommer inte a
 Nej, du kan bara registrera dig för framtida träningar.
 
 ** Måste jag registrera mig för att kunna delta i en träning?
-Ja, du måste registrera dig först och sedan markera närvaro när det är dags.
+Ja, du måste registrera dig först och sedan markera incheckning när det är dags.
 
 **Vad händer om jag glömmer att avregistrera mig?
-Inget allvarligt - du kan fortfarande avregistrera dig senare och inga träningar kommer att konsumeras förrän du har markerats som närvarande.
+Inget allvarligt - du kan fortfarande avregistrera dig senare och inga träningar kommer att konsumeras förrän du har markerats som incheckad.
 
 **Kan jag se vem som är registrerad för en träning?
 Det beror på plattformsinställningarna - fråga administratören om detta.

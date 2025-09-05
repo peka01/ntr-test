@@ -8,7 +8,7 @@ Choose your role to get started:
 
 ### 👥 For Users
 - **[Training Subscriptions](en/subscriptions.md)** - Learn how to register for training sessions
-- **[Attendance Management](en/attendance.md)** - Mark your attendance and manage your schedule
+- **[Check-in Management](en/attendance.md)** - Mark your check-in and manage your schedule
 - **[Voucher System](en/vouchers.md)** - Understand how the credit system works
 
 ### 🔧 For Administrators
@@ -26,7 +26,7 @@ The Training Management System is designed to streamline the process of organizi
 - **User Management** - Create and manage user accounts with role-based access
 - **Training Sessions** - Schedule and organize training programs
 - **Voucher System** - Credit-based system for training access
-- **Attendance Tracking** - Monitor participation and manage schedules
+- **Check-in Tracking** - Monitor participation and manage schedules
 - **Multi-language Support** - Available in Swedish and English
 
 ## Getting Help

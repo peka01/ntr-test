@@ -9,23 +9,23 @@ Think of clip cards as tickets to training sessions - simple and clear. Each tra
 ### When you start
 As a new user, you start with 0 punch cards. This is perfectly normal! You will receive cards from an administrator before you can participate in training courses.
 
-### Registration versus attendance
+### Registration versus check-in
 - **Register for free**: Register for as many trainings as you want - no card is used
-- **Attendance costs**: A card is drawn only when you actually mark attendance
+- **Check-in costs**: A card is drawn only when you actually mark check-in
 
 ### Get your card back
-If you cancel your attendance, you get your card back immediately. It's that simple!
+If you cancel your check-in, you get your card back immediately. It's that simple!
 
 ## Important rules
 
 ### You need a card to attend
-- Without a card you cannot mark attendance
-- Always check your balance before marking attendance
+- Without a card you cannot mark check-in
+- Always check your balance before marking check-in
 - Do you need more cards? Contact an administrator
 
 ### Balance cannot go negative
 - The platform prevents the balance from going below 0
-- You cannot mark attendance without at least one card
+- You cannot mark check-in without at least one card
 
 ### Administrators manage cards
 - Only administrators can add or remove cards
@@ -34,9 +34,9 @@ If you cancel your attendance, you get your card back immediately. It's that sim
 
 ## Tips for using cards in a smart way
 
-1. **Plan ahead**: Sign up for training early, but only mark attendance when you're sure
+1. **Plan ahead**: Sign up for training early, but only mark check-in when you're sure
 2. **Keep track**: Check your balance regularly
-3. **Cancel on time**: Can't make it? Cancel your attendance as soon as possible
+3. **Cancel on time**: Can't make it? Cancel your check-in as soon as possible
 4. **Request more**: Contact the administrator before it runs out, not after
 
 ## Frequently asked questions
@@ -44,8 +44,8 @@ If you cancel your attendance, you get your card back immediately. It's that sim
 **Can I use someone else's punch card?
 No, punch cards are personal and cannot be shared.
 
-**What happens if I mark attendance by mistake?
-Cancel the attendance immediately and you will get the card back.
+**What happens if I mark check-in by mistake?
+Cancel the check-in immediately and you will get the card back.
 
 **If I miss a training session, will I get my card back?
-Only if you marked attendance and then canceled it. Have you never marked attendance? Then no card will be used.
+Only if you marked check-in and then canceled it. Have you never marked check-in? Then no card will be used.

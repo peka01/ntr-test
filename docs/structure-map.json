@@ -31,10 +31,10 @@
           "order": 2,
           "sections": {
             "attendance": {
-              "title": "Närvarohantering",
-              "description": "Markera närvaro och hantera schema",
+              "title": "Incheckninghantering",
+              "description": "Markera incheckning och hantera schema",
               "order": 1,
-              "keywords": ["närvaro", "närvarohantering", "attendance page", "viewing attendance", "mark attendance", "cancel attendance"]
+              "keywords": ["incheckning", "incheckninghantering", "attendance page", "viewing attendance", "mark attendance", "cancel attendance"]
             },
             "subscriptions": {
               "title": "Träningsanmälningar",

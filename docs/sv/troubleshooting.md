@@ -6,30 +6,30 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
 
 ## Vanliga problem och lösningar
 
-### "Kan inte markera närvaro"
+### "Kan inte markera incheckning"
 
-**Symtom:** Knappen "Markera närvaro" fungerar inte eller är gråtonad.
+**Symtom:** Knappen "Markera incheckning" fungerar inte eller är gråtonad.
 
 **Möjliga orsaker:**
 - Du har inte tillräckligt med hålkort
 - Du är inte registrerad för träningen
-- Du har redan markerat närvaro för den här träningen
+- Du har redan markerat incheckning för den här träningen
 - Plattformen håller fortfarande på att laddas
 
 **Här är hur du löser det:**
 1. **Kontrollera saldot på din voucher**
    - Gå till administratörsvyn eller kolla din profil
-   - Du behöver minst 1 stämpelkort för att markera närvaro
+   - Du behöver minst 1 stämpelkort för att markera incheckning
 
 2. **Kontrollera din registrering**
    - Gå till registreringssidan
    - Se till att du är registrerad för träningen
    - Registrera dig först om du inte är det
 
-3. **Kontrollera din tidigare närvaro**
-   - Gå till vyn Närvaro
-   - Se om du redan har markerat närvaro för den här kursen
-   - Avbryt tidigare närvaro om du vill markera igen
+3. **Kontrollera din tidigare incheckning**
+   - Gå till vyn Incheckning
+   - Se om du redan har markerat incheckning för den här kursen
+   - Avbryt tidigare incheckning om du vill markera igen
 
 4. **Uppdatera sidan
    - Tryck på F5 eller klicka på uppdateringsknappen
@@ -154,7 +154,7 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
 1. **Aktualisera regelbundet**: Ladda om sidan när du märker att något verkar konstigt
 2. **Kontrollera saldot**: Kontrollera saldot på din voucher regelbundet
 3. **Registrera i tid**: Anmäl dig till träningar så snart du vet att du är intresserad
-4. **Markera närvaro när du är säker**: Vänta med att markera närvaro tills du är säker på att du kan delta
+4. **Markera incheckning när du är säker**: Vänta med att markera incheckning tills du är säker på att du kan delta
 
 ### Tekniska tips:
 - **Använd moderna webbläsare**: Chrome, Firefox, Safari eller Edge

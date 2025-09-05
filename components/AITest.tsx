@@ -28,7 +28,7 @@ Systemet har följande huvudfunktioner:
 - Användarhantering med admin- och vanliga användare
 - Träningssessioner som användare kan prenumerera på
 - Klippkortssystem för att hantera krediter
-- Närvarohantering för träningssessioner
+- Incheckningshantering för träningssessioner
 
 Svara på svenska om användaren skriver på svenska, annars på engelska.
 Var hjälpsam, vänlig och professionell.

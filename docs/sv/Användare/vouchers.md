@@ -9,15 +9,15 @@ Tänk på träningskort som biljetter till träningstillfällen - enkelt och tyd
 ### När du börjar
 Som ny användare börjar du med 0 stämpelkort. Detta är helt normalt! Du kommer att få kort från en administratör innan du kan delta i träningar.
 
-### Registrering kontra närvaro
+### Registrering kontra incheckning
 - **Registrera dig gratis**: Registrera dig för så många träningar du vill - inget kort används
-- **Närvaro kostar**: Ett kort dras endast när du faktiskt markerar närvaro
+- **Incheckning kostar**: Ett kort dras endast när du faktiskt markerar incheckning
 
 ## Viktiga regler
 
 ### Du behöver ett kort för att delta
-- Utan kort kan du inte markera närvaro
-- Kontrollera alltid ditt saldo innan du markerar närvaro
+- Utan kort kan du inte markera incheckning
+- Kontrollera alltid ditt saldo innan du markerar incheckning
 - Behöver du fler kort? Kontakta en administratör
 
 ### Saldot kan inte bli negativt
@@ -31,9 +31,9 @@ Som ny användare börjar du med 0 stämpelkort. Detta är helt normalt! Du komm
 
 ## Tips för att använda kort på ett smart sätt
 
-1. **Planera i förväg**: Anmäl dig till träning tidigt, men markera närvaro först när du är säker på att
+1. **Planera i förväg**: Anmäl dig till träning tidigt, men markera incheckning först när du är säker på att
 2. **Håll koll**: Kontrollera ditt saldo regelbundet
-3. **Avboka i tid**: Kan du inte komma? Avboka din närvaro så snart som möjligt
+3. **Avboka i tid**: Kan du inte komma? Avboka din incheckning så snart som möjligt
 4. **Begära mer**: Kontakta coacherna innan det tar slut, inte efter
 
 ## FAQ
@@ -41,8 +41,8 @@ Som ny användare börjar du med 0 stämpelkort. Detta är helt normalt! Du komm
 **Kan jag använda någon annans träningskort?
 Nej, korten  är personliga och kan inte delas.
 
-**Vad händer om jag markerar närvaro av misstag?
-Avboka närvaron omedelbart så får du tillbaka kortet.
+**Vad händer om jag markerar incheckning av misstag?
+Avboka incheckningn omedelbart så får du tillbaka kortet.
 
 **Om jag missar ett träningstillfälle, får jag tillbaka mitt kort?
-Bara om du har markerat närvaro och sedan avbrutit den. Har du aldrig markerat närvaro? Då kommer inget kort att användas.
+Bara om du har markerat incheckning och sedan avbrutit den. Har du aldrig markerat incheckning? Då kommer inget kort att användas.

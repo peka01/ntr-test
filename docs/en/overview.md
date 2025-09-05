@@ -4,8 +4,8 @@ Here we make it easy! A crazy simple and easy solution to organize trainings - s
 ### As a participant:
 - **Easy to join**: Sign up for trainings in seconds
 - **Clip cards that work**: Use your cards to attend trainings
-- **Mark attendance easily**: Click and done - no hassle
-- **All in one place**: See your registrations and attendance instantly
+- **Mark check-in easily**: Click and done - no hassle
+- **All in one place**: See your registrations and check-in instantly
 ### As an administrator:
 - **Manage users easily**: Create and update accounts with ease
 - **Organize trainings smoothly**: Create, edit and plan activities

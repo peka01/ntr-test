@@ -6,30 +6,30 @@ Here you will find help to solve common problems that may occur when using the p
 
 ## Common problems and solutions
 
-### "Cannot mark presence"
+### "Cannot mark check-in"
 
-**Symptoms:** The "Mark presence" button does not work or is grayed out.
+**Symptoms:** The "Mark check-in" button does not work or is grayed out.
 
 **Possible causes:**
 - You do not have enough punch cards
 - You are not registered for the training
-- You have already marked attendance for this training
+- You have already marked check-in for this training
 - The platform is still loading
 
 **Here is how to solve it:**
 1. **Check the balance of your voucher**
    - Go to Admin view or check your profile
-   - You need at least 1 punch card to mark attendance
+   - You need at least 1 punch card to mark check-in
 
 2. **Check your registration**
    - Go to the registration page
    - Make sure you are registered for the training
    - Register first if you are not
 
-3. **Check your previous attendance**
-   - Go to the Attendance view
-   - See if you have already marked attendance for this course
-   - Cancel previous attendance if you want to mark again
+3. **Check your previous check-in**
+   - Go to the Check-in view
+   - See if you have already marked check-in for this course
+   - Cancel previous check-in if you want to mark again
 
 4. **Refresh the page
    - Press F5 or click on the refresh button
@@ -154,7 +154,7 @@ Here you will find help to solve common problems that may occur when using the p
 1. **Refresh regularly**: Reload the page when you notice that something seems strange
 2. **Check the balance**: Check the balance of your voucher regularly
 3. **Register on time**: Register for training courses as soon as you know you are interested
-4. **Mark attendance when you are sure**: Wait to mark attendance until you are sure you can attend
+4. **Mark check-in when you are sure**: Wait to mark check-in until you are sure you can attend
 
 ### Technical tips:
 - **Use modern browsers**: Chrome, Firefox, Safari or Edge

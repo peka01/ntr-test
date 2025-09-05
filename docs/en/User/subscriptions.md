@@ -65,9 +65,9 @@ The user is immediately removed from the subscription list. This action does not
 
 ## Rules that we want you to be aware of
 
-### Registration vs attendance
+### Registration vs check-in
 - **Registration is free**: You can register for as many trainings as you want
-- **Attendance costs**: Clip cards are only drawn when you mark attendance
+- **Check-in costs**: Clip cards are only drawn when you mark check-in
 - **No obligation**: Registration does not mean you have to attend
 
 ### Timeframes
@@ -104,10 +104,10 @@ You will be notified that the training is full and you will not be able to regis
 No, you can only register for future trainings.
 
 **Do I have to register in order to participate in a training session?
-Yes, you need to register first and then mark attendance when the time comes.
+Yes, you need to register first and then mark check-in when the time comes.
 
 **What happens if I forget to deregister?
-Nothing serious - you can still unregister later and no trainings will be consumed until you are marked as present.
+Nothing serious - you can still unregister later and no trainings will be consumed until you are marked as checked-in.
 
 **Can I see who is registered for a training?
 It depends on the platform settings - ask the administrator about this.
