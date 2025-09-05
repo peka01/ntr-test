@@ -22,12 +22,13 @@ interface HelpContentProps {
   section: HelpSection | undefined;
   svFallback: string | null;
   renderFn: (content: string) => string;
+  renderContentAsText: (content: string) => React.ReactNode;
   onNavigate: (id: string) => void;
   overviewSectionId?: string;
   categorySectionId?: string;
 }
 
-const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn, onNavigate, overviewSectionId, categorySectionId }) => {
+const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn, renderContentAsText, onNavigate, overviewSectionId, categorySectionId }) => {
   const { t } = useTranslations();
   if (!section) {
     return (
@@ -95,7 +96,11 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
             
             segments.forEach((seg, idx) => {
               accumPath = accumPath ? `${accumPath}/${seg}` : seg;
-              parts.push(chevron);
+              parts.push(
+                <React.Fragment key={`chevron-${idx}`}>
+                  {chevron}
+                </React.Fragment>
+              );
               const existing = typeof categorySectionId === 'string' ? categorySectionId : undefined;
               const targetId = existing || accumPath;
               const clickable = true; // We allow navigation even if not listed; HelpSystem will show if exists
@@ -117,7 +122,11 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
                 )
               );
             });
-            parts.push(chevron);
+            parts.push(
+              <React.Fragment key="chevron-final">
+                {chevron}
+              </React.Fragment>
+            );
             parts.push(
               <button 
                 key="leaf" 
@@ -134,13 +143,36 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
           })()}
         </nav>
       </div>
-      <div className="prose prose-slate max-w-none overflow-x-auto">
+      <div 
+        className="prose prose-slate max-w-none overflow-x-auto"
+        style={{ 
+          userSelect: 'text',
+          WebkitUserSelect: 'text',
+          MozUserSelect: 'text',
+          msUserSelect: 'text'
+        }}
+        onMouseDown={(e) => {
+          e.stopPropagation();
+          // Don't prevent default - let text selection work
+        }}
+        onClick={(e) => {
+          e.stopPropagation();
+          // Don't prevent default - let text selection work
+        }}
+      >
         <div 
-          style={{ whiteSpace: 'normal', overflowWrap: 'anywhere', wordBreak: 'break-word' }}
-          dangerouslySetInnerHTML={{ 
-            __html: renderFn(svFallback ?? section.content)
-          }} 
-        />
+          style={{ 
+            whiteSpace: 'normal', 
+            overflowWrap: 'anywhere', 
+            wordBreak: 'break-word',
+            userSelect: 'text',
+            WebkitUserSelect: 'text',
+            MozUserSelect: 'text',
+            msUserSelect: 'text'
+          }}
+        >
+          {renderContentAsText(svFallback ?? section.content)}
+        </div>
       </div>
     </>
   );
@@ -197,37 +229,6 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
         setError(null);
         const sections = await helpService.getAllSections(language, true);
         setHelpSections(sections);
-        
-        // When language changes, try to find the corresponding section
-        if (selectedSection && sections.length > 0) {
-          // First try to find exact match
-          let correspondingSection = sections.find(section => section.id === selectedSection);
-          
-          // If no exact match, try to find by section name (last part of the path)
-          if (!correspondingSection) {
-            const currentSectionName = selectedSection.split('/').pop();
-            correspondingSection = sections.find(section => 
-              section.id.split('/').pop() === currentSectionName
-            );
-          }
-          
-          // If still no match, try to find by title similarity
-          if (!correspondingSection) {
-            const currentSection = helpSections.find(s => s.id === selectedSection);
-            if (currentSection) {
-              correspondingSection = sections.find(section => 
-                section.title.toLowerCase() === currentSection.title.toLowerCase()
-              );
-            }
-          }
-          
-          if (correspondingSection) {
-            setSelectedSection(correspondingSection.id);
-          } else {
-            // Fallback to first section if no match found
-            setSelectedSection(sections[0]?.id || 'overview');
-          }
-        }
       } catch (error) {
         console.error('Error loading help content:', error);
         setError(error);
@@ -242,6 +243,39 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       loadHelpContent();
     }
   }, [isOpen, language]);
+
+  // Handle section mapping when language changes
+  useEffect(() => {
+    if (selectedSection && helpSections.length > 0) {
+      // First try to find exact match
+      let correspondingSection = helpSections.find(section => section.id === selectedSection);
+      
+      // If no exact match, try to find by section name (last part of the path)
+      if (!correspondingSection) {
+        const currentSectionName = selectedSection.split('/').pop();
+        correspondingSection = helpSections.find(section => 
+          section.id.split('/').pop() === currentSectionName
+        );
+      }
+      
+      // If still no match, try to find by title similarity
+      if (!correspondingSection) {
+        const currentSection = helpSections.find(s => s.id === selectedSection);
+        if (currentSection) {
+          correspondingSection = helpSections.find(section => 
+            section.title.toLowerCase() === currentSection.title.toLowerCase()
+          );
+        }
+      }
+      
+      if (correspondingSection && correspondingSection.id !== selectedSection) {
+        setSelectedSection(correspondingSection.id);
+      } else if (!correspondingSection && helpSections[0]?.id !== selectedSection) {
+        // Fallback to first section if no match found
+        setSelectedSection(helpSections[0]?.id || 'overview');
+      }
+    }
+  }, [helpSections, language]);
 
 
 
@@ -549,6 +583,26 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   // Handle mouse events for dragging with robust coordinate system
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!modalRef.current) return;
+    
+    // Don't interfere with text selection in content areas
+    const target = e.target as HTMLElement;
+    const isContentArea = target.closest('.prose') || 
+                         target.closest('p') || 
+                         target.closest('h1, h2, h3') || 
+                         target.closest('ul, li') ||
+                         target.closest('strong, em') ||
+                         target.tagName === 'P' ||
+                         target.tagName === 'H1' ||
+                         target.tagName === 'H2' ||
+                         target.tagName === 'H3' ||
+                         target.tagName === 'UL' ||
+                         target.tagName === 'LI' ||
+                         target.tagName === 'STRONG' ||
+                         target.tagName === 'EM';
+    
+    if (isContentArea) {
+      return; // Let text selection work normally
+    }
     
     e.preventDefault();
     e.stopPropagation();
@@ -870,6 +924,198 @@ Användarens fråga: ${content}`;
   // Update document info when section changes
 
 
+  // Render content as React elements instead of HTML to preserve text selection
+  const renderContentAsText = (content: string): React.ReactNode => {
+    if (!content) return null;
+
+    // Interpolate translation variables like {{navPublic}} using current i18n
+    let processedContent = content;
+    try {
+      processedContent = content.replace(/\{\{\s*([a-zA-Z0-9_.-]+)\s*\}\}/g, (_match, p1) => {
+        try {
+          const val = t(p1);
+          return typeof val === 'string' ? val : String(val);
+        } catch {
+          return p1;
+        }
+      });
+    } catch {
+      // If interpolation fails, continue with original content
+    }
+
+    const lines = processedContent.split('\n');
+    const elements: React.ReactNode[] = [];
+    let currentListItems: string[] = [];
+    let inList = false;
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      
+      if (line.startsWith('# ')) {
+        // H1
+        if (inList && currentListItems.length > 0) {
+          elements.push(
+            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
+              {currentListItems.map((item, idx) => (
+                <li key={idx} className="mb-1">{formatInlineText(item)}</li>
+              ))}
+            </ul>
+          );
+          currentListItems = [];
+          inList = false;
+        }
+        elements.push(
+          <h1 key={i} className="text-2xl font-bold mb-3 mt-4">
+            {formatInlineText(line.substring(2))}
+          </h1>
+        );
+      } else if (line.startsWith('## ')) {
+        // H2
+        if (inList && currentListItems.length > 0) {
+          elements.push(
+            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
+              {currentListItems.map((item, idx) => (
+                <li key={idx} className="mb-1">{formatInlineText(item)}</li>
+              ))}
+            </ul>
+          );
+          currentListItems = [];
+          inList = false;
+        }
+        elements.push(
+          <h2 key={i} className="text-xl font-semibold mb-2 mt-4">
+            {formatInlineText(line.substring(3))}
+          </h2>
+        );
+      } else if (line.startsWith('### ')) {
+        // H3
+        if (inList && currentListItems.length > 0) {
+          elements.push(
+            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
+              {currentListItems.map((item, idx) => (
+                <li key={idx} className="mb-1">{formatInlineText(item)}</li>
+              ))}
+            </ul>
+          );
+          currentListItems = [];
+          inList = false;
+        }
+        elements.push(
+          <h3 key={i} className="text-lg font-semibold mb-2 mt-3">
+            {formatInlineText(line.substring(4))}
+          </h3>
+        );
+      } else if (line.startsWith('- ')) {
+        // List item
+        if (!inList) {
+          inList = true;
+        }
+        currentListItems.push(line.substring(2));
+      } else if (line === '') {
+        // Empty line - only add spacing if we're not already in a list or if it's not the first empty line
+        if (inList && currentListItems.length > 0) {
+          elements.push(
+            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
+              {currentListItems.map((item, idx) => (
+                <li key={idx} className="mb-1">{formatInlineText(item)}</li>
+              ))}
+            </ul>
+          );
+          currentListItems = [];
+          inList = false;
+        }
+        // Only add a line break if the previous element wasn't already a paragraph or list
+        const lastElement = elements[elements.length - 1];
+        if (lastElement && typeof lastElement === 'object' && 'type' in lastElement) {
+          const lastType = (lastElement as any).type;
+          if (lastType !== 'p' && lastType !== 'ul' && lastType !== 'h1' && lastType !== 'h2' && lastType !== 'h3') {
+            elements.push(<br key={i} />);
+          }
+        }
+      } else {
+        // Regular paragraph
+        if (inList && currentListItems.length > 0) {
+          elements.push(
+            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
+              {currentListItems.map((item, idx) => (
+                <li key={idx} className="mb-1">{formatInlineText(item)}</li>
+              ))}
+            </ul>
+          );
+          currentListItems = [];
+          inList = false;
+        }
+        if (line) {
+          elements.push(
+            <p key={i} className="mb-3">
+              {formatInlineText(line)}
+            </p>
+          );
+        }
+      }
+    }
+
+    // Handle any remaining list
+    if (inList && currentListItems.length > 0) {
+      elements.push(
+        <ul key="list-final" className="list-disc mb-3 ml-4">
+          {currentListItems.map((item, idx) => (
+            <li key={idx} className="mb-1">{item}</li>
+          ))}
+        </ul>
+      );
+    }
+
+    return <>{elements}</>;
+  };
+
+  // Format inline text (bold, italic)
+  const formatInlineText = (text: string): React.ReactNode => {
+    if (!text) return text;
+    
+    
+    const parts: React.ReactNode[] = [];
+    let remaining = text;
+    let key = 0;
+
+    // First pass: handle bold text
+    while (remaining.includes('**')) {
+      const boldMatch = remaining.match(/\*\*(.*?)\*\*/);
+      if (boldMatch) {
+        const beforeBold = remaining.substring(0, boldMatch.index!);
+        if (beforeBold) {
+          parts.push(beforeBold);
+        }
+        parts.push(<strong key={key++}>{boldMatch[1]}</strong>);
+        remaining = remaining.substring(boldMatch.index! + boldMatch[0].length);
+      } else {
+        break;
+      }
+    }
+    
+    // Second pass: handle italic text (only single asterisks that aren't part of bold)
+    while (remaining.includes('*')) {
+      const italicMatch = remaining.match(/\*(.*?)\*/);
+      if (italicMatch) {
+        const beforeItalic = remaining.substring(0, italicMatch.index!);
+        if (beforeItalic) {
+          parts.push(beforeItalic);
+        }
+        parts.push(<em key={key++}>{italicMatch[1]}</em>);
+        remaining = remaining.substring(italicMatch.index! + italicMatch[0].length);
+      } else {
+        break;
+      }
+    }
+    
+    // Add any remaining text
+    if (remaining) {
+      parts.push(remaining);
+    }
+
+    return <>{parts}</>;
+  };
+
   const renderContent = (content: string) => {
     let html = content;
 
@@ -1033,15 +1279,16 @@ Användarens fråga: ${content}`;
             top: `${position.y}px`,
             width: isCompact ? `${Math.min(size.width, window.innerWidth - 32)}px` : `${size.width}px`,
             height: isCompact ? `${Math.min(size.height, window.innerHeight - 32)}px` : `${size.height}px`,
-            cursor: isDragging ? 'grabbing' : 'default'
+            cursor: isDragging ? 'grabbing' : 'default',
+            userSelect: 'auto'
           }
         }
-        onClick={handleWindowClick}
       >
         {/* Header */}
         <div
           className={`relative z-20 flex items-center justify-between ${isCompact ? 'p-4' : 'p-6'} border-b border-slate-200 cursor-move`}
           onMouseDown={handleMouseDown}
+          onClick={handleWindowClick}
           style={{ userSelect: 'none' }}
         >
           <div className="flex items-center gap-3">
@@ -1269,6 +1516,7 @@ Användarens fråga: ${content}`;
                 section={selectedSectionData} 
                 svFallback={svFallbackContent}
                 renderFn={renderContent}
+                renderContentAsText={renderContentAsText}
                 onNavigate={(id: string) => setSelectedSection(id)}
                 overviewSectionId={(helpSections.find(s => s.id.endsWith('/overview') || s.id === 'overview') || helpSections[0])?.id}
                 categorySectionId={selectedSectionData ? (helpSections.find(s => s.category === selectedSectionData.category) || helpSections[0])?.id : undefined}
