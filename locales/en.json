@@ -160,5 +160,7 @@
   "trainingDatePlaceholder": "Select date",
   "trainingTimePlaceholder": "Select time",
   "trainingNoDateSet": "No date set",
-  "trainingNoTimeSet": "No time set"
+  "trainingNoTimeSet": "No time set",
+  "trainingCalendar": "Training Calendar",
+  "noScheduledTrainings": "No trainings scheduled yet."
 }

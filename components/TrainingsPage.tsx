@@ -145,7 +145,7 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center space-x-4">
                     <h1 className="text-3xl font-bold text-slate-900">{t('navTrainings')}</h1>
-                    <HelpButton 
+                    <HelpButton
                         onClick={onHelpClick}
                         context="trainings management list view"
                         variant="icon"
@@ -262,52 +262,51 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                     {filteredTrainings.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredTrainings.map(training => (
-                                <div key={training.id} className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow duration-200">
-                                    <div className="flex items-start justify-between mb-3">
-                                        <div className="flex-1">
-                                            <h3 className="font-semibold text-cyan-600 text-lg mb-2">{training.name}</h3>
-                                            {training.description && (
-                                                <p className="text-sm text-slate-600 mb-3">{training.description}</p>
-                                            )}
+                                <div key={training.id} className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow duration-200 relative overflow-visible">
+                                    <div className="mb-3">
+                                        <div className="flex items-start space-x-4">
+                                            {/* Calendar Card in top left */}
                                             {(training.training_date || training.training_time) && (
-                                                <div className="flex items-center space-x-3">
-                                                    <CalendarCard 
-                                                        date={training.training_date} 
+                                                <div className="flex-shrink-0">
+                                                    <CalendarCard
+                                                        date={training.training_date}
                                                         time={training.training_time}
                                                         className="w-20"
                                                     />
-                                                    <div className="text-sm text-slate-500">
-                                                        {training.training_date && (
-                                                            <div>{new Date(training.training_date).toLocaleDateString('sv-SE')}</div>
-                                                        )}
-                                                        {training.training_time && (
-                                                            <div>{training.training_time.substring(0, 5)}</div>
-                                                        )}
-                                                    </div>
                                                 </div>
                                             )}
-                                        </div>
-                                        <div className="flex items-center space-x-2 ml-4">
-                                            <button
-                                                onClick={() => handleEditClick(training)}
-                                                disabled={isEditing || showAddForm}
-                                                title={t('adminEditBtn')}
-                                                className="p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
-                                            >
-                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                </svg>
-                                            </button>
-                                            <button
-                                                onClick={() => handleDeleteClick(training)}
-                                                disabled={isEditing || showAddForm}
-                                                title={t('adminDeleteBtn')}
-                                                className="p-2 text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
-                                            >
-                                                <TrashIcon className="w-4 h-4" />
-                                            </button>
+                                            <div className="flex-1">
+                                                <h3 className="font-semibold text-cyan-600 text-lg mb-2">{training.name}</h3>
+                                                <div className="flex items-center space-x-2">
+                                                    <button
+                                                        onClick={() => handleEditClick(training)}
+                                                        disabled={isEditing || showAddForm}
+                                                        title={t('adminEditBtn')}
+                                                        className="p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
+                                                    >
+                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        </svg>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => handleDeleteClick(training)}
+                                                        disabled={isEditing || showAddForm}
+                                                        title={t('adminDeleteBtn')}
+                                                        className="p-2 text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
+                                                    >
+                                                        <TrashIcon className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
+                                    
+                                    {/* Description text below */}
+                                    {training.description && (
+                                        <div className="mt-3 w-full">
+                                            <p className="text-sm text-slate-600">{training.description}</p>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

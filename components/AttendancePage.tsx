@@ -36,18 +36,23 @@ const AttendanceCard: React.FC<{
     }, [allUsers, subscribedUserIds]);
 
     return (
-                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md flex flex-col relative">
+                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md flex flex-col relative overflow-visible">
                     <div className="flex items-start justify-between mb-4">
-                        <h2 className="text-2xl font-bold text-cyan-600">{training.name}</h2>
-                        {(training.training_date || training.training_time) && (
-                            <div className="ml-4">
-                                <CalendarCard 
-                                    date={training.training_date} 
-                                    time={training.training_time}
-                                    className="w-20"
-                                />
+                        <div className="flex items-start space-x-4 flex-1">
+                            {/* Calendar Card in top left */}
+                            {(training.training_date || training.training_time) && (
+                                <div className="flex-shrink-0">
+                                    <CalendarCard
+                                        date={training.training_date}
+                                        time={training.training_time}
+                                        className="w-20"
+                                    />
+                                </div>
+                            )}
+                            <div className="flex-1">
+                                <h2 className="text-2xl font-bold text-cyan-600">{training.name}</h2>
                             </div>
-                        )}
+                        </div>
                     </div>
             
             <div className="flex-grow">
@@ -148,7 +153,7 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-3xl font-bold text-slate-800">{t('navAttendance')}</h1>
             </div>
-            
+
             {trainings.length > 0 ? (
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                                             {trainings.map(training => (

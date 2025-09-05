@@ -160,5 +160,7 @@
   "trainingDatePlaceholder": "Välj datum",
   "trainingTimePlaceholder": "Välj tid",
   "trainingNoDateSet": "Inget datum angivet",
-  "trainingNoTimeSet": "Ingen tid angiven"
+  "trainingNoTimeSet": "Ingen tid angiven",
+  "trainingCalendar": "Träningskalender",
+  "noScheduledTrainings": "Inga träningar schemalagda än."
 }
