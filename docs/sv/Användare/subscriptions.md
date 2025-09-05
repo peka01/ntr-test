@@ -4,24 +4,10 @@
 
 Registrera dig enkelt för träningar som intresserar dig. Det är det första steget - att registrera sig är gratis och gör att du kan delta när det är dags.
 
-### Visuell design
-**Anmälan** är den öppna sidan i systemet och har en särskild visuell design för att göra det tydligt att den är tillgänglig för alla:
-- **Blå färgschema**: Använder blå färger för att indikera öppenhet och tillgänglighet
-- **Minimalistisk design**: Ren och modern design utan överflödiga element
-- **Förbättrad navigation**: Navigationselementet har en särskild blå styling när det är aktivt
-- **Visuella indikatorer**: Liten blå punkt bredvid sidans titel för att markera att det är en öppen sida
-- **Konsekvent design**: Alla element använder samma blå färgschema för enhetlighet
-
-## Hur saker och ting fungerar
+## Hur det funkar
 
 ### Vad är en registrering?
 En registrering innebär att du visar intresse för att vara med. Det är som att "reservera en plats" - du visar intresse men förbinder dig inte att faktiskt delta.
-
-### Fördelarna med att registrera sig
-- **Gratis**: Det kostar inget att registrera sig för en träning hos oss
-- **Flexibilitet**: Du kan avregistrera dig när som helst
-- **Överblick**: Du ser alla träningar som du är intresserad av
-- **Påminnelser**: Du kommer ihåg vilka träningar som är tillgängliga
 
 ## Registrera dig för träningar
 
