@@ -16,6 +16,12 @@ It is simple! We have three things that we look at:
 1. **Users** - Participants who want to join trainings
 2. **Trainings** - Courses and activities that users can join
 3. **Clipboard** - What is used to participate in trainings
+
+## Visual design and user experience
+The platform has a modern, minimalistic design focused on user-friendliness:
+- **Blue color scheme**: Consistent use of blue colors to indicate openness and accessibility
+- **Responsive design**: Works equally well on mobile and desktop
+- **Clear navigation**: Easy to find functions and pages
 ## Technical basis
 - ** Works everywhere**: Opens in all browsers
 - **Updates instantly**: Changes are visible immediately without reloading

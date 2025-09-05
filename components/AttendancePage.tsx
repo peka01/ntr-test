@@ -7,6 +7,7 @@ import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 import { TrashIcon } from './icons/TrashIcon';
 import { StepIcon } from './icons/StepIcon';
+import { CalendarCard } from './CalendarCard';
 import { useAuth } from '../contexts/AuthContext';
 
 export interface AttendancePageProps {
@@ -36,7 +37,18 @@ const AttendanceCard: React.FC<{
 
     return (
                         <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md flex flex-col relative">
-                    <h2 className="text-2xl font-bold text-cyan-600 mb-4">{training.name}</h2>
+                    <div className="flex items-start justify-between mb-4">
+                        <h2 className="text-2xl font-bold text-cyan-600">{training.name}</h2>
+                        {(training.training_date || training.training_time) && (
+                            <div className="ml-4">
+                                <CalendarCard 
+                                    date={training.training_date} 
+                                    time={training.training_time}
+                                    className="w-20"
+                                />
+                            </div>
+                        )}
+                    </div>
             
             <div className="flex-grow">
                 <h3 className="text-lg font-semibold text-slate-600 mb-2 border-b border-slate-200 pb-2">{t('attSubscribedUsers')}</h3>

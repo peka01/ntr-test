@@ -78,9 +78,9 @@ export const useData = () => {
   }, []);
 
   // Training operations
-  const createTraining = useCallback(async (name: string, description: string) => {
+  const createTraining = useCallback(async (name: string, description: string, trainingDate?: string, trainingTime?: string) => {
     try {
-      const newTraining = await trainingService.create(name, description);
+      const newTraining = await trainingService.create(name, description, trainingDate, trainingTime);
       setTrainings(prev => [...prev, newTraining]);
       setSubscriptions(prev => {
         const newSubs = new Map(prev);
@@ -94,11 +94,11 @@ export const useData = () => {
     }
   }, []);
 
-  const updateTraining = useCallback(async (trainingId: string, name: string, description: string) => {
+  const updateTraining = useCallback(async (trainingId: string, name: string, description: string, trainingDate?: string, trainingTime?: string) => {
     try {
-      await trainingService.update(trainingId, name, description);
+      await trainingService.update(trainingId, name, description, trainingDate, trainingTime);
       setTrainings(prev => prev.map(training => 
-        training.id === trainingId ? { ...training, name, description } : training
+        training.id === trainingId ? { ...training, name, description, training_date: trainingDate, training_time: trainingTime } : training
       ));
     } catch (err) {
       console.error('Error updating training:', err);

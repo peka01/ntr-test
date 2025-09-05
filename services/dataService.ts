@@ -160,15 +160,23 @@ export const trainingService = {
     return data?.map(training => ({
       id: training.id,
       name: training.name,
-      description: training.description
+      description: training.description,
+      training_date: training.training_date,
+      training_time: training.training_time
     })) || [];
   },
 
   // Create a new training
-  async create(name: string, description: string): Promise<Training> {
+  async create(name: string, description: string, trainingDate?: string, trainingTime?: string): Promise<Training> {
     const { data, error } = await supabase
       .from('trainings')
-      .insert([{ id: crypto.randomUUID(), name, description }])
+      .insert([{ 
+        id: crypto.randomUUID(), 
+        name, 
+        description, 
+        training_date: trainingDate,
+        training_time: trainingTime
+      }])
       .select()
       .single();
 
@@ -180,15 +188,22 @@ export const trainingService = {
     return {
       id: data.id,
       name: data.name,
-      description: data.description
+      description: data.description,
+      training_date: data.training_date,
+      training_time: data.training_time
     };
   },
 
   // Update a training
-  async update(trainingId: string, name: string, description: string): Promise<void> {
+  async update(trainingId: string, name: string, description: string, trainingDate?: string, trainingTime?: string): Promise<void> {
     const { error } = await supabase
       .from('trainings')
-      .update({ name, description })
+      .update({ 
+        name, 
+        description, 
+        training_date: trainingDate,
+        training_time: trainingTime
+      })
       .eq('id', trainingId);
 
     if (error) {

@@ -6,6 +6,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 import { TrashIcon } from './icons/TrashIcon';
+import { CalendarCard } from './CalendarCard';
 import bannerImage from '/ntr_banner.png';
 
 interface SubscriptionPageProps {
@@ -46,8 +47,21 @@ const TrainingCard: React.FC<TrainingCardProps> = ({ training, allUsers, subscri
     
     return (
         <div className="bg-white p-6 rounded-xl border-l-4 border-l-blue-500 border border-slate-200 shadow-sm flex flex-col hover:shadow-md transition-shadow duration-200">
-            <h2 className="text-2xl font-bold text-cyan-600 mb-2">{training.name}</h2>
-            <p className="text-slate-500 mb-4 flex-grow">{training.description}</p>
+            <div className="flex items-start justify-between mb-4">
+                <div className="flex-1">
+                    <h2 className="text-2xl font-bold text-cyan-600 mb-2">{training.name}</h2>
+                    <p className="text-slate-500 mb-4 flex-grow">{training.description}</p>
+                </div>
+                {(training.training_date || training.training_time) && (
+                    <div className="ml-4">
+                        <CalendarCard 
+                            date={training.training_date} 
+                            time={training.training_time}
+                            className="w-20"
+                        />
+                    </div>
+                )}
+            </div>
             
             <div className="mb-4">
                 <h3 className="text-lg font-semibold text-slate-600 mb-2">{t('subSubscribedUsers')}</h3>
@@ -153,12 +167,6 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
                 </div>
             </div>
 
-            <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                    <h2 className="text-2xl font-bold text-slate-800">Tillgängliga träningar</h2>
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                </div>
-            </div>
             
             {trainings.length > 0 && (
                 <div className="mb-6">

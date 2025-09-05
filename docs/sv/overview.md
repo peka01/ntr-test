@@ -16,6 +16,12 @@ Det är enkelt! Vi har tre saker som vi tittar på:
 1. **Användare** - Deltagare som vill gå med i träningar
 2. **Träningar** - Kurser och aktiviteter som användare kan delta i
 3. **Klippkort** - Det som används för att delta i träningar
+
+## Visuell design och användarupplevelse
+Plattformen har en modern, minimalistisk design med fokus på användarvänlighet:
+- **Blå färgschema**: Konsekvent användning av blå färger för att indikera öppenhet och tillgänglighet
+- **Responsiv design**: Fungerar lika bra på mobil som på dator
+- **Tydlig navigation**: Enkla att hitta funktioner och sidor
 ## Teknisk bas
 - ** Fungerar överallt**: Öppnas i alla webbläsare
 - **Uppdateras omedelbart**: Ändringar syns omedelbart utan omladdning

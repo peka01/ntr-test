@@ -156,5 +156,9 @@
   "adminEditUser": "Edit User",
   "adminUpdateBtn": "Update",
   "adminDeleteBtn": "Delete",
-  "confirmDeleteTraining": "Are you sure you want to delete the training \"{name}\"? This action cannot be undone."
+  "confirmDeleteTraining": "Are you sure you want to delete the training \"{name}\"? This action cannot be undone.",
+  "trainingDatePlaceholder": "Select date",
+  "trainingTimePlaceholder": "Select time",
+  "trainingNoDateSet": "No date set",
+  "trainingNoTimeSet": "No time set"
 }

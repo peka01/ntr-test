@@ -5,11 +5,12 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 import { TrashIcon } from './icons/TrashIcon';
+import { CalendarCard } from './CalendarCard';
 
 interface TrainingsPageProps {
     trainings: Training[];
-    onCreateTraining: (name: string, description: string) => void;
-    onUpdateTraining: (trainingId: string, name: string, description: string) => void;
+    onCreateTraining: (name: string, description: string, trainingDate?: string, trainingTime?: string) => void;
+    onUpdateTraining: (trainingId: string, name: string, description: string, trainingDate?: string, trainingTime?: string) => void;
     onDeleteTraining: (trainingId: string) => void;
     onHelpClick?: (context?: string) => void;
 }
@@ -65,6 +66,8 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
     const [editingTrainingId, setEditingTrainingId] = useState<string | null>(null);
     const [trainingTitle, setTrainingTitle] = useState('');
     const [trainingDescription, setTrainingDescription] = useState('');
+    const [trainingDate, setTrainingDate] = useState('');
+    const [trainingTime, setTrainingTime] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleTrainingInputChange = (setter: React.Dispatch<React.SetStateAction<string>>, field: string, value: string) => {
@@ -78,19 +81,23 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
 
     const handleCreateTraining = () => {
         if (trainingTitle.trim()) {
-            onCreateTraining(trainingTitle, trainingDescription);
+            onCreateTraining(trainingTitle, trainingDescription, trainingDate || undefined, trainingTime || undefined);
             setTrainingTitle('');
             setTrainingDescription('');
+            setTrainingDate('');
+            setTrainingTime('');
             setShowAddForm(false);
         }
     };
 
     const handleUpdateTraining = () => {
         if (editingTrainingId && trainingTitle.trim()) {
-            onUpdateTraining(editingTrainingId, trainingTitle, trainingDescription);
+            onUpdateTraining(editingTrainingId, trainingTitle, trainingDescription, trainingDate || undefined, trainingTime || undefined);
             setEditingTrainingId(null);
             setTrainingTitle('');
             setTrainingDescription('');
+            setTrainingDate('');
+            setTrainingTime('');
         }
     };
 
@@ -98,6 +105,8 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
         setEditingTrainingId(training.id);
         setTrainingTitle(training.name);
         setTrainingDescription(training.description);
+        setTrainingDate(training.training_date || '');
+        setTrainingTime(training.training_time || '');
         setShowAddForm(false);
     };
 
@@ -111,12 +120,16 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
         setEditingTrainingId(null);
         setTrainingTitle('');
         setTrainingDescription('');
+        setTrainingDate('');
+        setTrainingTime('');
     };
 
     const handleCancelAdd = () => {
         setShowAddForm(false);
         setTrainingTitle('');
         setTrainingDescription('');
+        setTrainingDate('');
+        setTrainingTime('');
     };
 
     const filteredTrainings = trainings.filter(training =>
@@ -192,6 +205,22 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                             onChange={(e) => handleTrainingInputChange(setTrainingDescription, 'trainingDescription', e.target.value)} 
                             isTextArea={true}
                         />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <FormInput 
+                                id="training-date" 
+                                label={t('adminTrainingDateLabel')} 
+                                value={trainingDate} 
+                                onChange={(e) => handleTrainingInputChange(setTrainingDate, 'trainingDate', e.target.value)} 
+                                type="date"
+                            />
+                            <FormInput 
+                                id="training-time" 
+                                label={t('adminTrainingTimeLabel')} 
+                                value={trainingTime} 
+                                onChange={(e) => handleTrainingInputChange(setTrainingTime, 'trainingTime', e.target.value)} 
+                                type="time"
+                            />
+                        </div>
                     </div>
                     <div className="flex gap-4 mt-6">
                         {isEditing ? (
@@ -235,8 +264,30 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                             {filteredTrainings.map(training => (
                                 <div key={training.id} className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow duration-200">
                                     <div className="flex items-start justify-between mb-3">
-                                        <h3 className="font-semibold text-cyan-600 text-lg">{training.name}</h3>
-                                        <div className="flex items-center space-x-2">
+                                        <div className="flex-1">
+                                            <h3 className="font-semibold text-cyan-600 text-lg mb-2">{training.name}</h3>
+                                            {training.description && (
+                                                <p className="text-sm text-slate-600 mb-3">{training.description}</p>
+                                            )}
+                                            {(training.training_date || training.training_time) && (
+                                                <div className="flex items-center space-x-3">
+                                                    <CalendarCard 
+                                                        date={training.training_date} 
+                                                        time={training.training_time}
+                                                        className="w-20"
+                                                    />
+                                                    <div className="text-sm text-slate-500">
+                                                        {training.training_date && (
+                                                            <div>{new Date(training.training_date).toLocaleDateString('sv-SE')}</div>
+                                                        )}
+                                                        {training.training_time && (
+                                                            <div>{training.training_time.substring(0, 5)}</div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center space-x-2 ml-4">
                                             <button
                                                 onClick={() => handleEditClick(training)}
                                                 disabled={isEditing || showAddForm}
@@ -257,9 +308,6 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                                             </button>
                                         </div>
                                     </div>
-                                    {training.description && (
-                                        <p className="text-sm text-slate-600">{training.description}</p>
-                                    )}
                                 </div>
                             ))}
                         </div>

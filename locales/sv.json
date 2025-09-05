@@ -156,5 +156,9 @@
   "adminEditUser": "Redigera användare",
   "adminUpdateBtn": "Uppdatera",
   "adminDeleteBtn": "Ta bort",
-  "confirmDeleteTraining": "Är du säker på att du vill ta bort träningen \"{name}\"? Denna åtgärd kan inte ångras."
+  "confirmDeleteTraining": "Är du säker på att du vill ta bort träningen \"{name}\"? Denna åtgärd kan inte ångras.",
+  "trainingDatePlaceholder": "Välj datum",
+  "trainingTimePlaceholder": "Välj tid",
+  "trainingNoDateSet": "Inget datum angivet",
+  "trainingNoTimeSet": "Ingen tid angiven"
 }

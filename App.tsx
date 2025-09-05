@@ -81,17 +81,17 @@ const AppContent: React.FC = () => {
         }
     };
 
-    const handleCreateTraining = async (name: string, description: string) => {
+    const handleCreateTraining = async (name: string, description: string, trainingDate?: string, trainingTime?: string) => {
         try {
-            await createTraining(name, description);
+            await createTraining(name, description, trainingDate, trainingTime);
         } catch (err) {
             console.error('Failed to create training:', err);
         }
     };
     
-    const handleUpdateTraining = async (trainingId: string, name: string, description: string) => {
+    const handleUpdateTraining = async (trainingId: string, name: string, description: string, trainingDate?: string, trainingTime?: string) => {
         try {
-            await updateTraining(trainingId, name, description);
+            await updateTraining(trainingId, name, description, trainingDate, trainingTime);
         } catch (err) {
             console.error('Failed to update training:', err);
         }
@@ -237,16 +237,6 @@ const AppContent: React.FC = () => {
                                 </>
                             ) : (
                                 <>
-                                    <button
-                                        onClick={() => setView('public')}
-                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                                            view === 'public' 
-                                                ? 'bg-blue-600 text-white shadow-sm' 
-                                                : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
-                                        }`}
-                                    >
-                                        {t('viewTrainingsButton')}
-                                    </button>
                                     <button
                                         onClick={() => setShowLogin(true)}
                                         className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"

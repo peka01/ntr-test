@@ -25,6 +25,8 @@ CREATE TABLE IF NOT EXISTS public.trainings (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     name VARCHAR(255) NOT NULL,
     description TEXT,
+    training_date DATE,
+    training_time TIME,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -195,9 +197,9 @@ INSERT INTO public.users (id, name, email, voucher_balance) VALUES
     ('550e8400-e29b-41d4-a716-446655440002', 'Bob Williams', 'bob@example.com', 3)
 ON CONFLICT (email) DO NOTHING;
 
-INSERT INTO public.trainings (id, name, description) VALUES
-    ('550e8400-e29b-41d4-a716-446655440003', 'React Fundamentals', 'Learn the basics of React.'),
-    ('550e8400-e29b-41d4-a716-446655440004', 'Advanced TailwindCSS', 'Master utility-first CSS.')
+INSERT INTO public.trainings (id, name, description, training_date, training_time) VALUES
+    ('550e8400-e29b-41d4-a716-446655440003', 'React Fundamentals', 'Learn the basics of React.', '2024-09-15', '09:30:00'),
+    ('550e8400-e29b-41d4-a716-446655440004', 'Advanced TailwindCSS', 'Master utility-first CSS.', '2024-09-20', '14:00:00')
 ON CONFLICT DO NOTHING;
 
 INSERT INTO public.subscriptions (user_id, training_id) VALUES
