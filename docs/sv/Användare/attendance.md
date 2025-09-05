@@ -1,14 +1,14 @@
-# Närvarohantering - Delta i utbildningar
+# Närvarohantering - Delta i träningar
 
 ## Översikter
 
-Här markerar du när du faktiskt deltar i utbildningar och hanterar ditt utbildningskort. Det är hjärtat i plattformen - enkelt och smidigt.
+Här markerar du när du faktiskt deltar i träningar och hanterar ditt träningskort. Det är hjärtat i plattformen - enkelt och smidigt.
 
 ## Markera närvaro
 
 ### Så här gör du
 1. Gå till vyn **Närvaro**
-2. Leta upp den utbildning du vill delta i i listan
+2. Leta upp den träning du vill delta i i listan
 3. Leta efter ditt namn i listan över deltagare
 4. Klicka på **"Markera närvaro"** bredvid ditt namn
 5. Bekräfta att du vill markera närvaro
@@ -17,7 +17,7 @@ Här markerar du när du faktiskt deltar i utbildningar och hanterar ditt utbild
 - En voucher dras av direkt från ditt saldo
 - Din närvaro registreras
 - Du får en bekräftelse på att närvaron har markerats
-- Administratörer kan se att du har deltagit i utbildningen
+- Administratörer kan se att du har deltagit i träningen
 
 ### Krav för att markera närvaro
 - **Du måste vara registrerad**: Du kan bara markera närvaro för kurser som du är anmäld till
@@ -46,26 +46,26 @@ Du kan avbryta din närvaro om du:
 ## Viktiga regler
 
 ### Närvaro vs registrering
-- **Registrering är gratis**: Du kan registrera dig för utbildningstillfällen utan att använda ett hålkort
+- **Registrering är gratis**: Du kan registrera dig för träningstillfällen utan att använda ett hålkort
 - **Närvaro kostar**: Stämpelkort dras endast av när du markerar närvaro
-- **Flexibilitet**: Du kan anmäla dig till flera utbildningar och välja vilka du faktiskt deltar i
+- **Flexibilitet**: Du kan anmäla dig till flera träningar och välja vilka du faktiskt deltar i
 
 ### Tidsramar
 - **Ingen tidsgräns**: Du kan avboka din närvaro när som helst
 - **Omedelbar återbetalning**: Vouchers återbetalas omedelbart när du avbokar
-- **Planera i förväg**: Anmäl dig till utbildningar i förväg, markera närvaro när du är säker på att du kan delta
+- **Planera i förväg**: Anmäl dig till träningar i förväg, markera närvaro när du är säker på att du kan delta
 
 ## Tips för smart närvarohantering
 
-### Planera dina utbildningstillfällen
-1. **Anmäl dig i förväg**: anmäl dig till utbildningar som du är intresserad av
+### Planera dina träningstillfällen
+1. **Anmäl dig i förväg**: anmäl dig till träningar som du är intresserad av
 2. **Markera närvaro när du är säker**: Vänta med att markera närvaro tills du är säker på att du kan delta
 3. **Håll koll på ditt saldo**: Kontrollera saldot på din voucher regelbundet
 
 ### Hantera ändringar
 1. **Avboka i tid**: Om du inte kan delta, avboka så snart som möjligt
 2. **Kommunicera**: Informera utbildaren om du inte kan delta
-3. **Omplanera**: Använd din återbetalda voucher för andra utbildningstillfällen
+3. **Omplanera**: Använd din återbetalda voucher för andra träningstillfällen
 
 ### Felsökning
 - **Det går inte att markera närvaro**: Kontrollera att du är registrerad och har tillräckligt med hålkort
@@ -81,10 +81,10 @@ Nej, det är bara du som kan markera din egen närvaro.
 Du kan avbryta närvaron omedelbart och få tillbaka din voucher.
 
 **Kan jag markera närvaro flera gånger för samma kurs?
-Nej, du kan bara markera närvaro en gång per utbildning.
+Nej, du kan bara markera närvaro en gång per träning.
 
-**Måste jag markera närvaro direkt när utbildningen börjar?
-Nej, du kan markera närvaro när som helst, men det är bra att göra det i förväg så att utbildaren vet att du kommer.
+**Måste jag markera närvaro direkt när träningen börjar?
+Nej, du kan markera närvaro när som helst, men det är bra att göra det i förväg så att tränaren vet att du kommer.
 
 **Vad händer om jag missar att markera närvaro?
-Om du inte markerar närvaro kommer ingen voucher att användas, men utbildaren vet inte att du har deltagit.
+Om du inte markerar närvaro kommer ingen voucher att användas, men tränaren vet inte att du har deltagit.

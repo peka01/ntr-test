@@ -12,8 +12,8 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
 
 **Möjliga orsaker:**
 - Du har inte tillräckligt med hålkort
-- Du är inte registrerad för utbildningen
-- Du har redan markerat närvaro för den här utbildningen
+- Du är inte registrerad för träningen
+- Du har redan markerat närvaro för den här träningen
 - Plattformen håller fortfarande på att laddas
 
 **Här är hur du löser det:**
@@ -23,7 +23,7 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
 
 2. **Kontrollera din registrering**
    - Gå till registreringssidan
-   - Se till att du är registrerad för utbildningen
+   - Se till att du är registrerad för träningen
    - Registrera dig först om du inte är det
 
 3. **Kontrollera din tidigare närvaro**
@@ -55,7 +55,7 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
    - Försök att ladda om sidan
 
 3. **Kolla med administratören
-   - Fråga administratören om utbildningen fortfarande är tillgänglig
+   - Fråga administratören om träningen fortfarande är tillgänglig
    - Be dem kontrollera om den har tagits bort eller flyttats
 
 ### "Saldot i klippbordet är inte uppdaterat"
@@ -108,7 +108,7 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
    - Försök igen
 
 3. **Kontakta administratören
-   - Be dem att kontrollera utbildningsinställningarna
+   - Be dem att kontrollera träningsinställningarna
    - De kan se om det finns tekniska problem
 
 ### "Hjälpsystemet fungerar inte"
@@ -153,7 +153,7 @@ Här hittar du hjälp med att lösa vanliga problem som kan uppstå när du anv�
 ### För att undvika problem:
 1. **Aktualisera regelbundet**: Ladda om sidan när du märker att något verkar konstigt
 2. **Kontrollera saldot**: Kontrollera saldot på din voucher regelbundet
-3. **Registrera i tid**: Anmäl dig till utbildningar så snart du vet att du är intresserad
+3. **Registrera i tid**: Anmäl dig till träningar så snart du vet att du är intresserad
 4. **Markera närvaro när du är säker**: Vänta med att markera närvaro tills du är säker på att du kan delta
 
 ### Tekniska tips:

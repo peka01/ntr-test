@@ -44,7 +44,7 @@ const TrainingCard: React.FC<TrainingCardProps> = ({ training, allUsers, subscri
     };
     
     return (
-        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md flex flex-col">
+        <div className="bg-white p-6 rounded-xl border-l-4 border-l-blue-500 border border-slate-200 shadow-sm flex flex-col hover:shadow-md transition-shadow duration-200">
             <h2 className="text-2xl font-bold text-cyan-600 mb-2">{training.name}</h2>
             <p className="text-slate-500 mb-4 flex-grow">{training.description}</p>
             
@@ -120,7 +120,10 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
     return (
         <div className="animate-fade-in">
             <div className="flex items-center justify-between mb-6">
-                <h1 className="text-3xl font-bold text-slate-800">{t('navPublic')}</h1>
+                <div className="flex items-center gap-3">
+                    <h1 className="text-3xl font-bold text-slate-800">{t('navPublic')}</h1>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                </div>
             </div>
             
             {trainings.length > 0 && (

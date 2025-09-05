@@ -214,16 +214,6 @@ const AppContent: React.FC = () => {
                                         </>
                                     )}
                                     <button
-                                        onClick={() => setView('public')}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
-                                            view === 'public' 
-                                                ? 'bg-blue-100 text-blue-700' 
-                                                : 'text-slate-600 hover:text-slate-900'
-                                        }`}
-                                    >
-                                        {t('navPublic')}
-                                    </button>
-                                    <button
                                         onClick={() => setView('attendance')}
                                         className={`px-3 py-2 rounded-md text-sm font-medium ${
                                             view === 'attendance' 
@@ -233,16 +223,26 @@ const AppContent: React.FC = () => {
                                     >
                                         {t('navAttendance')}
                                     </button>
+                                    <button
+                                        onClick={() => setView('public')}
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                            view === 'public' 
+                                                ? 'bg-blue-600 text-white shadow-sm' 
+                                                : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
+                                        }`}
+                                    >
+                                        {t('navPublic')}
+                                    </button>
                                     <UserMenu user={user} />
                                 </>
                             ) : (
                                 <>
                                     <button
                                         onClick={() => setView('public')}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
+                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
                                             view === 'public' 
-                                                ? 'bg-blue-100 text-blue-700' 
-                                                : 'text-slate-600 hover:text-slate-900'
+                                                ? 'bg-blue-600 text-white shadow-sm' 
+                                                : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
                                         }`}
                                     >
                                         {t('viewTrainingsButton')}

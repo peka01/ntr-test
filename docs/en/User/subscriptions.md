@@ -4,6 +4,13 @@
 
 Easily register for trainings that interest you. That's the first step - registering is free and allows you to participate when the time comes.
 
+### Visual design
+**Anmälan** (Public Subscription Page) is the open page in the system and has a special visual design to make it clear that it's accessible to everyone:
+- **Blue color scheme**: Uses blue colors to indicate openness and accessibility
+- **Minimalistic design**: Clean and modern design without unnecessary elements
+- **Visual indicators**: Small blue dot next to the page title to mark it as an open page
+- **Enhanced navigation**: Navigation element has special blue styling when active
+
 ## How things work
 
 ### What is a registration?

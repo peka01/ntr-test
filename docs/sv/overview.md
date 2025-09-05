@@ -1,21 +1,21 @@
-# Välkommen till din nya värld - utbildningsvärlden!
-Här gör vi det enkelt!. En galet enkel och smidig lösning för att organisera träningar - så att du kan fokusera på det som verkligen betyder något.
+# Välkommen till din nya värld - träningsvärlden!
+Här gör vi det enkelt! En galet enkel och smidig lösning för att organisera träningar - så att du kan fokusera på det som verkligen betyder något.
 ## Vad får du ut av det?
 ### Som deltagare:
-- **Lätt att gå med**: Registrera dig för utbildningar på några sekunder
-- **Klippkort som fungerar**: Använd dina kort för att delta i utbildningar
+- **Lätt att gå med**: Registrera dig för träningar på några sekunder
+- **Klippkort som fungerar**: Använd dina kort för att delta i träningar
 - **Markera närvaro enkelt**: Klicka och klart - inget krångel
 - **Allt på ett ställe**: Se dina registreringar och närvaro direkt
 ### Som administratör:
 - **Hantera användare enkelt**: Skapa och uppdatera konton med lätthet
-- **Organisera utbildningar på ett smidigt sätt**: Skapa, redigera och planera aktiviteter
+- **Organisera träningar på ett smidigt sätt**: Skapa, redigera och planera aktiviteter
 - **Utdela stämpelkort**: Hantera kort för alla användare
 - **Följ vad som händer**: Visa statistik och rapporter
 ## Så här fungerar det
 Det är enkelt! Vi har tre saker som vi tittar på:
-1. **Användare** - Deltagare som vill gå med i utbildningar
+1. **Användare** - Deltagare som vill gå med i träningar
 2. **Träningar** - Kurser och aktiviteter som användare kan delta i
-3. **Klippkort** - Det som används för att delta i utbildningar
+3. **Klippkort** - Det som används för att delta i träningar
 ## Teknisk bas
 - ** Fungerar överallt**: Öppnas i alla webbläsare
 - **Uppdateras omedelbart**: Ändringar syns omedelbart utan omladdning

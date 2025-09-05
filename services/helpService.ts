@@ -47,7 +47,7 @@ const helpConfig = {
         sv: "Träningsanmälningar (Användare)",
         en: "Training Subscriptions (User)"
       },
-      keywords: ["subscribe", "unsubscribe", "subscription", "public view", "user subscription", "subscription page", "viewing subscriptions", "anmälan"],
+      keywords: ["subscribe", "unsubscribe", "subscription", "public view", "user subscription", "subscription page", "viewing subscriptions", "anmälan", "open page", "public page", "visual indicator", "navigation", "blue styling", "minimalistic design"],
       category: "user" as const
     },
     {

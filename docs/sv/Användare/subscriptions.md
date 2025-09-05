@@ -4,6 +4,13 @@
 
 Registrera dig enkelt för träningar som intresserar dig. Det är det första steget - att registrera sig är gratis och gör att du kan delta när det är dags.
 
+### Visuell design
+**Anmälan** är den öppna sidan i systemet och har en särskild visuell design för att göra det tydligt att den är tillgänglig för alla:
+- **Blå färgschema**: Använder blå färger för att indikera öppenhet och tillgänglighet
+- **Minimalistisk design**: Ren och modern design utan överflödiga element
+- **Visuella indikatorer**: Liten blå punkt bredvid sidans titel för att markera att det är en öppen sida
+- **Förbättrad navigation**: Navigationselementet har en särskild blå styling när det är aktivt
+
 ## Hur saker och ting fungerar
 
 ### Vad är en registrering?

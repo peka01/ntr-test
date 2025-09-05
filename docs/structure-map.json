@@ -40,7 +40,7 @@
               "title": "Träningsanmälningar",
               "description": "Anmäl dig till träningspass",
               "order": 2,
-              "keywords": ["anmälan", "träningsanmälningar", "subscription page", "viewing subscriptions", "subscribe", "unsubscribe"]
+              "keywords": ["anmälan", "träningsanmälningar", "subscription page", "viewing subscriptions", "subscribe", "unsubscribe", "open page", "public page", "visual indicator", "navigation", "blue styling", "minimalistic design"]
             },
             "vouchers": {
               "title": "Klippkortssystem",
@@ -102,7 +102,7 @@
               "title": "Training Subscriptions",
               "description": "Subscribe to training sessions",
               "order": 2,
-              "keywords": ["subscriptions", "training subscriptions", "subscription page", "viewing subscriptions", "subscribe", "unsubscribe"]
+              "keywords": ["subscriptions", "training subscriptions", "subscription page", "viewing subscriptions", "subscribe", "unsubscribe", "open page", "public page", "visual indicator", "navigation", "blue styling", "minimalistic design"]
             },
             "vouchers": {
               "title": "Voucher System",

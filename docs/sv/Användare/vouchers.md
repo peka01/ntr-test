@@ -7,10 +7,10 @@ Tänk på träningskort som biljetter till träningstillfällen - enkelt och tyd
 ## Så här fungerar det
 
 ### När du börjar
-Som ny användare börjar du med 0 stämpelkort. Detta är helt normalt! Du kommer att få kort från en administratör innan du kan delta i utbildningar.
+Som ny användare börjar du med 0 stämpelkort. Detta är helt normalt! Du kommer att få kort från en administratör innan du kan delta i träningar.
 
 ### Registrering kontra närvaro
-- **Registrera dig gratis**: Registrera dig för så många utbildningar du vill - inget kort används
+- **Registrera dig gratis**: Registrera dig för så många träningar du vill - inget kort används
 - **Närvaro kostar**: Ett kort dras endast när du faktiskt markerar närvaro
 
 ## Viktiga regler
@@ -31,7 +31,7 @@ Som ny användare börjar du med 0 stämpelkort. Detta är helt normalt! Du komm
 
 ## Tips för att använda kort på ett smart sätt
 
-1. **Planera i förväg**: Anmäl dig till utbildning tidigt, men markera närvaro först när du är säker på att
+1. **Planera i förväg**: Anmäl dig till träning tidigt, men markera närvaro först när du är säker på att
 2. **Håll koll**: Kontrollera ditt saldo regelbundet
 3. **Avboka i tid**: Kan du inte komma? Avboka din närvaro så snart som möjligt
 4. **Begära mer**: Kontakta coacherna innan det tar slut, inte efter
@@ -44,5 +44,5 @@ Nej, korten  är personliga och kan inte delas.
 **Vad händer om jag markerar närvaro av misstag?
 Avboka närvaron omedelbart så får du tillbaka kortet.
 
-**Om jag missar ett utbildningstillfälle, får jag tillbaka mitt kort?
+**Om jag missar ett träningstillfälle, får jag tillbaka mitt kort?
 Bara om du har markerat närvaro och sedan avbrutit den. Har du aldrig markerat närvaro? Då kommer inget kort att användas.

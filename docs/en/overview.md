@@ -1,5 +1,5 @@
-# Welcome to your new world - the world of education!
-Here we make it easy! A crazy simple and easy solution to organize training - so you can focus on what really matters.
+# Welcome to your new world - the world of training!
+Here we make it easy! A crazy simple and easy solution to organize trainings - so you can focus on what really matters.
 ## What do you get out of it?
 ### As a participant:
 - **Easy to join**: Sign up for trainings in seconds
