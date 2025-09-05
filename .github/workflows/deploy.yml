@@ -70,13 +70,17 @@ jobs:
         echo "Build output directory:"
         ls -la dist/
         echo "Build output contents:"
-        find dist/ -type f -exec echo "=== {} ===" \; -exec cat {} \;
+        find dist/ -type f -name "*.js" -exec echo "=== {} ===" \; -exec head -5 {} \;
+        echo "Checking for .nojekyll file:"
+        ls -la dist/.nojekyll || echo "No .nojekyll file found"
+        echo "Checking assets directory:"
+        ls -la dist/assets/ || echo "No assets directory found"
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
       
     - name: Upload artifact
-      uses: actions/upload-pages-artifact@v3
+      uses: actions/upload-pages-artifact@v4
       with:
         path: './dist'
         
