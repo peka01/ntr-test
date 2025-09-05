@@ -164,5 +164,7 @@
   "subscriberCountSingular": "registered",
   "subscriberCountPlural": "registered",
   "upcomingTrainingsTitle": "Upcoming trainings",
-  "bookYourSpotMessage": "Book your spot and join us!"
+  "bookYourSpotMessage": "Book your spot and join us!",
+  "helpContentErrorTitle": "Error loading help content",
+  "helpContentErrorText": "Could not load help content. Check your internet connection and try again."
 }

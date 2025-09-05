@@ -55,9 +55,11 @@ const AppContent: React.FC = () => {
     React.useEffect(() => {
         const handler = (event: Event) => {
             const custom = event as CustomEvent<any>;
+            console.log('📡 Received AI action event:', custom.detail);
             if (!custom.detail) return;
             const { type, payload } = custom.detail;
             if (type === 'navigate' && payload?.view) {
+                console.log('🧭 Navigating to view:', payload.view);
                 setView(payload.view);
             }
         };

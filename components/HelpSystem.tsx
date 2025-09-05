@@ -743,21 +743,20 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
     setAiSources([]);
 
     try {
-      const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+      const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
       console.log('🔑 API Key check:', {
         hasApiKey: !!apiKey,
         apiKeyLength: apiKey ? apiKey.length : 0,
         apiKeyStart: apiKey ? apiKey.substring(0, 4) + '...' : 'none',
-        envVars: Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')),
-        fullEnv: import.meta.env,
-        mode: import.meta.env.MODE,
-        base: import.meta.env.BASE_URL
+        envVars: Object.keys((import.meta as any).env || {}).filter((key: string) => key.startsWith('VITE_')),
+        mode: (import.meta as any).env?.MODE,
+        base: (import.meta as any).env?.BASE_URL
       });
       
       if (!apiKey) {
         console.error('❌ Gemini API key is missing!');
-        console.error('Environment variables available:', Object.keys(import.meta.env));
-        console.error('VITE_ variables:', Object.keys(import.meta.env).filter(key => key.startsWith('VITE_')));
+        console.error('Environment variables available:', Object.keys((import.meta as any).env || {}));
+        console.error('VITE_ variables:', Object.keys((import.meta as any).env || {}).filter((key: string) => key.startsWith('VITE_')));
         throw new Error('Gemini API key not configured. This usually means the environment variable was not loaded during build time. Check your GitHub Actions secrets and Vite configuration.');
       }
 
@@ -822,7 +821,7 @@ Instruktioner:
 - Håll svaret koncist men informativt
 - Om dokumentationen inte är tillgänglig, svara baserat på din allmänna kunskap om systemadministration
 
-Interaktiva åtgärder (machine-action hints):
+VIKTIGT - Interaktiva åtgärder (machine-action hints):
 - Efter ditt svar, om det är relevant, lägg till en eller flera åtgärdshints på separata rader i formatet [action:NAMN nyckel=värde ...]
 - Stödda åtgärder:
   - navigate view=public|admin|attendance
@@ -842,6 +841,10 @@ Användarens fråga: ${content}`;
       });
 
       const text = result.text.trim();
+      
+      // Debug: Log the AI response to see if action tags are being generated
+      console.log('🤖 AI Response:', text);
+      console.log('🔍 Looking for action tags in response...');
 
       // Interpolate UI placeholders like {{navPublic}} in AI output
       const interpolatePlaceholders = (input: string) => {
@@ -904,7 +907,38 @@ Användarens fråga: ${content}`;
           if (k && v) payload[k] = v;
         });
         actions.push({ type, payload });
+        console.log('✅ Found action:', { type, payload });
       }
+      console.log('📋 Total actions found:', actions.length);
+      
+      // If no actions were found but the question seems to be about navigation, add some default actions
+      if (actions.length === 0) {
+        const question = content.toLowerCase();
+        const defaultActions: { type: string; payload: Record<string, string> }[] = [];
+        
+        if (question.includes('gå till') || question.includes('navigera') || question.includes('visa') || 
+            question.includes('go to') || question.includes('navigate') || question.includes('show')) {
+          if (question.includes('admin') || question.includes('administratör')) {
+            defaultActions.push({ type: 'navigate', payload: { view: 'admin' } });
+          } else if (question.includes('attendance') || question.includes('närvaro') || question.includes('incheckning')) {
+            defaultActions.push({ type: 'navigate', payload: { view: 'attendance' } });
+          } else if (question.includes('public') || question.includes('publik') || question.includes('anmälan')) {
+            defaultActions.push({ type: 'navigate', payload: { view: 'public' } });
+          } else {
+            // Default to showing available views
+            defaultActions.push({ type: 'navigate', payload: { view: 'public' } });
+            if (isAdmin) {
+              defaultActions.push({ type: 'navigate', payload: { view: 'admin' } });
+            }
+          }
+        }
+        
+        if (defaultActions.length > 0) {
+          console.log('🔧 Adding default navigation actions:', defaultActions);
+          actions.push(...defaultActions);
+        }
+      }
+      
       setSuggestedActions(actions);
       setAiSources(sources);
       setAiInputValue(''); // Clear input after successful response
@@ -1603,6 +1637,7 @@ Användarens fråga: ${content}`;
                         onClick={() => {
                           // Confirm for destructive or changing actions in the future
                           const detail = { type: a.type, payload: a.payload };
+                          console.log('🚀 Dispatching AI action:', detail);
                           window.dispatchEvent(new CustomEvent('ai-action', { detail }));
                         }}
                         className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded hover:bg-cyan-200 transition-colors cursor-pointer"

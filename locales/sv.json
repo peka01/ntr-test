@@ -164,5 +164,7 @@
   "subscriberCountSingular": "anmäld",
   "subscriberCountPlural": "anmälda",
   "upcomingTrainingsTitle": "Kommande träningar",
-  "bookYourSpotMessage": "Boka din plats och kom och häng med oss!"
+  "bookYourSpotMessage": "Boka din plats och kom och häng med oss!",
+  "helpContentErrorTitle": "Fel vid laddning av hjälpinnehåll",
+  "helpContentErrorText": "Kunde inte ladda hjälpinnehållet. Kontrollera din internetanslutning och försök igen."
 }
