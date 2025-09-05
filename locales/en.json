@@ -1,5 +1,5 @@
 {
-  "appTitle": "TEST FÖR HJÄLPSYSTEM",
+  "appTitle": "TEST FÖR HELP",
   "navPublic": "Public Subscription Page",
   "navAttendance": "Attendance",
   "adminCreateTrainingBtn": "Create Training",
@@ -162,5 +162,7 @@
   "trainingCalendar": "Training Calendar",
   "noScheduledTrainings": "No trainings scheduled yet.",
   "subscriberCountSingular": "registered",
-  "subscriberCountPlural": "registered"
+  "subscriberCountPlural": "registered",
+  "upcomingTrainingsTitle": "Upcoming trainings",
+  "bookYourSpotMessage": "Book your spot and join us!"
 }

@@ -162,5 +162,7 @@
   "trainingCalendar": "Träningskalender",
   "noScheduledTrainings": "Inga träningar schemalagda än.",
   "subscriberCountSingular": "anmäld",
-  "subscriberCountPlural": "anmälda"
+  "subscriberCountPlural": "anmälda",
+  "upcomingTrainingsTitle": "Kommande träningar",
+  "bookYourSpotMessage": "Boka din plats och kom och häng med oss!"
 }
