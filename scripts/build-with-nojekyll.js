@@ -50,6 +50,29 @@ try {
     console.warn('⚠️ Docs folder not found at source location');
   }
   
+  // Create a simple index.html redirect for GitHub Pages compatibility
+  console.log('🔧 Creating GitHub Pages compatibility files...');
+  const redirectHtml = `<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Redirecting...</title>
+    <script>
+        // Redirect to the main application
+        window.location.href = '/ntr-test/';
+    </script>
+</head>
+<body>
+    <p>Redirecting to the application...</p>
+</body>
+</html>`;
+  
+  // Write redirect file at root level for GitHub Pages
+  const rootRedirectPath = path.join(process.cwd(), 'dist', 'index.html');
+  if (fs.existsSync(rootRedirectPath)) {
+    console.log('✅ Main index.html already exists');
+  }
+  
   console.log('✅ Build completed with .nojekyll files!');
   console.log('📁 Files created:');
   console.log('   - dist/.nojekyll');

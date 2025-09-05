@@ -52,6 +52,12 @@ export default defineConfig(({ mode }) => {
     return {
       base: '/ntr-test/',
       plugins: [react(), serveDocsPlugin()],
+      // Ensure proper module resolution for GitHub Pages
+      resolve: {
+        alias: {
+          '@': resolve(__dirname, 'src')
+        }
+      },
       define: {
         'import.meta.env.VITE_GEMINI_API_KEY': JSON.stringify(geminiApiKey),
         'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(supabaseUrl),
@@ -63,7 +69,21 @@ export default defineConfig(({ mode }) => {
         outDir: 'dist',
         sourcemap: false,
         // Ensure proper file extensions for GitHub Pages
-        assetsDir: 'assets'
+        assetsDir: 'assets',
+        rollupOptions: {
+          output: {
+            // Ensure JavaScript files have .js extension for proper MIME type
+            entryFileNames: 'assets/[name]-[hash].js',
+            chunkFileNames: 'assets/[name]-[hash].js',
+            assetFileNames: (assetInfo) => {
+              // Ensure proper file extensions for GitHub Pages
+              if (assetInfo.name && assetInfo.name.endsWith('.js')) {
+                return 'assets/[name]-[hash].js';
+              }
+              return 'assets/[name]-[hash].[ext]';
+            }
+          }
+        }
       },
       server: {
         headers: {
