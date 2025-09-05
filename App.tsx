@@ -271,21 +271,16 @@ const AppContent: React.FC = () => {
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                {/* Show public subscription page by default for non-authenticated users */}
                 {!user ? (
-                    <div className="text-center py-12">
-                        <h2 className="text-3xl font-bold text-slate-900 mb-4">
-                            {t('welcomeTitle')}
-                        </h2>
-                        <p className="text-lg text-slate-600 mb-8">
-                            {t('welcomeSubtitle')}
-                        </p>
-                        <button
-                            onClick={() => setShowLogin(true)}
-                            className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-lg"
-                        >
-                            {t('signInButton')}
-                        </button>
-                    </div>
+                    <SubscriptionPage
+                        users={users}
+                        trainings={trainings}
+                        subscriptions={subscriptions}
+                        onSubscribe={handleSubscribe}
+                        onUnsubscribe={handleUnsubscribe}
+                        onHelpClick={handleHelpClick}
+                    />
                 ) : (
                     <>
 
@@ -341,17 +336,6 @@ const AppContent: React.FC = () => {
                     </>
                 )}
 
-                {/* Show public view for non-authenticated users */}
-                {!user && view === 'public' && (
-                    <SubscriptionPage
-                        users={users}
-                        trainings={trainings}
-                        subscriptions={subscriptions}
-                        onSubscribe={handleSubscribe}
-                        onUnsubscribe={handleUnsubscribe}
-                        onHelpClick={handleHelpClick}
-                    />
-                )}
             </main>
 
             {/* Help System */}

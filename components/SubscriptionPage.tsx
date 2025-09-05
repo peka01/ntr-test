@@ -6,6 +6,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { HelpButton } from './HelpButton';
 import { TrashIcon } from './icons/TrashIcon';
+import bannerImage from '/ntr_banner.png';
 
 interface SubscriptionPageProps {
     users: User[];
@@ -126,20 +127,12 @@ export const SubscriptionPage: React.FC<SubscriptionPageProps> = ({ users, train
                     <div 
                         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
                         style={{
-                            backgroundImage: 'url("/ntr_banner.png?t=' + Date.now() + '")'
+                            backgroundImage: `url(${bannerImage})`
                         }}
                     ></div>
                     
                     {/* Content */}
                     <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-                        {/* Teamwork Icon */}
-                        <div className="mb-6">
-                            <div className="w-16 h-16 mx-auto bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm">
-                                <svg className="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5l-2.54-7.63A1.5 1.5 0 0 0 18.54 8H17c-.8 0-1.54.37-2.01.99L14 10l-1-2H9l-1 2-1-1c-.46-.62-1.21-.99-2.01-.99H4.46c-.8 0-1.54.37-2.01.99L0 12.5V16h2v6h2v-6h2v6h2v-6h2v6h2v-6h2v6h2v-6h2v6h2z"/>
-                                </svg>
-                            </div>
-                        </div>
                         
                         <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-4 drop-shadow-lg">
                             Kommande träningar hos oss
