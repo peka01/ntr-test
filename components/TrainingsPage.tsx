@@ -262,7 +262,8 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                     {filteredTrainings.length > 0 ? (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                             {filteredTrainings.map(training => (
-                                <div key={training.id} className="p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow duration-200 relative overflow-visible">
+                                <div key={training.id} className="flex flex-col min-h-64 p-4 bg-slate-50 rounded-lg border border-slate-200 hover:shadow-md transition-shadow duration-200 relative overflow-visible">
+                                    {/* Header section - fixed height */}
                                     <div className="mb-3">
                                         <div className="flex items-start space-x-4">
                                             {/* Calendar Card in top left */}
@@ -280,36 +281,40 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                                                 <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-md mb-2">
                                                     {training.subscriberCount || 0} {(training.subscriberCount || 0) === 1 ? t('subscriberCountSingular') : t('subscriberCountPlural')}
                                                 </div>
-                                                <div className="flex items-center space-x-2">
-                                                    <button
-                                                        onClick={() => handleEditClick(training)}
-                                                        disabled={isEditing || showAddForm}
-                                                        title={t('adminEditBtn')}
-                                                        className="p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
-                                                    >
-                                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                                        </svg>
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleDeleteClick(training)}
-                                                        disabled={isEditing || showAddForm}
-                                                        title={t('adminDeleteBtn')}
-                                                        className="p-2 text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
-                                                    >
-                                                        <TrashIcon className="w-4 h-4" />
-                                                    </button>
-                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    {/* Description text below */}
-                                    {training.description && (
-                                        <div className="mt-3 w-full">
-                                            <p className="text-sm text-slate-600">{training.description}</p>
-                                        </div>
-                                    )}
+
+                                    {/* Description text - expands to fill space */}
+                                    <div className="flex-grow">
+                                        {training.description && (
+                                            <div className="w-full">
+                                                <p className="text-sm text-slate-600">{training.description}</p>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Action buttons at bottom - always aligned */}
+                                    <div className="flex items-center justify-end space-x-2 mt-4 pt-3 border-t border-slate-200">
+                                        <button
+                                            onClick={() => handleEditClick(training)}
+                                            disabled={isEditing || showAddForm}
+                                            title={t('adminEditBtn')}
+                                            className="p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
+                                        >
+                                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                            </svg>
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteClick(training)}
+                                            disabled={isEditing || showAddForm}
+                                            title={t('adminDeleteBtn')}
+                                            className="p-2 text-red-600 bg-white border border-red-300 rounded-md hover:bg-red-50 hover:text-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:bg-slate-200 disabled:text-slate-400 disabled:cursor-not-allowed transition-colors duration-200"
+                                        >
+                                            <TrashIcon className="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
