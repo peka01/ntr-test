@@ -17,6 +17,12 @@ interface SourceInfo {
   type: 'help' | 'knowledge';
 }
 
+// Utility function to truncate text for breadcrumbs
+const truncateText = (text: string, maxLength: number = 15): string => {
+  if (text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+};
+
 // NEW: Content rendering sub-component
 interface HelpContentProps {
   section: HelpSection | undefined;
@@ -41,23 +47,24 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
   return (
     <>
       <div className="mb-6">
-        <nav className="flex items-center space-x-2 text-sm text-slate-600" aria-label="Breadcrumb">
+        <nav className="flex items-center space-x-2 text-sm text-slate-600 text-left overflow-x-auto" aria-label="Breadcrumb">
           {overviewSectionId ? (
             <button 
-              className="flex items-center space-x-1 text-cyan-600 hover:underline hover:text-cyan-700 transition-colors" 
+              className="flex items-center space-x-1 text-cyan-600 hover:underline hover:text-cyan-700 transition-colors text-left whitespace-nowrap" 
               onClick={() => onNavigate(overviewSectionId)}
+              title={t('helpButtonText')}
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span>{t('helpButtonText')}</span>
+              <span className="truncate">{truncateText(t('helpButtonText'))}</span>
             </button>
           ) : (
-            <span className="flex items-center space-x-1">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span className="flex items-center space-x-1 text-left whitespace-nowrap" title={t('helpButtonText')}>
+              <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
               </svg>
-              <span>{t('helpButtonText')}</span>
+              <span className="truncate">{truncateText(t('helpButtonText'))}</span>
             </span>
           )}
           {(() => {
@@ -108,16 +115,17 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
                 clickable ? (
                   <button 
                     key={`seg-${idx}`} 
-                    className="flex items-center space-x-1 capitalize text-cyan-600 hover:underline hover:text-cyan-700 transition-colors" 
+                    className="flex items-center space-x-1 capitalize text-cyan-600 hover:underline hover:text-cyan-700 transition-colors text-left whitespace-nowrap" 
                     onClick={() => onNavigate(targetId)}
+                    title={seg}
                   >
                     {getFolderIcon(seg)}
-                    <span>{seg}</span>
+                    <span className="truncate">{truncateText(seg)}</span>
                   </button>
                 ) : (
-                  <span key={`seg-${idx}`} className="flex items-center space-x-1 capitalize">
+                  <span key={`seg-${idx}`} className="flex items-center space-x-1 capitalize text-left whitespace-nowrap" title={seg}>
                     {getFolderIcon(seg)}
-                    <span>{seg}</span>
+                    <span className="truncate">{truncateText(seg)}</span>
                   </span>
                 )
               );
@@ -130,13 +138,14 @@ const HelpContent: React.FC<HelpContentProps> = ({ section, svFallback, renderFn
             parts.push(
               <button 
                 key="leaf" 
-                className="flex items-center space-x-1 font-medium text-slate-800 hover:underline hover:text-slate-900 transition-colors" 
+                className="flex items-center space-x-1 font-medium text-slate-800 hover:underline hover:text-slate-900 transition-colors text-left whitespace-nowrap" 
                 onClick={() => onNavigate(section.id)}
+                title={section.title}
               >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <span>{section.title}</span>
+                <span className="truncate">{truncateText(section.title)}</span>
               </button>
             );
             return parts;
@@ -947,6 +956,7 @@ Användarens fråga: ${content}`;
     const elements: React.ReactNode[] = [];
     let currentListItems: string[] = [];
     let inList = false;
+    let isNumberedList = false;
 
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim();
@@ -954,15 +964,18 @@ Användarens fråga: ${content}`;
       if (line.startsWith('# ')) {
         // H1
         if (inList && currentListItems.length > 0) {
+          const ListComponent = isNumberedList ? 'ol' : 'ul';
+          const listClass = isNumberedList ? 'list-decimal mb-3 ml-4' : 'list-disc mb-3 ml-4';
           elements.push(
-            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
-              {currentListItems.map((item, idx) => (
+            React.createElement(ListComponent, { key: `list-${i}`, className: listClass },
+              currentListItems.map((item, idx) => (
                 <li key={idx} className="mb-1">{formatInlineText(item)}</li>
-              ))}
-            </ul>
+              ))
+            )
           );
           currentListItems = [];
           inList = false;
+          isNumberedList = false;
         }
         elements.push(
           <h1 key={i} className="text-2xl font-bold mb-3 mt-4">
@@ -972,15 +985,18 @@ Användarens fråga: ${content}`;
       } else if (line.startsWith('## ')) {
         // H2
         if (inList && currentListItems.length > 0) {
+          const ListComponent = isNumberedList ? 'ol' : 'ul';
+          const listClass = isNumberedList ? 'list-decimal mb-3 ml-4' : 'list-disc mb-3 ml-4';
           elements.push(
-            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
-              {currentListItems.map((item, idx) => (
+            React.createElement(ListComponent, { key: `list-${i}`, className: listClass },
+              currentListItems.map((item, idx) => (
                 <li key={idx} className="mb-1">{formatInlineText(item)}</li>
-              ))}
-            </ul>
+              ))
+            )
           );
           currentListItems = [];
           inList = false;
+          isNumberedList = false;
         }
         elements.push(
           <h2 key={i} className="text-xl font-semibold mb-2 mt-4">
@@ -990,15 +1006,18 @@ Användarens fråga: ${content}`;
       } else if (line.startsWith('### ')) {
         // H3
         if (inList && currentListItems.length > 0) {
+          const ListComponent = isNumberedList ? 'ol' : 'ul';
+          const listClass = isNumberedList ? 'list-decimal mb-3 ml-4' : 'list-disc mb-3 ml-4';
           elements.push(
-            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
-              {currentListItems.map((item, idx) => (
+            React.createElement(ListComponent, { key: `list-${i}`, className: listClass },
+              currentListItems.map((item, idx) => (
                 <li key={idx} className="mb-1">{formatInlineText(item)}</li>
-              ))}
-            </ul>
+              ))
+            )
           );
           currentListItems = [];
           inList = false;
+          isNumberedList = false;
         }
         elements.push(
           <h3 key={i} className="text-lg font-semibold mb-2 mt-3">
@@ -1006,44 +1025,60 @@ Användarens fråga: ${content}`;
           </h3>
         );
       } else if (line.startsWith('- ')) {
-        // List item
+        // Bulleted list item
         if (!inList) {
           inList = true;
+          isNumberedList = false;
         }
         currentListItems.push(line.substring(2));
+      } else if (/^\d+\.\s/.test(line)) {
+        // Numbered list item
+        if (!inList) {
+          inList = true;
+          isNumberedList = true;
+        }
+        // Remove the number and dot from the beginning
+        const itemText = line.replace(/^\d+\.\s/, '');
+        currentListItems.push(itemText);
       } else if (line === '') {
         // Empty line - only add spacing if we're not already in a list or if it's not the first empty line
         if (inList && currentListItems.length > 0) {
+          const ListComponent = isNumberedList ? 'ol' : 'ul';
+          const listClass = isNumberedList ? 'list-decimal mb-3 ml-4' : 'list-disc mb-3 ml-4';
           elements.push(
-            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
-              {currentListItems.map((item, idx) => (
+            React.createElement(ListComponent, { key: `list-${i}`, className: listClass },
+              currentListItems.map((item, idx) => (
                 <li key={idx} className="mb-1">{formatInlineText(item)}</li>
-              ))}
-            </ul>
+              ))
+            )
           );
           currentListItems = [];
           inList = false;
+          isNumberedList = false;
         }
         // Only add a line break if the previous element wasn't already a paragraph or list
         const lastElement = elements[elements.length - 1];
         if (lastElement && typeof lastElement === 'object' && 'type' in lastElement) {
           const lastType = (lastElement as any).type;
-          if (lastType !== 'p' && lastType !== 'ul' && lastType !== 'h1' && lastType !== 'h2' && lastType !== 'h3') {
+          if (lastType !== 'p' && lastType !== 'ul' && lastType !== 'ol' && lastType !== 'h1' && lastType !== 'h2' && lastType !== 'h3') {
             elements.push(<br key={i} />);
           }
         }
       } else {
         // Regular paragraph
         if (inList && currentListItems.length > 0) {
+          const ListComponent = isNumberedList ? 'ol' : 'ul';
+          const listClass = isNumberedList ? 'list-decimal mb-3 ml-4' : 'list-disc mb-3 ml-4';
           elements.push(
-            <ul key={`list-${i}`} className="list-disc mb-3 ml-4">
-              {currentListItems.map((item, idx) => (
+            React.createElement(ListComponent, { key: `list-${i}`, className: listClass },
+              currentListItems.map((item, idx) => (
                 <li key={idx} className="mb-1">{formatInlineText(item)}</li>
-              ))}
-            </ul>
+              ))
+            )
           );
           currentListItems = [];
           inList = false;
+          isNumberedList = false;
         }
         if (line) {
           elements.push(
@@ -1057,12 +1092,14 @@ Användarens fråga: ${content}`;
 
     // Handle any remaining list
     if (inList && currentListItems.length > 0) {
+      const ListComponent = isNumberedList ? 'ol' : 'ul';
+      const listClass = isNumberedList ? 'list-decimal mb-3 ml-4' : 'list-disc mb-3 ml-4';
       elements.push(
-        <ul key="list-final" className="list-disc mb-3 ml-4">
-          {currentListItems.map((item, idx) => (
-            <li key={idx} className="mb-1">{item}</li>
-          ))}
-        </ul>
+        React.createElement(ListComponent, { key: "final-list", className: listClass },
+          currentListItems.map((item, idx) => (
+            <li key={idx} className="mb-1">{formatInlineText(item)}</li>
+          ))
+        )
       );
     }
 

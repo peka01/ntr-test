@@ -124,10 +124,6 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings
 
       const [kioskModeTraining, setKioskModeTraining] = useState<Training | null>(null);
 
-    // Debug logging
-    console.log('AttendancePage props:', { users, trainings, subscriptions, attendance });
-    console.log('subscriptions type:', typeof subscriptions);
-    console.log('subscriptions instanceof Map:', subscriptions instanceof Map);
 
     const handleOpenKiosk = (training: Training) => {
         setKioskModeTraining(training);
