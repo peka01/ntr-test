@@ -1,4 +1,4 @@
-# Incheckninghantering - Delta i träningar
+# Incheckning - Markera att du deltar i träningar
 
 ## Översikt
 
