@@ -891,18 +891,33 @@ Användarens fråga: ${content}`;
     html = html.replace(/^### (.*$)/gm, '<h3 class="text-lg font-semibold mb-2 mt-4">$1</h3>');
     html = html.replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mb-3 mt-6">$1</h2>');
     html = html.replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mb-4">$1</h1>');
-    
+
     // Process bold and italic
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
-    
-    // Process lists
+
+    // Process paragraphs - wrap lines that aren't already in HTML tags
     const lines = html.split('\n');
+    const processedLines = [];
+
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i].trim();
+      if (line && !line.startsWith('<') && !line.endsWith('>') && !line.startsWith('- ')) {
+        processedLines.push(`<p class="mb-4">${line}</p>`);
+      } else {
+        processedLines.push(line);
+      }
+    }
+
+    html = processedLines.join('\n');
+
+    // Process lists
+    const listLines = html.split('\n');
     let inList = false;
     let listItems = [];
     
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+    for (let i = 0; i < listLines.length; i++) {
+      const line = listLines[i];
       if (line.trim().startsWith('- ')) {
         if (!inList) {
           inList = true;
@@ -911,10 +926,10 @@ Användarens fråga: ${content}`;
         listItems.push(line.replace(/^- (.*)/, '<li class="ml-4">$1</li>'));
       } else {
         if (inList && listItems.length > 0) {
-          lines[i - listItems.length] = `<ul class="list-disc mb-4">${listItems.join('')}</ul>`;
+          listLines[i - listItems.length] = `<ul class="list-disc mb-4">${listItems.join('')}</ul>`;
           // Remove the individual list item lines
           for (let j = i - listItems.length + 1; j < i; j++) {
-            lines[j] = '';
+            listLines[j] = '';
           }
           inList = false;
           listItems = [];
@@ -924,13 +939,13 @@ Användarens fråga: ${content}`;
     
     // Handle any remaining list at the end
     if (inList && listItems.length > 0) {
-      lines[lines.length - listItems.length] = `<ul class="list-disc mb-4">${listItems.join('')}</ul>`;
-      for (let j = lines.length - listItems.length + 1; j < lines.length; j++) {
-        lines[j] = '';
+      listLines[listLines.length - listItems.length] = `<ul class="list-disc mb-4">${listItems.join('')}</ul>`;
+      for (let j = listLines.length - listItems.length + 1; j < listLines.length; j++) {
+        listLines[j] = '';
       }
     }
-    
-    html = lines.join('\n');
+
+    html = listLines.join('\n');
     
     return html;
   };
@@ -1011,7 +1026,7 @@ Användarens fråga: ${content}`;
       <div 
         key={language}
         ref={modalRef}
-        className="fixed bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 z-50 select-none"
+        className="fixed bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 z-50"
         style={
           {
             left: `${position.x}px`,
@@ -1024,9 +1039,10 @@ Användarens fråga: ${content}`;
         onClick={handleWindowClick}
       >
         {/* Header */}
-        <div 
+        <div
           className={`relative z-20 flex items-center justify-between ${isCompact ? 'p-4' : 'p-6'} border-b border-slate-200 cursor-move`}
           onMouseDown={handleMouseDown}
+          style={{ userSelect: 'none' }}
         >
           <div className="flex items-center gap-3">
             <span
