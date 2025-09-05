@@ -94,13 +94,22 @@ Interface Features:
 - Real-time updates and notifications
 - Drag-and-drop functionality for admins
 - Search and filtering capabilities
+- Subscriber count display on training cards
+- Consistent card heights for uniform layout
+- Action buttons positioned at bottom of cards
 
-Accessibility:
-- Keyboard navigation support
-- Screen reader compatibility
-- High contrast mode options
-- Mobile-optimized touch interfaces`,
-    keywords: ['ux', 'ui', 'responsive', 'accessibility', 'themes', 'languages', 'mobile'],
+Training Card Features:
+- Shows number of registered subscribers ("X anmälda" / "X registered")
+- Uniform card heights across all training cards
+- Edit and delete buttons at the bottom of each card
+- Clean, organized layout with proper spacing
+
+Attendance System:
+- Check-in terminology throughout the application
+- "Checka in" / "Check in" buttons instead of "Present"
+- Real-time subscriber count updates
+- Consistent terminology in Swedish and English`,
+    keywords: ['ux', 'ui', 'responsive', 'accessibility', 'themes', 'languages', 'mobile', 'subscriber count', 'card height', 'uniform cards', 'action buttons', 'check in', 'checka in'],
     category: 'user-guide',
     priority: 7
   },
@@ -145,6 +154,42 @@ API Access:
     keywords: ['integration', 'api', 'webhooks', 'oauth', 'payments', 'email', 'sms', 'calendar'],
     category: 'technical',
     priority: 6
+  },
+  {
+    name: 'Latest UI Updates and Features',
+    content: `Recent improvements to the user interface:
+
+Subscriber Count Display:
+- Training cards now show the number of registered subscribers
+- Format: "X anmälda" (Swedish) / "X registered" (English)
+- Updates in real-time when users subscribe/unsubscribe
+- Visible on all training pages (admin, public, attendance)
+
+Consistent Card Heights:
+- All training cards now have uniform heights (256px minimum)
+- Action buttons are vertically aligned across cards
+- Better visual consistency and organization
+- Responsive design maintained
+
+Action Button Repositioning:
+- Edit and delete buttons moved from header to bottom of cards
+- Cleaner card layout with better information hierarchy
+- Buttons separated from main content with subtle border
+- Improved user experience and visual flow
+
+Check-in Terminology Updates:
+- Changed from "Present"/"Närvarande" to "Check in"/"Checka in"
+- Consistent terminology across kiosk mode, attendance page, and welcome messages
+- Better user understanding of the check-in process
+- Updated in both Swedish and English languages
+
+User Management Improvements:
+- Removed explanatory note from user edit form
+- Streamlined interface for user creation and editing
+- Cleaner, more focused user management experience`,
+    keywords: ['subscriber count', 'card height', 'uniform cards', 'action buttons', 'check in', 'checka in', 'ui updates', 'latest features', 'training cards', 'real-time updates'],
+    category: 'user-guide',
+    priority: 8
   },
   {
     name: 'Troubleshooting Common Issues',

@@ -4,6 +4,11 @@
 
 As an administrator, you now have a dedicated page for managing all trainings. On the **Trainings** page, you'll find everything you need to create, edit, and organize training sessions in a simple and efficient way.
 
+### Key Features
+- **Subscriber count**: See instantly how many people have registered for each training
+- **Uniform cards**: All training cards have the same height for better overview
+- **Action buttons**: Edit and delete buttons are now positioned at the bottom of each card
+
 ## Accessing training management
 
 ### Here's how you do it
@@ -30,7 +35,7 @@ As an administrator, you now have a dedicated page for managing all trainings. O
 
 ### Here's how you do it
 1. Find the training in the list
-2. Click on the **edit icon** (pen) next to the training
+2. Click on the **edit icon** (pen) at the bottom of the training card
 3. Change title and/or description
 4. Click on **Update**
 
@@ -43,7 +48,7 @@ As an administrator, you now have a dedicated page for managing all trainings. O
 
 ### Here's how you do it
 1. Find the training in the list
-2. Click on the **delete icon** (trash can) next to the training
+2. Click on the **delete icon** (trash can) at the bottom of the training card
 3. Confirm the deletion in the popup dialog
 4. The training is permanently removed
 
@@ -69,9 +74,10 @@ As an administrator, you now have a dedicated page for managing all trainings. O
 
 ### What you see for each training
 - **Title and description**: Basic information about the training
-- **Edit button**: Pen icon to edit the training
-- **Delete button**: Trash can icon to delete the training
-- **Card format**: Easy to overview all trainings
+- **Subscriber count**: Shows how many people have registered (e.g., "3 registered")
+- **Edit button**: Pen icon to edit the training (at bottom)
+- **Delete button**: Trash can icon to delete the training (at bottom)
+- **Uniform cards**: All training cards have the same height for neat overview
 
 ### Organize trainings smartly
 - **Use clear titles**: "React Basics" instead of "Training 1"

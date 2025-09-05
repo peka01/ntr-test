@@ -4,6 +4,11 @@
 
 Som administratör har du nu en dedikerad sida för att hantera alla träningar. På sidan **Träningar** hittar du allt du behöver för att skapa, redigera och organisera träningspass på ett enkelt och effektivt sätt.
 
+### Nyckelfunktioner
+- **Antal anmälda**: Se direkt hur många som har anmält sig till varje träning
+- **Enhetliga kort**: Alla träningskort har samma höjd för bättre översikt
+- **Åtgärdsknappar**: Redigera och ta bort-knappar är nu placerade längst ner på varje kort
+
 ## Komma åt träningshanteringen
 
 ### Så här gör du
@@ -30,7 +35,7 @@ Som administratör har du nu en dedikerad sida för att hantera alla träningar.
 
 ### Så här gör du
 1. Hitta träningen i listan
-2. Klicka på **redigeringsikonen** (pennan) bredvid träningen
+2. Klicka på **redigeringsikonen** (pennan) längst ner på träningskortet
 3. Ändra titel och/eller beskrivning
 4. Klicka på **Uppdatera**
 
@@ -43,7 +48,7 @@ Som administratör har du nu en dedikerad sida för att hantera alla träningar.
 
 ### Så här gör du
 1. Hitta träningen i listan
-2. Klicka på **papperskorgen** (soptunna) bredvid träningen
+2. Klicka på **papperskorgen** (soptunna) längst ner på träningskortet
 3. Bekräfta borttagningen i popup-dialogen
 4. Träningen tas bort permanent
 
@@ -69,9 +74,10 @@ Som administratör har du nu en dedikerad sida för att hantera alla träningar.
 
 ### Vad du ser för varje träning
 - **Titel och beskrivning**: Grundinformation om träningen
-- **Redigeringsknapp**: Pennikon för att redigera träningen
-- **Ta bort-knapp**: Papperskorgsikon för att ta bort träningen
-- **Kortformat**: Enkelt att överskåda alla träningar
+- **Antal anmälda**: Visar hur många som har anmält sig (t.ex. "3 anmälda")
+- **Redigeringsknapp**: Pennikon för att redigera träningen (längst ner)
+- **Ta bort-knapp**: Papperskorgsikon för att ta bort träningen (längst ner)
+- **Enhetliga kort**: Alla träningskort har samma höjd för snygg översikt
 
 ### Organisera träningar smart
 - **Använd tydliga titlar**: "React Grundkurs" istället för "Träning 1"

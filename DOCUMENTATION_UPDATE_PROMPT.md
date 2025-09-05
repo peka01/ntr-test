@@ -34,10 +34,38 @@ useEffect(() => {
 <HelpButton onClick={onHelpClick} context="descriptive context" />
 ```
 
-### 5. Test
+### 5. Update AI Knowledge Sources
+- **Update AI knowledge sources** with new features and UI changes
+- **Add new knowledge entries** in `services/aiKnowledgeSources.ts`
+- **Update existing entries** to reflect UI improvements
+- **Add relevant keywords** for AI search functionality
+- **Test AI responses** with new features
+
+### 6. Test
 - [ ] Help button opens correct documentation
 - [ ] Language switching works
 - [ ] Keywords match context strings
+- [ ] AI chatbot recognizes new features
+- [ ] AI responses are accurate and up-to-date
+
+## Quality Checklist
+
+Before committing changes:
+- [ ] Swedish content is natural and comprehensive
+- [ ] English content matches Swedish structure
+- [ ] Both versions cover the same topics
+- [ ] Technical terms are consistent
+- [ ] Interface text is bold and exact
+- [ ] Instructions use imperative mood
+- [ ] Headers follow appropriate format for content type
+- [ ] Content follows KISS principle
+- [ ] Examples are relevant and helpful
+- [ ] No broken links or references
+- [ ] Content is up-to-date with current system features
+- [ ] Text has been read aloud for readability test
+- [ ] Someone has tested the instructions by following them
+- [ ] AI knowledge sources are updated with new features
+- [ ] AI chatbot responses are tested and accurate
 
 ## Key Requirements
 
@@ -77,3 +105,15 @@ docs/sv/Administratör/user-management.md
 - **Maintenance**: Easier to find and update corresponding files
 - **Tooling**: Better support in IDEs and file systems
 - **Team collaboration**: Clear naming convention for all developers
+
+## Update Process
+
+When updating help content:
+
+1. **Update Swedish version first**
+2. **Translate to English** maintaining the same structure
+3. **Update AI knowledge sources** with new features and changes
+4. **Review both versions** for consistency
+5. **Test the content** in the application
+6. **Test AI chatbot responses** with new features
+7. **Commit both files** together

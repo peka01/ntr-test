@@ -38,7 +38,7 @@ const helpConfig = {
         sv: "Träningshantering (Admin)",
         en: "Training Management (Admin)"
       },
-      keywords: ["create training", "edit training", "admin training", "training management", "träningar", "träningshantering", "skapa träning", "redigera träning", "träningslista", "träningsöversikt", "träningspass", "lägg till träning", "uppdatera träning", "creating new training", "editing training", "trainings page", "viewing trainings list"],
+      keywords: ["create training", "edit training", "admin training", "training management", "träningar", "träningshantering", "skapa träning", "redigera träning", "träningslista", "träningsöversikt", "träningspass", "lägg till träning", "uppdatera träning", "creating new training", "editing training", "trainings page", "viewing trainings list", "subscriber count", "anmälda", "antal anmälda", "registered", "card height", "uniform cards", "action buttons", "bottom buttons"],
       category: "admin" as const
     },
     {
@@ -98,6 +98,7 @@ export interface StructureMapSection {
   title: string;
   description: string;
   order: number;
+  keywords?: string[];
 }
 
 export interface StructureMapFolder {

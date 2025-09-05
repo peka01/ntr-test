@@ -20,7 +20,7 @@
               "title": "Träningshantering", 
               "description": "Skapa och organisera träningspass",
               "order": 2,
-              "keywords": ["träningar", "träningshantering", "skapa träning", "redigera träning", "träningslista", "träningsöversikt", "träningspass", "creating new training", "editing training", "trainings page", "viewing trainings list"]
+              "keywords": ["träningar", "träningshantering", "skapa träning", "redigera träning", "träningslista", "träningsöversikt", "träningspass", "creating new training", "editing training", "trainings page", "viewing trainings list", "antal anmälda", "anmälda", "kort höjd", "enhetliga kort", "åtgärdsknappar", "nedre knappar"]
             }
           }
         },
@@ -82,7 +82,7 @@
               "title": "Training Management",
               "description": "Create and organize training sessions",
               "order": 2,
-              "keywords": ["trainings", "training management", "create training", "edit training", "training list", "training overview", "training sessions", "creating new training", "editing training", "trainings page", "viewing trainings list"]
+              "keywords": ["trainings", "training management", "create training", "edit training", "training list", "training overview", "training sessions", "creating new training", "editing training", "trainings page", "viewing trainings list", "subscriber count", "registered", "card height", "uniform cards", "action buttons", "bottom buttons"]
             }
           }
         },
@@ -127,8 +127,8 @@
     }
   },
   "metadata": {
-    "lastUpdated": "2024-01-15",
-    "version": "1.0.0",
-    "description": "Structure map for help documentation hierarchy"
+    "lastUpdated": "2024-12-19",
+    "version": "1.1.0",
+    "description": "Structure map for help documentation hierarchy - Updated with subscriber count and UI improvements"
   }
 }
