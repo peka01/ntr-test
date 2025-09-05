@@ -73,11 +73,42 @@ try {
     console.log('✅ Main index.html already exists');
   }
   
-  console.log('✅ Build completed with .nojekyll files!');
+  // Fix GitHub Pages MIME type issues by ensuring proper file extensions
+  console.log('🔧 Fixing GitHub Pages MIME type issues...');
+  const assetsDir = path.join(process.cwd(), 'dist', 'assets');
+  if (fs.existsSync(assetsDir)) {
+    const files = fs.readdirSync(assetsDir);
+    files.forEach(file => {
+      const filePath = path.join(assetsDir, file);
+      const stat = fs.statSync(filePath);
+      
+      if (stat.isFile()) {
+        // Ensure JavaScript files have .js extension
+        if (file.includes('index-') && !file.endsWith('.js')) {
+          const newFileName = file + '.js';
+          const newFilePath = path.join(assetsDir, newFileName);
+          fs.renameSync(filePath, newFilePath);
+          console.log(`📝 Renamed ${file} to ${newFileName}`);
+          
+          // Update index.html to reference the new filename
+          const indexPath = path.join(process.cwd(), 'dist', 'index.html');
+          if (fs.existsSync(indexPath)) {
+            let htmlContent = fs.readFileSync(indexPath, 'utf-8');
+            htmlContent = htmlContent.replace(file, newFileName);
+            fs.writeFileSync(indexPath, htmlContent);
+            console.log(`📝 Updated index.html to reference ${newFileName}`);
+          }
+        }
+      }
+    });
+  }
+  
+  console.log('✅ Build completed with .nojekyll files and MIME type fixes!');
   console.log('📁 Files created:');
   console.log('   - dist/.nojekyll');
   console.log('   - public/.nojekyll');
   console.log('   - dist/docs/ (copied from docs/)');
+  console.log('   - Fixed JavaScript file extensions for GitHub Pages');
   console.log('📚 Docs available at production URL: /docs/');
   
 } catch (error) {

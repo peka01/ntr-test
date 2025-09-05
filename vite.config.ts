@@ -84,6 +84,18 @@ export default defineConfig(({ mode }) => {
               return 'assets/[name]-[hash].[ext]';
             }
           }
+        },
+        // Ensure proper module format for GitHub Pages
+        target: 'es2015',
+        minify: 'terser',
+        terserOptions: {
+          format: {
+            comments: false
+          }
+        },
+        // Ensure compatibility with GitHub Pages
+        modulePreload: {
+          polyfill: true
         }
       },
       server: {

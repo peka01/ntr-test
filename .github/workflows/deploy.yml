@@ -75,6 +75,10 @@ jobs:
         ls -la dist/.nojekyll || echo "No .nojekyll file found"
         echo "Checking assets directory:"
         ls -la dist/assets/ || echo "No assets directory found"
+        echo "Checking index.html for proper script references:"
+        cat dist/index.html | grep -E "(script|src)" || echo "No script tags found"
+        echo "Verifying JavaScript file extensions:"
+        find dist/assets/ -name "*.js" -exec echo "✅ {}" \; || echo "No .js files found"
         
     - name: Setup Pages
       uses: actions/configure-pages@v4
