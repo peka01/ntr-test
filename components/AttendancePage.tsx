@@ -65,25 +65,24 @@ const AttendanceCard: React.FC<{
                         {subscribedUsers.map(user => {
                             const hasAttended = attendeeIds.has(user.id);
                             return (
-                                <li key={user.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-lg relative">
+                                <li key={user.id} className={`flex items-center justify-between p-3 rounded-lg relative transition-all duration-300 ${
+                                    hasAttended
+                                        ? 'bg-green-100 border border-green-300'
+                                        : 'bg-slate-50'
+                                }`}>
                                     <div>
                                         <p className="font-medium text-slate-800">{user.name}</p>
                                         <p className="text-xs text-slate-500">{t('attVouchersLabel')}: {user.voucherBalance}</p>
                                     </div>
-                                    {hasAttended && (
+                                    {hasAttended ? (
                                         <button
                                             onClick={() => onUnmarkAttendance(training.id, user.id)}
-                                            className="absolute top-1 right-1 p-1.5 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1"
+                                            className="p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors duration-200"
                                             title={t('attMarkNotPresentBtn')}
                                         >
                                             <TrashIcon className="w-4 h-4" />
                                         </button>
-                                    )}
-                                                                         {hasAttended ? (
-                                         <div className="text-green-600 text-sm font-medium">
-                                             {t('kioskPresentStatus')}
-                                         </div>
-                                     ) : (
+                                    ) : (
                                         <button
                                             onClick={() => onMarkAttendance(training.id, user.id)}
                                             disabled={user.voucherBalance <= 0}

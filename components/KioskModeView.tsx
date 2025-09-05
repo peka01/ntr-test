@@ -78,7 +78,7 @@ export const KioskModeView: React.FC<KioskModeViewProps> = ({
                                     {hasAttended && (
                                         <button
                                             onClick={() => handleMarkEjNärvarande(user)}
-                                            className="absolute top-2 right-2 p-2 text-red-500 hover:text-red-700 hover:bg-red-50 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                                            className="absolute top-2 right-2 p-2 text-slate-600 bg-white border border-slate-300 rounded-md hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 transition-colors duration-200"
                                             title={t('kioskMarkNotPresentTitle')}
                                         >
                                             <TrashIcon className="w-5 h-5" />
