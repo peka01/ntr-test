@@ -1,6 +1,6 @@
 # Incheckninghantering - Delta i träningar
 
-## Översikter
+## Översikt
 
 Här markerar du när du faktiskt deltar i träningar och hanterar ditt träningskort. Det är hjärtat i plattformen - enkelt och smidigt.
 
