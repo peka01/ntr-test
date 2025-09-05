@@ -133,6 +133,12 @@ export const useData = () => {
         newSubs.set(trainingId, newUserIds);
         return newSubs;
       });
+      // Update the training subscriber count
+      setTrainings(prev => prev.map(training =>
+        training.id === trainingId
+          ? { ...training, subscriberCount: (training.subscriberCount || 0) + 1 }
+          : training
+      ));
     } catch (err) {
       console.error('Error subscribing:', err);
       throw err;
@@ -152,6 +158,12 @@ export const useData = () => {
         }
         return newSubs;
       });
+      // Update the training subscriber count
+      setTrainings(prev => prev.map(training =>
+        training.id === trainingId
+          ? { ...training, subscriberCount: Math.max(0, (training.subscriberCount || 0) - 1) }
+          : training
+      ));
     } catch (err) {
       console.error('Error unsubscribing:', err);
       throw err;

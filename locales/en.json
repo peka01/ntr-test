@@ -162,5 +162,7 @@
   "trainingNoDateSet": "No date set",
   "trainingNoTimeSet": "No time set",
   "trainingCalendar": "Training Calendar",
-  "noScheduledTrainings": "No trainings scheduled yet."
+  "noScheduledTrainings": "No trainings scheduled yet.",
+  "subscriberCountSingular": "registered",
+  "subscriberCountPlural": "registered"
 }

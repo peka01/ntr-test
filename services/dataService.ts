@@ -147,22 +147,40 @@ export const userService = {
 export const trainingService = {
   // Get all trainings
   async getAll(): Promise<Training[]> {
-    const { data, error } = await supabase
+    // First get all trainings
+    const { data: trainingsData, error: trainingsError } = await supabase
       .from('trainings')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Error fetching trainings:', error);
-      throw error;
+    if (trainingsError) {
+      console.error('Error fetching trainings:', trainingsError);
+      throw trainingsError;
     }
 
-    return data?.map(training => ({
+    // Then get all subscriptions to count subscribers per training
+    const { data: subscriptionsData, error: subscriptionsError } = await supabase
+      .from('subscriptions')
+      .select('training_id');
+
+    if (subscriptionsError) {
+      console.error('Error fetching subscriptions:', subscriptionsError);
+      throw subscriptionsError;
+    }
+
+    // Count subscribers for each training
+    const subscriberCounts = new Map<string, number>();
+    subscriptionsData?.forEach(sub => {
+      subscriberCounts.set(sub.training_id, (subscriberCounts.get(sub.training_id) || 0) + 1);
+    });
+
+    return trainingsData?.map(training => ({
       id: training.id,
       name: training.name,
       description: training.description,
       training_date: training.training_date,
-      training_time: training.training_time
+      training_time: training.training_time,
+      subscriberCount: subscriberCounts.get(training.id) || 0
     })) || [];
   },
 
@@ -170,10 +188,10 @@ export const trainingService = {
   async create(name: string, description: string, trainingDate?: string, trainingTime?: string): Promise<Training> {
     const { data, error } = await supabase
       .from('trainings')
-      .insert([{ 
-        id: crypto.randomUUID(), 
-        name, 
-        description, 
+      .insert([{
+        id: crypto.randomUUID(),
+        name,
+        description,
         training_date: trainingDate,
         training_time: trainingTime
       }])
@@ -190,7 +208,8 @@ export const trainingService = {
       name: data.name,
       description: data.description,
       training_date: data.training_date,
-      training_time: data.training_time
+      training_time: data.training_time,
+      subscriberCount: 0
     };
   },
 

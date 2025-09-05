@@ -162,5 +162,7 @@
   "trainingNoDateSet": "Inget datum angivet",
   "trainingNoTimeSet": "Ingen tid angiven",
   "trainingCalendar": "Träningskalender",
-  "noScheduledTrainings": "Inga träningar schemalagda än."
+  "noScheduledTrainings": "Inga träningar schemalagda än.",
+  "subscriberCountSingular": "anmäld",
+  "subscriberCountPlural": "anmälda"
 }

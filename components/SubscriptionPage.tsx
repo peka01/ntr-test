@@ -59,9 +59,12 @@ const TrainingCard: React.FC<TrainingCardProps> = ({ training, allUsers, subscri
                             />
                         </div>
                     )}
-                    <div className="flex-1">
-                        <h2 className="text-2xl font-bold text-cyan-600 mb-2">{training.name}</h2>
-                    </div>
+                                                <div className="flex-1">
+                                <h2 className="text-2xl font-bold text-cyan-600 mb-2">{training.name}</h2>
+                                <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-md mb-2">
+                                    {training.subscriberCount || 0} {(training.subscriberCount || 0) === 1 ? t('subscriberCountSingular') : t('subscriberCountPlural')}
+                                </div>
+                            </div>
                 </div>
             </div>
             

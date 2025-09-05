@@ -11,6 +11,7 @@ export interface Training {
   description: string;
   training_date?: string;
   training_time?: string;
+  subscriberCount?: number;
 }
 
 // FIX: Define and export the ProjectPlan and related types to resolve module import errors.

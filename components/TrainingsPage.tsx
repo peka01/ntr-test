@@ -277,6 +277,9 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                                             )}
                                             <div className="flex-1">
                                                 <h3 className="font-semibold text-cyan-600 text-lg mb-2">{training.name}</h3>
+                                                <div className="inline-flex items-center px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 rounded-md mb-2">
+                                                    {training.subscriberCount || 0} {(training.subscriberCount || 0) === 1 ? t('subscriberCountSingular') : t('subscriberCountPlural')}
+                                                </div>
                                                 <div className="flex items-center space-x-2">
                                                     <button
                                                         onClick={() => handleEditClick(training)}

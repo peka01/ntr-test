@@ -56,6 +56,9 @@ export const KioskModeView: React.FC<KioskModeViewProps> = ({
 
                 <div className="text-center w-full max-w-4xl mx-auto">
                     <h1 className="text-3xl sm:text-5xl font-extrabold text-cyan-600">{training.name}</h1>
+                    <div className="inline-flex items-center px-3 py-1.5 text-sm font-medium text-slate-600 bg-slate-100 rounded-md mt-3 mb-2">
+                        {training.subscriberCount || 0} {(training.subscriberCount || 0) === 1 ? t('subscriberCountSingular') : t('subscriberCountPlural')}
+                    </div>
                     <p className="text-lg sm:text-xl text-slate-500 mt-2">{t('kioskInstructions')}</p>
                 </div>
 
