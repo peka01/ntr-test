@@ -10,8 +10,8 @@ export default defineConfig(({ mode }) => {
     // For GitHub Actions builds, environment variables are set at build time
     // For local development, they come from .env file
     const geminiApiKey = process.env.VITE_GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || '';
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL || 'https://bumphnqhbbtmlhiwokmy.supabase.co';
-    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ1bXBobnFoYmJ0bWxoaXVva215Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY0NTI4MTMsImV4cCI6MjA3MjAyODgxM30.l9b82y_-e0l293VvBOemT_m60jW_qxxzCcLmhFWaofw';
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
+    const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
     
     console.log('🔧 Vite config environment variables:', {
       mode,
@@ -107,7 +107,7 @@ export default defineConfig(({ mode }) => {
             "style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com",
             "img-src 'self' data: https:",
             "font-src 'self' data:",
-            "connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://peka01.github.io https://generativelanguage.googleapis.com https://bumphnqhbbtmlhiwokmy.supabase.co",
+            "connect-src 'self' https://api.github.com https://raw.githubusercontent.com https://peka01.github.io https://generativelanguage.googleapis.com https://*.supabase.co",
             "frame-src 'self'",
             "object-src 'none'",
             "base-uri 'self'",

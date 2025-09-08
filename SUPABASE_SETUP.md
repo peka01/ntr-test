@@ -6,7 +6,7 @@ This guide will help you set up the Supabase database for the Training Managemen
 
 ### 1. Database Schema Setup
 
-1. Go to your Supabase project dashboard: https://supabase.com/dashboard/project/bumphnqhbbtmlhiwokmy
+1. Go to your Supabase project dashboard: https://supabase.com/dashboard/project/YOUR_PROJECT_ID
 2. Navigate to the **SQL Editor**
 3. Copy and paste the contents of `database/schema.sql`
 4. Click **Run** to execute the SQL script
@@ -31,12 +31,18 @@ The schema includes sample data:
 
 ### Environment Variables
 
-The app is already configured with your Supabase credentials:
+The app uses environment variables for Supabase credentials:
 
 ```typescript
 // services/supabase.ts
-const supabaseUrl = 'https://bumphnqhbbtmlhiwokmy.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...';
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+```
+
+Make sure to set these in your `.env` file:
+```
+VITE_SUPABASE_URL=your_supabase_project_url_here
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key_here
 ```
 
 ### Row Level Security (RLS)
