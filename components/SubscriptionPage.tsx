@@ -46,7 +46,7 @@ const TrainingCard: React.FC<TrainingCardProps> = ({ training, allUsers, subscri
     };
     
     return (
-        <div className="bg-white p-6 rounded-xl border-l-4 border-l-blue-500 border border-slate-200 shadow-sm flex flex-col hover:shadow-md transition-shadow duration-200 relative overflow-visible">
+        <div className="bg-white p-6 rounded-xl border-l-4 border-l-blue-500 border border-slate-200 shadow-sm flex flex-col hover:shadow-md transition-shadow duration-200 relative overflow-visible" data-tour="subscription-cards">
             <div className="flex items-start justify-between mb-4">
                 <div className="flex items-start space-x-4 flex-1">
                     {/* Calendar Card in top left */}

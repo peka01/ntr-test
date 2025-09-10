@@ -7,6 +7,7 @@ interface HelpButtonProps {
   size?: 'sm' | 'md' | 'lg';
   variant?: 'icon' | 'text' | 'both';
   className?: string;
+  'data-tour'?: string;
 }
 
 export const HelpButton: React.FC<HelpButtonProps> = ({ 
@@ -14,7 +15,8 @@ export const HelpButton: React.FC<HelpButtonProps> = ({
   onClick, 
   size = 'md', 
   variant = 'icon',
-  className = ''
+  className = '',
+  'data-tour': dataTour
 }) => {
   const { t } = useTranslations();
   const sizeClasses = {
@@ -42,6 +44,7 @@ export const HelpButton: React.FC<HelpButtonProps> = ({
         className={`inline-flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-800 transition-colors duration-200 ${sizeClasses[size]} ${className}`}
         title={t('helpButtonTitle')}
         aria-label={t('helpButtonTitle')}
+        data-tour={dataTour}
       >
         <svg 
           className={`${iconSizeClasses[size]}`} 
@@ -66,6 +69,7 @@ export const HelpButton: React.FC<HelpButtonProps> = ({
         onClick={() => onClick(context)}
         className={`inline-flex items-center gap-2 px-3 py-2 text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors duration-200 ${textSizeClasses[size]} ${className}`}
         title={t('helpButtonTitle')}
+        data-tour={dataTour}
       >
         <svg 
           className={`${iconSizeClasses[size]}`} 
@@ -90,7 +94,8 @@ export const HelpButton: React.FC<HelpButtonProps> = ({
     <button
       onClick={() => onClick(context)}
       className={`inline-flex items-center gap-2 px-4 py-2 bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg transition-colors duration-200 ${textSizeClasses[size]} ${className}`}
-              title={t('helpButtonTitle')}
+      title={t('helpButtonTitle')}
+      data-tour={dataTour}
     >
       <svg 
         className={`${iconSizeClasses[size]}`} 

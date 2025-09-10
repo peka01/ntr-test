@@ -155,6 +155,7 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
                 <button
                     onClick={() => setShowAddForm(true)}
                     disabled={isEditing}
+                    data-tour="add-training-button"
                     className="px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 disabled:bg-slate-300 disabled:cursor-not-allowed transition-colors duration-200 flex items-center space-x-2"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -177,7 +178,7 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
 
             {/* Add/Edit Form */}
             {(showAddForm || isEditing) && (
-                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md mb-8">
+                <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md mb-8" data-tour="create-training-form">
                     <div className="flex items-center justify-between mb-4">
                         <h2 className="text-xl font-semibold text-slate-800">
                             {isEditing ? t('adminEditTraining') : t('adminCreateTraining')}

@@ -3,6 +3,8 @@ import { useTranslations } from '../hooks/useTranslations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { helpService, type HelpSection } from '../services/helpService';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
+import { TourLauncher } from './TourLauncher';
+import { useTour } from '../contexts/TourContext';
 
 interface HelpSystemProps {
   isOpen: boolean;
@@ -192,6 +194,14 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const { t } = useTranslations();
   const { language } = useLanguage();
   const { context } = useUserInteraction();
+  
+  // Optional tour integration
+  let tourContext = null;
+  try {
+    tourContext = useTour();
+  } catch (error) {
+    console.warn('TourProvider not available, AI tour linking will be disabled');
+  }
 
   const [isCompact, setIsCompact] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -802,6 +812,24 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
         contextString += contextDetails;
       }
 
+      // Add available tours information
+      if (tourContext) {
+        try {
+          const availableTours = tourContext.getAvailableTours();
+          if (availableTours.length > 0) {
+            contextString += '## Available Guided Tours\n\n';
+            availableTours.forEach(tour => {
+              contextString += `### ${tour.title}\n`;
+              contextString += `ID: ${tour.id}\n`;
+              contextString += `Description: ${tour.description}\n`;
+              contextString += `Steps: ${tour.steps.length}\n\n`;
+            });
+          }
+        } catch (tourError) {
+          console.warn('Could not load tour information:', tourError);
+        }
+      }
+
       // If no help documentation is available, provide a fallback context
       if (!contextString.includes('Help Documentation') && !contextString.includes('Additional System Knowledge')) {
         contextString = `## System Information\n\nThis is a training management system with the following features:\n- User management and roles\n- Training session management\n- Voucher/credit system\n- Attendance tracking\n\n`;
@@ -829,7 +857,8 @@ VIKTIGT - Interaktiva åtgärder (machine-action hints):
   - open_help id=overview|vouchers|user-management|training-management|subscriptions|attendance|troubleshooting
   - toggle_source value=local|remote
   - unsubscribe trainingId="..." userId="..." (använd endast som förslag)
-- Exempel: [action:navigate view=public]
+  - start_tour tourId="tour-id" (starta en guidad rundtur)
+- Exempel: [action:navigate view=public] eller [action:start_tour tourId=welcome-tour]
 
 Viktigt: Skriv alltid din naturliga text först. Lägg därefter (om relevant) till åtgärdshints på egna rader.
 
@@ -1295,6 +1324,9 @@ Användarens fråga: ${content}`;
     if (type === 'set_search') {
       return t('aiActionSetSearch', { value: String(payload?.value || '') });
     }
+    if (type === 'start_tour') {
+      return t('aiActionStartTour');
+    }
     return t('aiActionUnknown');
   };
 
@@ -1367,6 +1399,9 @@ Användarens fråga: ${content}`;
             </span>
           </div>
           <div className="flex items-center gap-2">
+            {/* Guide Button */}
+            <TourLauncher variant="button" compact={true} className="!px-2 !py-1 !text-xs !min-w-0" />
+            
             {isCompact && (
               <button
                 onClick={() => setShowToc(!showToc)}
@@ -1585,7 +1620,7 @@ Användarens fråga: ${content}`;
         {/* Footer */}
         <div className="p-4 border-t border-slate-200 bg-slate-50">
           {/* AI Chat Search Field */}
-          <div className="space-y-3">
+          <div className="space-y-3 mb-4">
             <form onSubmit={(e) => {
               e.preventDefault();
               if (aiInputValue.trim()) {
@@ -1635,6 +1670,13 @@ Användarens fråga: ${content}`;
                       <button
                         key={idx}
                         onClick={() => {
+                          // Handle tour actions directly
+                          if (a.type === 'start_tour' && tourContext && a.payload.tourId) {
+                            console.log('🚀 Starting tour:', a.payload.tourId);
+                            tourContext.startTour(a.payload.tourId);
+                            return;
+                          }
+                          
                           // Confirm for destructive or changing actions in the future
                           const detail = { type: a.type, payload: a.payload };
                           console.log('🚀 Dispatching AI action:', detail);
@@ -1696,6 +1738,7 @@ Användarens fråga: ${content}`;
               </a>
             </div>
           </div>
+          
         </div>
 
         {/* Resize handles (edges and corners) */}

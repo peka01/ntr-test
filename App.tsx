@@ -12,12 +12,18 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { HelpSystem } from './components/HelpSystem';
 import { HelpButton } from './components/HelpButton';
 
-import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { useAuth } from './contexts/AuthContext';
+import { TourProvider } from './contexts/TourContext';
+import { ShoutoutProvider } from './contexts/ShoutoutContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserMenu } from './components/UserMenu';
 import { LoginForm } from './components/LoginForm';
+import { TourOverlay } from './components/TourOverlay';
+import { ShoutoutButton } from './components/ShoutoutButton';
+import { ShoutoutSplash } from './components/ShoutoutSplash';
+import TourManagementPage from './components/TourManagementPage';
 
-type View = 'public' | 'attendance' | 'trainings' | 'users';
+type View = 'public' | 'attendance' | 'trainings' | 'users' | 'tour-management';
 
 const AppContent: React.FC = () => {
     const { t } = useTranslations();
@@ -181,79 +187,97 @@ const AppContent: React.FC = () => {
             {/* Header */}
             <header className="bg-white shadow-sm border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        <div className="flex items-center space-x-4">
-                            <h1 className="text-xl font-semibold text-slate-900">
+                    <div className="flex items-center h-16">
+                        {/* Left: Logo */}
+                        <div className="flex items-center">
+                            <h1 className="text-xl font-semibold text-slate-900" data-tour="app-title">
                                 {t('appTitle')}
                             </h1>
                         </div>
                         
-                        <div className="flex items-center space-x-4">
+                        {/* Center: Navigation */}
+                        <div className="flex-1 flex justify-center">
                             {user ? (
-                                <>
-                                    {isAdmin && (
-                                        <>
-                                            <button
-                                                onClick={() => setView('trainings')}
-                                                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                                                    view === 'trainings' 
-                                                        ? 'bg-blue-100 text-blue-700' 
-                                                        : 'text-slate-600 hover:text-slate-900'
-                                                }`}
-                                            >
-                                                {t('navTrainings')}
-                                            </button>
-                                            <button
-                                                onClick={() => setView('users')}
-                                                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                                                    view === 'users' 
-                                                        ? 'bg-blue-100 text-blue-700' 
-                                                        : 'text-slate-600 hover:text-slate-900'
-                                                }`}
-                                            >
-                                                {t('navUsers')}
-                                            </button>
-                                        </>
-                                    )}
-                                    <button
-                                        onClick={() => setView('attendance')}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium ${
-                                            view === 'attendance' 
-                                                ? 'bg-blue-100 text-blue-700' 
-                                                : 'text-slate-600 hover:text-slate-900'
-                                        }`}
-                                    >
-                                        {t('navAttendance')}
-                                    </button>
+                                <div className="flex items-center space-x-1">
+                                    {/* Main Application Menu */}
+                                    <div className="flex items-center space-x-1">
+                                        {isAdmin && (
+                                            <>
+                                                <button
+                                                    onClick={() => setView('trainings')}
+                                                    data-tour="nav-trainings"
+                                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                                                        view === 'trainings' 
+                                                            ? 'bg-blue-600 text-white shadow-sm' 
+                                                            : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50 border border-slate-200'
+                                                    }`}
+                                                >
+                                                    {t('navTrainings')}
+                                                </button>
+                                                <button
+                                                    onClick={() => setView('users')}
+                                                    data-tour="nav-users"
+                                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                                                        view === 'users' 
+                                                            ? 'bg-blue-600 text-white shadow-sm' 
+                                                            : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50 border border-slate-200'
+                                                    }`}
+                                                >
+                                                    {t('navUsers')}
+                                                </button>
+                                            </>
+                                        )}
+                                        <button
+                                            onClick={() => setView('attendance')}
+                                            data-tour="nav-attendance"
+                                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
+                                                view === 'attendance' 
+                                                    ? 'bg-blue-600 text-white shadow-sm' 
+                                                    : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50 border border-slate-200'
+                                            }`}
+                                        >
+                                            {t('navAttendance')}
+                                        </button>
+                                    </div>
+                                    
+                                    {/* Divider */}
+                                    <div className="h-6 w-px bg-slate-300 mx-2"></div>
+                                    
+                                    {/* System Menu */}
                                     <button
                                         onClick={() => setView('public')}
-                                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                                        className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                                             view === 'public' 
-                                                ? 'bg-blue-600 text-white shadow-sm' 
-                                                : 'text-slate-600 hover:text-blue-600 hover:bg-blue-50'
+                                                ? 'bg-slate-100 text-slate-700' 
+                                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
                                         }`}
                                     >
                                         {t('navPublic')}
                                     </button>
-                                    <UserMenu user={user} />
-                                </>
-                            ) : (
-                                <>
-                                    <button
-                                        onClick={() => setShowLogin(true)}
-                                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                                    >
-                                        {t('adminLoginButton')}
-                                    </button>
-                                </>
-                            )}
-                            
+                                </div>
+                            ) : null}
+                        </div>
+                        
+                        {/* Right: Icons */}
+                        <div className="flex items-center space-x-2">
+                            <ShoutoutButton />
                             <HelpButton 
                                 onClick={handleHelpClick}
                                 context="main"
                                 variant="icon"
                                 size="lg"
+                                data-tour="help-button"
                             />
+                            {user ? (
+                                <UserMenu user={user} />
+                            ) : (
+                                <button
+                                    onClick={() => setShowLogin(true)}
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                >
+                                    {t('adminLoginButton')}
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>
@@ -292,8 +316,8 @@ const AppContent: React.FC = () => {
                                 <AttendancePage
                                     users={users}
                                     trainings={trainings}
-                                    subscriptions={subscriptions}
-                                    attendance={attendance}
+                                    subscriptions={Array.from(subscriptions.entries())}
+                                    attendance={Array.from(attendance.entries())}
                                     onMarkAttendance={handleMarkAttendance}
                                     onUnmarkAttendance={handleUnmarkAttendance}
                                     onHelpClick={handleHelpClick}
@@ -325,6 +349,7 @@ const AppContent: React.FC = () => {
                                 />
                             </ProtectedRoute>
                         )}
+
                     </>
                 )}
 
@@ -343,15 +368,23 @@ const AppContent: React.FC = () => {
             {showLogin && (
                 <LoginForm onClose={() => setShowLogin(false)} />
             )}
+
+            {/* Tour Overlay */}
+            <TourOverlay />
+            
+            {/* Shoutout Splash */}
+            <ShoutoutSplash />
         </div>
     );
 };
 
 const App: React.FC = () => {
     return (
-        <AuthProvider>
-            <AppContent />
-        </AuthProvider>
+        <TourProvider>
+            <ShoutoutProvider>
+                <AppContent />
+            </ShoutoutProvider>
+        </TourProvider>
     );
 };
 

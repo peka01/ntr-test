@@ -36,7 +36,7 @@ const AttendanceCard: React.FC<{
     }, [allUsers, subscribedUserIds]);
 
     return (
-                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md flex flex-col relative overflow-visible">
+                        <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-md flex flex-col relative overflow-visible" data-tour="attendance-cards">
                     <div className="flex items-start justify-between mb-4">
                         <div className="flex items-start space-x-4 flex-1">
                             {/* Calendar Card in top left */}
@@ -102,6 +102,7 @@ const AttendanceCard: React.FC<{
              <div className="mt-4 pt-4 border-t border-slate-200">
                 <button
                     onClick={onOpenKiosk}
+                    data-tour="kiosk-mode"
                     className="w-full text-center px-6 py-3 text-base font-medium rounded-lg transition-colors duration-200 bg-slate-200 text-slate-700 hover:bg-slate-300"
                 >
                     {t('attOpenKioskBtn')}
