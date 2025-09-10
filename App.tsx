@@ -316,8 +316,8 @@ const AppContent: React.FC = () => {
                                 <AttendancePage
                                     users={users}
                                     trainings={trainings}
-                                    subscriptions={Array.from(subscriptions.entries())}
-                                    attendance={Array.from(attendance.entries())}
+                                    subscriptions={subscriptions}
+                                    attendance={attendance}
                                     onMarkAttendance={handleMarkAttendance}
                                     onUnmarkAttendance={handleUnmarkAttendance}
                                     onHelpClick={handleHelpClick}

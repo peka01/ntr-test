@@ -13,8 +13,8 @@ import { useAuth } from '../contexts/AuthContext';
 export interface AttendancePageProps {
   users: User[];
   trainings: Training[];
-  subscriptions: any[];
-  attendance: any[];
+  subscriptions: Map<string, Set<string>>;
+  attendance: Map<string, Set<string>>;
   onMarkAttendance: (trainingId: string, userId: string, attended: boolean) => void;
   onUnmarkAttendance: (trainingId: string, userId: string) => void;
   onHelpClick: (context: string) => void;
@@ -138,8 +138,8 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings
             <KioskModeView
                 training={kioskModeTraining}
                 allUsers={users}
-                subscribedUserIds={subscriptions?.get?.(kioskModeTraining.id) || new Set()}
-                attendeeIds={attendance?.get?.(kioskModeTraining.id) || new Set()}
+                subscribedUserIds={subscriptions.get(kioskModeTraining.id) || new Set()}
+                attendeeIds={attendance.get(kioskModeTraining.id) || new Set()}
                 onMarkAttendance={onMarkAttendance}
                 onUnmarkAttendance={onUnmarkAttendance}
                 onClose={handleCloseKiosk}
@@ -160,8 +160,8 @@ export const AttendancePage: React.FC<AttendancePageProps> = ({ users, trainings
                                 key={training.id}
                                 training={training}
                                 allUsers={users}
-                                subscribedUserIds={subscriptions?.get?.(training.id) || new Set()}
-                                attendeeIds={attendance?.get?.(training.id) || new Set()}
+                                subscribedUserIds={subscriptions.get(training.id) || new Set()}
+                                attendeeIds={attendance.get(training.id) || new Set()}
                                 onMarkAttendance={onMarkAttendance}
                                 onUnmarkAttendance={onUnmarkAttendance}
                                 onOpenKiosk={() => handleOpenKiosk(training)}
