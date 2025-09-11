@@ -102,26 +102,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const signOut = async () => {
     try {
-      // Check if there's an active session before attempting logout
-      const { data: { session } } = await supabase.auth.getSession();
+      // Use local scope to avoid server request when session is missing
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
       
-      if (!session) {
-        console.log('No active session found, clearing local state only');
-        // No session to logout from, just clear local state
-        setUser(null);
-        setSession(null);
-        setIsAdmin(false);
-        return;
-      }
-
-      const { error } = await supabase.auth.signOut();
       if (error) {
         console.error('Logout error:', error);
-        // Even if logout fails on server, clear local state
-        setUser(null);
-        setSession(null);
-        setIsAdmin(false);
       }
+      
+      // Always clear local state regardless of server response
+      setUser(null);
+      setSession(null);
+      setIsAdmin(false);
     } catch (error) {
       console.error('Logout exception:', error);
       // Clear local state even if logout fails
