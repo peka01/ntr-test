@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { tourManagementService, TourFormData, TourStepFormData } from '../services/tourManagementService';
+import { helpSystemService, HelpTour, HelpTourStep } from '../services/helpSystemService';
 import { Tour, TourStep, useTour } from '../contexts/TourContext';
 
 interface TourManagementPageProps {
@@ -33,6 +34,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
     category: 'onboarding',
     requiredRole: 'any',
     estimatedDuration: 3,
+    language: 'en',
     steps: []
   });
   const [stepFormData, setStepFormData] = useState<TourStepFormData>({
@@ -50,31 +52,79 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [showImportExport, setShowImportExport] = useState(false);
   const [importData, setImportData] = useState('');
+  const [languageFilter, setLanguageFilter] = useState<'all' | 'en' | 'sv'>('all');
 
-  const loadTours = useCallback(() => {
-    const allTours = getAvailableTours();
-    const defaultToursList = allTours.filter(tour => 
-      ['welcome-tour', 'admin-tour', 'attendance-tour', 'cinematic-demo', 'help-tour'].includes(tour.id)
-    );
-    setDefaultTours(defaultToursList);
-    
-    const allToursForManagement = tourManagementService.getAllToursForManagement(defaultToursList);
-    setTours(allToursForManagement);
-  }, [getAvailableTours]);
+  // Filter tours based on selected language
+  const filteredTours = useMemo(() => {
+    if (languageFilter === 'all') {
+      return tours;
+    }
+    return tours.filter(tour => tour.language === languageFilter);
+  }, [tours, languageFilter]);
+
+  const loadTours = useCallback(async () => {
+    try {
+      // Load tours from database only
+      const dbTours = await helpSystemService.getTours();
+      
+      // Convert database format to Tour format
+      const tours: Tour[] = [];
+      for (const dbTour of dbTours) {
+        const steps = await helpSystemService.getTourSteps(dbTour.id);
+        const tour: Tour = {
+          id: dbTour.id,
+          name: dbTour.name,
+          description: dbTour.description || '',
+          category: dbTour.category,
+          requiredRole: dbTour.required_role,
+          target_group: dbTour.target_group,
+          estimatedDuration: dbTour.estimated_duration,
+          steps: steps.map(step => ({
+            id: step.id,
+            title: step.title,
+            content: step.content,
+            target: step.target,
+            position: step.position,
+            action: step.action,
+            actionTarget: step.action_target,
+            actionData: step.action_data,
+            waitTime: step.wait_time,
+            requiredView: step.required_view,
+            skipIfNotFound: step.skip_if_not_found
+          }))
+        };
+        tours.push(tour);
+      }
+      
+      // Set tours from database only
+      setTours(tours);
+      setDefaultTours([]); // No default tours
+    } catch (error) {
+      console.error('Error loading tours from database:', error);
+      // No fallback - database is the master
+      setTours([]);
+      setDefaultTours([]);
+    }
+  }, []);
 
   // Load tours on component mount
   useEffect(() => {
     loadTours();
   }, [loadTours]);
 
+
   const handleCreateTour = () => {
+    // Generate unique ID for new tour
+    const uniqueId = `tour-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    
     setFormData({
-      id: '',
+      id: uniqueId,
       name: '',
       description: '',
       category: 'onboarding',
       requiredRole: 'any',
       estimatedDuration: 3,
+      language: 'en',
       steps: []
     });
     setSelectedTour(null);
@@ -91,6 +141,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
       category: tour.category || 'onboarding',
       requiredRole: tour.requiredRole || 'any',
       estimatedDuration: tour.estimatedDuration || 3,
+      language: tour.language || 'en',
       steps: tour.steps
     });
     setSelectedTour(tour);
@@ -99,53 +150,168 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
     setValidationErrors([]);
   };
 
-  const handleSaveTour = () => {
+  const handleSaveTour = async () => {
     const validation = tourManagementService.validateTour(formData);
     if (!validation.isValid) {
       setValidationErrors(validation.errors);
       return;
     }
 
-    let savedTour: Tour | null = null;
-    
-    if (isCreating) {
-      savedTour = tourManagementService.createTour({
-        name: formData.name,
-        description: formData.description,
-        category: formData.category,
-        requiredRole: formData.requiredRole,
-        estimatedDuration: formData.estimatedDuration,
-        steps: formData.steps
-      });
-    } else if (isEditing && selectedTour) {
-      savedTour = tourManagementService.updateTour(selectedTour.id, formData);
-    }
+    try {
+      if (isCreating) {
+        // Generate unique ID for new tour
+        const uniqueId = formData.id || `tour-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        
+        // Create tour in database
+        const tourData = {
+          id: uniqueId,
+          name: formData.name,
+          description: formData.description,
+          category: formData.category,
+          required_role: formData.requiredRole,
+          target_group: 'public' as const, // Default to public for new tours
+          estimated_duration: formData.estimatedDuration,
+          language: formData.language,
+          is_active: true,
+          created_by: 'admin',
+          updated_by: 'admin'
+        };
+        
+        const result = await helpSystemService.createTour(tourData);
+        if (result) {
+          // Create tour steps
+          for (let i = 0; i < formData.steps.length; i++) {
+            const step = formData.steps[i];
+            await helpSystemService.createTourStep({
+              tour_id: result.id,
+              step_order: i + 1,
+              target: step.target,
+              title: step.title,
+              content: step.content,
+              position: step.position,
+              action: step.action,
+              action_target: step.actionTarget,
+              action_data: step.actionData,
+              wait_time: step.waitTime,
+              required_view: step.requiredView,
+              skip_if_not_found: step.skipIfNotFound,
+              language: formData.language
+            });
+          }
+        }
+      } else if (isEditing && selectedTour) {
+        // Update tour in database
+        const updateData = {
+          name: formData.name,
+          description: formData.description,
+          category: formData.category,
+          required_role: formData.requiredRole,
+          estimated_duration: formData.estimatedDuration,
+          language: formData.language,
+          updated_by: 'admin'
+        };
+        
+        await helpSystemService.updateTour(selectedTour.id, updateData);
+        
+        // Update tour steps (delete existing and recreate)
+        await helpSystemService.deleteTourSteps(selectedTour.id);
+        for (let i = 0; i < formData.steps.length; i++) {
+          const step = formData.steps[i];
+          await helpSystemService.createTourStep({
+            tour_id: selectedTour.id,
+            step_order: i + 1,
+            target: step.target,
+            title: step.title,
+            content: step.content,
+            position: step.position,
+            action: step.action,
+            action_target: step.actionTarget,
+            action_data: step.actionData,
+            wait_time: step.waitTime,
+            required_view: step.requiredView,
+            skip_if_not_found: step.skipIfNotFound,
+            language: formData.language
+          });
+        }
+      }
 
-    if (savedTour) {
-      loadTours();
+      await loadTours();
       setIsCreating(false);
       setIsEditing(false);
       setSelectedTour(null);
       setValidationErrors([]);
+    } catch (error) {
+      console.error('Error saving tour:', error);
+      setValidationErrors(['Failed to save tour. Please try again.']);
     }
   };
 
-  const handleDeleteTour = (tourId: string) => {
+  const handleDeleteTour = async (tourId: string) => {
     if (window.confirm(t('tourAdminConfirmDelete'))) {
-      if (tourManagementService.deleteTour(tourId)) {
-        loadTours();
-        if (selectedTour?.id === tourId) {
-          setSelectedTour(null);
-          setIsEditing(false);
+      try {
+        // Delete tour steps first
+        await helpSystemService.deleteTourSteps(tourId);
+        
+        // Delete tour
+        const success = await helpSystemService.deleteTour(tourId);
+        if (success) {
+          await loadTours();
+          if (selectedTour?.id === tourId) {
+            setSelectedTour(null);
+            setIsEditing(false);
+          }
         }
+      } catch (error) {
+        console.error('Error deleting tour:', error);
+        setValidationErrors(['Failed to delete tour. Please try again.']);
       }
     }
   };
 
-  const handleDuplicateTour = (tour: Tour) => {
-    const duplicated = tourManagementService.duplicateTour(tour.id);
-    if (duplicated) {
-      loadTours();
+  const handleDuplicateTour = async (tour: Tour) => {
+    try {
+      // Create a duplicate tour in the database
+      const tourData = {
+        id: `${tour.id}-copy-${Date.now()}`,
+        name: `${tour.name} (Copy)`,
+        description: tour.description,
+        category: tour.category,
+        required_role: tour.requiredRole,
+        target_group: tour.target_group,
+        estimated_duration: tour.estimatedDuration,
+        language: tour.language || 'en',
+        is_active: true,
+        created_by: 'admin',
+        updated_by: 'admin'
+      };
+      
+      const result = await helpSystemService.createTour(tourData);
+      if (result) {
+        // Duplicate tour steps
+        for (let i = 0; i < tour.steps.length; i++) {
+          const step = tour.steps[i];
+          await helpSystemService.createTourStep({
+            tour_id: result.id,
+            step_order: i + 1,
+            target: step.target,
+            title: step.title,
+            content: step.content,
+            position: step.position,
+            action: step.action,
+            action_target: step.actionTarget,
+            action_data: step.actionData,
+            wait_time: step.waitTime,
+            required_view: step.requiredView,
+            skip_if_not_found: step.skipIfNotFound,
+            language: tour.language || 'en'
+          });
+        }
+        
+        await loadTours();
+      }
+    } catch (error) {
+      console.error('Error duplicating tour:', error);
+      setValidationErrors(['Failed to duplicate tour. Please try again.']);
     }
   };
 
@@ -310,6 +476,23 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                 </div>
               </div>
             </div>
+            
+            {/* Language Filter */}
+            <div className="px-6 pb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                {t('tourAdminFilterByLanguage')}
+              </label>
+              <select
+                value={languageFilter}
+                onChange={(e) => setLanguageFilter(e.target.value as 'all' | 'en' | 'sv')}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="all">{t('tourAdminAllLanguages')}</option>
+                <option value="en">{t('tourAdminEnglish')}</option>
+                <option value="sv">{t('tourAdminSwedish')}</option>
+              </select>
+            </div>
+            
             <div className="p-6">
               {tours.length === 0 ? (
                 <div className="text-center py-8">
@@ -323,7 +506,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {tours.map((tour) => {
+                  {filteredTours.map((tour) => {
                     const isDefault = tourManagementService.isDefaultTour(tour.id, defaultTours);
                     return (
                       <div
@@ -428,20 +611,20 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                   )}
 
                   {/* Tour Form */}
-                  <div className="space-y-4">
+                  <div className="space-y-4" key={`form-${formData.id}-${isEditing}-${isCreating}`}>
                     <div>
                       <label className="block text-sm font-medium text-slate-700 mb-2">
                         {t('tourAdminTourName')}
                       </label>
                       <input
                         type="text"
-                        value={formData.name}
+                        value={formData.name || ''}
                         onChange={(e) => {
-                          setFormData({ ...formData, name: e.target.value });
+                          setFormData(prev => ({ ...prev, name: e.target.value }));
                         }}
                         className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
                         placeholder={t('tourAdminTourNamePlaceholder')}
-                        style={{ pointerEvents: 'auto' }}
+                        autoComplete="off"
                       />
                     </div>
 
@@ -487,6 +670,20 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                           <option value="any">{t('tourAdminRoleAny')}</option>
                           <option value="admin">{t('tourAdminRoleAdmin')}</option>
                           <option value="user">{t('tourAdminRoleUser')}</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          {t('tourAdminLanguage')}
+                        </label>
+                        <select
+                          value={formData.language}
+                          onChange={(e) => setFormData({ ...formData, language: e.target.value as 'en' | 'sv' })}
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
+                        >
+                          <option value="en">{t('tourAdminEnglish')}</option>
+                          <option value="sv">{t('tourAdminSwedish')}</option>
                         </select>
                       </div>
                     </div>

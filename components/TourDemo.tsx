@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTour } from '../contexts/TourContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
@@ -22,11 +22,27 @@ export const TourDemo: React.FC = () => {
   const { isAdmin } = useAuth();
   const { t } = useTranslations();
 
-  const availableTours = getAvailableTours().filter(tour => {
-    if (tour.requiredRole === 'admin' && !isAdmin) return false;
-    if (tour.requiredRole === 'user' && isAdmin) return false;
-    return true;
-  });
+  const [availableTours, setAvailableTours] = useState<Tour[]>([]);
+
+  // Load available tours when component mounts
+  useEffect(() => {
+    const loadTours = async () => {
+      try {
+        const tours = await getAvailableTours();
+        const filteredTours = tours.filter(tour => {
+          if (tour.requiredRole === 'admin' && !isAdmin) return false;
+          if (tour.requiredRole === 'user' && isAdmin) return false;
+          return true;
+        });
+        setAvailableTours(filteredTours);
+      } catch (error) {
+        console.error('Error loading tours:', error);
+        setAvailableTours([]);
+      }
+    };
+
+    loadTours();
+  }, [getAvailableTours, isAdmin]);
 
   return (
     <div className="bg-white p-6 rounded-lg border border-slate-200 shadow-sm">

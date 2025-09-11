@@ -401,6 +401,11 @@
   "shoutoutManageShoutouts": "Hantera shoutouts",
   "shoutoutAdminFilterByLanguage": "Filtrera efter språk",
   "shoutoutAdminAllLanguages": "Alla språk",
+  "tourAdminFilterByLanguage": "Filtrera efter språk",
+  "tourAdminAllLanguages": "Alla språk",
+  "tourAdminEnglish": "Engelska",
+  "tourAdminSwedish": "Svenska",
+  "tourAdminLanguage": "Språk",
   "shoutoutAdminEnglish": "Engelska",
   "shoutoutAdminSwedish": "Svenska",
   "shoutoutAdminLanguage": "Språk"

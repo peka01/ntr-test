@@ -30,6 +30,7 @@ export interface HelpTour {
   target_group: 'public' | 'authenticated' | 'admin';
   estimated_duration: number;
   is_active: boolean;
+  language: 'en' | 'sv';
   created_at: string;
   updated_at: string;
   created_by?: string;
@@ -50,6 +51,7 @@ export interface HelpTourStep {
   wait_time?: number;
   required_view?: string;
   skip_if_not_found: boolean;
+  language: 'en' | 'sv';
   created_at: string;
   updated_at: string;
 }
@@ -165,12 +167,13 @@ class HelpSystemService {
   }
 
   // Tours
-  async getTours(): Promise<HelpTour[]> {
+  async getTours(language: 'en' | 'sv' = 'en'): Promise<HelpTour[]> {
     try {
       const { data, error } = await supabase
         .from('help_tours')
         .select('*')
         .eq('is_active', true)
+        .or(`language.eq.${language},language.is.null`) // Allow null/empty language for backward compatibility
         .order('name');
 
       if (error) {
@@ -185,12 +188,13 @@ class HelpSystemService {
     }
   }
 
-  async getTourSteps(tourId: string): Promise<HelpTourStep[]> {
+  async getTourSteps(tourId: string, language: 'en' | 'sv' = 'en'): Promise<HelpTourStep[]> {
     try {
       const { data, error } = await supabase
         .from('help_tour_steps')
         .select('*')
         .eq('tour_id', tourId)
+        .or(`language.eq.${language},language.is.null`) // Allow null/empty language for backward compatibility
         .order('step_order');
 
       if (error) {
@@ -322,6 +326,25 @@ class HelpSystemService {
       return true;
     } catch (error) {
       console.error('Error deleting tour step:', error);
+      return false;
+    }
+  }
+
+  async deleteTourSteps(tourId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('help_tour_steps')
+        .delete()
+        .eq('tour_id', tourId);
+
+      if (error) {
+        console.error('Error deleting tour steps:', error);
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error deleting tour steps:', error);
       return false;
     }
   }

@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS help_tours (
     target_group VARCHAR(20) NOT NULL DEFAULT 'public' CHECK (target_group IN ('public', 'authenticated', 'admin')),
     estimated_duration INTEGER DEFAULT 5,
     is_active BOOLEAN DEFAULT true,
+    language VARCHAR(10) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'sv')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     created_by VARCHAR(255),
@@ -55,12 +56,13 @@ CREATE TABLE IF NOT EXISTS help_tour_steps (
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     position VARCHAR(20) NOT NULL CHECK (position IN ('top', 'bottom', 'left', 'right', 'center')),
-    action VARCHAR(20) CHECK (action IN ('click', 'wait', 'navigate', 'scroll')),
+    action VARCHAR(20) CHECK (action IN ('click', 'wait', 'navigate', 'scroll', 'open-help')),
     action_target VARCHAR(255),
     action_data JSONB,
     wait_time INTEGER,
     required_view VARCHAR(255),
     skip_if_not_found BOOLEAN DEFAULT false,
+    language VARCHAR(10) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'sv')),
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -140,17 +142,32 @@ INSERT INTO help_tours (id, name, description, category, required_role, target_g
 ON CONFLICT (id) DO NOTHING;
 
 -- Add some tour steps for the welcome tour
-INSERT INTO help_tour_steps (tour_id, step_order, target, title, content, position, action_data, skip_if_not_found) VALUES
-('welcome-tour', 1, 'nav-trainings', 'Welcome!', 'This is the Trainings section where you can view and manage training courses.', 'bottom', NULL, false),
-('welcome-tour', 2, 'nav-users', 'User Management', 'Here you can manage users and their voucher balances.', 'bottom', NULL, false),
-('welcome-tour', 3, 'nav-attendance', 'Attendance Tracking', 'Track attendance for training sessions.', 'bottom', NULL, false),
-('help-tour', 1, 'help-window', 'Welcome to Help', 'This is the help system! Here you can find documentation, ask questions, and get assistance with any feature.', 'center', '{"beforeStep": {"type": "openHelpSystem", "description": "Automatically opens the help system if not already open"}}', true),
-('help-tour', 2, 'help-toc', 'Table of Contents', 'Browse through organized help topics using the table of contents. Click on any section to read detailed information.', 'right', NULL, true),
-('help-tour', 3, 'help-search', 'Search Documentation', 'Use the search field to quickly find specific topics in the help documentation.', 'bottom', NULL, true),
-('help-tour', 4, 'help-ai-input', 'AI Assistant', 'Ask the AI assistant any question! It understands the system and can help you with tasks, navigation, and problem-solving.', 'top', NULL, true),
-('help-tour', 5, 'help-ai-response', 'AI Actions', 'The AI can perform actions for you! Look for blue action buttons that appear in AI responses to navigate or perform tasks automatically.', 'top', NULL, true),
-('help-tour', 6, 'help-context-info', 'Context-Aware Help', 'The help system knows what you are doing and provides relevant information based on your current screen and actions.', 'bottom', NULL, true)
-ON CONFLICT DO NOTHING;
+-- First, delete existing help-tour steps to avoid conflicts
+DELETE FROM help_tour_steps WHERE tour_id = 'help-tour';
+
+-- Insert tour steps
+INSERT INTO help_tour_steps (tour_id, step_order, target, title, content, position, action, action_target, action_data, wait_time, required_view, skip_if_not_found) VALUES
+('welcome-tour', 1, 'nav-trainings', 'Welcome!', 'This is the Trainings section where you can view and manage training courses.', 'bottom', NULL, NULL, NULL, NULL, NULL, false),
+('welcome-tour', 2, 'nav-users', 'User Management', 'Here you can manage users and their voucher balances.', 'bottom', NULL, NULL, NULL, NULL, NULL, false),
+('welcome-tour', 3, 'nav-attendance', 'Attendance Tracking', 'Track attendance for training sessions.', 'bottom', NULL, NULL, NULL, NULL, NULL, false),
+('help-tour', 1, 'help-button', 'Help Button', 'Click this help button to open the help system and access documentation, AI assistant, and guided tours.', 'bottom', NULL, NULL, NULL, NULL, NULL, false),
+('help-tour', 2, 'help-window', 'Welcome to Help', 'This is the help system! Here you can find documentation, ask questions, and get assistance with any feature.', 'center', NULL, NULL, NULL, NULL, NULL, true),
+('help-tour', 3, 'help-toc', 'Table of Contents', 'Browse through organized help topics using the table of contents. Click on any section to read detailed information.', 'right', NULL, NULL, NULL, NULL, NULL, true),
+('help-tour', 4, 'help-search', 'Search Documentation', 'Use the search field to quickly find specific topics in the help documentation.', 'bottom', NULL, NULL, NULL, NULL, NULL, true),
+('help-tour', 5, 'help-ai-input', 'AI Assistant', 'Ask the AI assistant any question! It understands the system and can help you with tasks, navigation, and problem-solving.', 'top', NULL, NULL, NULL, NULL, NULL, true),
+('help-tour', 6, 'help-ai-response', 'AI Actions', 'The AI can perform actions for you! Look for blue action buttons that appear in AI responses to navigate or perform tasks automatically.', 'top', NULL, NULL, NULL, NULL, NULL, true),
+('help-tour', 7, 'help-context-info', 'Context-Aware Help', 'The help system knows what you are doing and provides relevant information based on your current screen and actions.', 'bottom', NULL, NULL, NULL, NULL, NULL, true)
+ON CONFLICT (tour_id, step_order) DO UPDATE SET
+  target = EXCLUDED.target,
+  title = EXCLUDED.title,
+  content = EXCLUDED.content,
+  position = EXCLUDED.position,
+  action = EXCLUDED.action,
+  action_target = EXCLUDED.action_target,
+  action_data = EXCLUDED.action_data,
+  wait_time = EXCLUDED.wait_time,
+  required_view = EXCLUDED.required_view,
+  skip_if_not_found = EXCLUDED.skip_if_not_found;
 
 -- Add some help content
 INSERT INTO help_content (title, content, category, language, created_by) VALUES

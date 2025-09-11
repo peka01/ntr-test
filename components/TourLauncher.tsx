@@ -37,11 +37,26 @@ export const TourLauncher: React.FC<TourLauncherProps> = ({
 
   const [showContextMenu, setShowContextMenu] = useState(false);
 
-  const availableTours = tourContext ? tourContext.getAvailableTours().filter(tour => {
-    // Always show all tours regardless of completion status
-    // Users can restart completed tours or retry skipped ones
-    return true;
-  }) : [];
+  const [availableTours, setAvailableTours] = useState<Tour[]>([]);
+
+  // Load available tours when component mounts or tourContext changes
+  useEffect(() => {
+    const loadTours = async () => {
+      if (tourContext) {
+        try {
+          const tours = await tourContext.getAvailableTours();
+          setAvailableTours(tours);
+        } catch (error) {
+          console.error('Error loading tours:', error);
+          setAvailableTours([]);
+        }
+      } else {
+        setAvailableTours([]);
+      }
+    };
+
+    loadTours();
+  }, [tourContext]);
 
   // Listen for shoutout management events from ShoutoutButton
   useEffect(() => {

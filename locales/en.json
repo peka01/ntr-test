@@ -401,6 +401,11 @@
   "shoutoutManageShoutouts": "Manage Shoutouts",
   "shoutoutAdminFilterByLanguage": "Filter by Language",
   "shoutoutAdminAllLanguages": "All Languages",
+  "tourAdminFilterByLanguage": "Filter by Language",
+  "tourAdminAllLanguages": "All Languages",
+  "tourAdminEnglish": "English",
+  "tourAdminSwedish": "Swedish",
+  "tourAdminLanguage": "Language",
   "shoutoutAdminEnglish": "English",
   "shoutoutAdminSwedish": "Swedish",
   "shoutoutAdminLanguage": "Language"

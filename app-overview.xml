@@ -1,0 +1,648 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<application-overview>
+  <metadata>
+    <name>Training Management System</name>
+    <version>0.0.0</version>
+    <description>A comprehensive training management system with user management, training scheduling, attendance tracking, and integrated help system</description>
+    <homepage>https://peka01.github.io/ntr-test</homepage>
+    <deployment>Docker-based with Supabase backend</deployment>
+  </metadata>
+
+  <architecture>
+    <frontend>
+      <framework>React 19.1.1 with TypeScript</framework>
+      <build-tool>Vite 5.3.5</build-tool>
+      <styling>Tailwind CSS 3.4.1</styling>
+      <state-management>React Context API</state-management>
+      <routing>Client-side routing with view states</routing>
+    </frontend>
+    
+    <backend>
+      <database>Supabase (PostgreSQL)</database>
+      <authentication>Supabase Auth with JWT tokens</authentication>
+      <authorization>Role-based access control (Admin/User)</authorization>
+      <security>Row Level Security (RLS) enabled</security>
+    </backend>
+    
+    <ai-integration>
+      <service>Google Gemini 2.0 Flash</service>
+      <purpose>Help system AI assistant and project planning</p>
+      <api-key>VITE_GEMINI_API_KEY environment variable</api-key>
+    </ai-integration>
+  </architecture>
+
+  <core-functionality>
+    <user-management>
+      <description>Complete user lifecycle management with role-based access</description>
+      <features>
+        <feature>
+          <name>User Registration</name>
+          <description>Create user accounts with email/password authentication</description>
+          <access-level>Public</access-level>
+        </feature>
+        <feature>
+          <name>User Creation (Admin)</name>
+          <description>Administrators can create participant accounts without login access</description>
+          <access-level>Admin only</access-level>
+        </feature>
+        <feature>
+          <name>Role Management</name>
+          <description>Admin and regular user roles with different permissions</description>
+          <access-level>System managed</access-level>
+        </feature>
+        <feature>
+          <name>Voucher System</name>
+          <description>Credit-based system for training access and attendance</description>
+          <access-level>Admin managed, user visible</access-level>
+        </feature>
+      </features>
+    </user-management>
+
+    <training-management>
+      <description>Complete training session lifecycle management</description>
+      <features>
+        <feature>
+          <name>Training Creation</name>
+          <description>Create training sessions with title, description, date, and time</description>
+          <access-level>Admin only</access-level>
+        </feature>
+        <feature>
+          <name>Training Editing</name>
+          <description>Update training details including schedule and content</description>
+          <access-level>Admin only</access-level>
+        </feature>
+        <feature>
+          <name>Training Deletion</name>
+          <description>Remove training sessions (cascades to subscriptions)</description>
+          <access-level>Admin only</access-level>
+        </feature>
+        <feature>
+          <name>Subscriber Tracking</name>
+          <description>Real-time count of registered participants per training</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Search and Filter</name>
+          <description>Search trainings by name or description</description>
+          <access-level>All users</access-level>
+        </feature>
+      </features>
+    </training-management>
+
+    <subscription-system>
+      <description>User registration and management for training sessions</description>
+      <features>
+        <feature>
+          <name>Public Subscription Page</name>
+          <description>Public-facing page for viewing and subscribing to trainings</description>
+          <access-level>Public</access-level>
+        </feature>
+        <feature>
+          <name>User Subscription</name>
+          <description>Subscribe users to training sessions</description>
+          <access-level>All authenticated users</access-level>
+        </feature>
+        <feature>
+          <name>Subscription Management</name>
+          <description>View and manage user subscriptions</description>
+          <access-level>All authenticated users</access-level>
+        </feature>
+        <feature>
+          <name>Visual Indicators</name>
+          <description>Clear visual feedback for subscription status</description>
+          <access-level>All users</access-level>
+        </feature>
+      </features>
+    </subscription-system>
+
+    <attendance-tracking>
+      <description>Comprehensive attendance management system</description>
+      <features>
+        <feature>
+          <name>Attendance Marking</name>
+          <description>Mark users as present for training sessions</description>
+          <access-level>Authenticated users</access-level>
+        </feature>
+        <feature>
+          <name>Voucher Deduction</name>
+          <description>Automatic voucher deduction upon attendance marking</description>
+          <access-level>System managed</access-level>
+        </feature>
+        <feature>
+          <name>Kiosk Mode</name>
+          <description>Full-screen attendance interface for training venues</description>
+          <access-level>Authenticated users</access-level>
+        </feature>
+        <feature>
+          <name>Attendance History</name>
+          <description>Track attendance records and voucher usage</description>
+          <access-level>All authenticated users</access-level>
+        </feature>
+        <feature>
+          <name>Refund System</name>
+          <description>Unmark attendance to refund vouchers</description>
+          <access-level>Authenticated users</access-level>
+        </feature>
+      </features>
+    </attendance-tracking>
+  </core-functionality>
+
+  <advanced-features>
+    <help-system>
+      <description>Comprehensive help and documentation system with AI integration</description>
+      <features>
+        <feature>
+          <name>Context-Aware Help</name>
+          <description>Help system adapts to current user screen and actions</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Multi-language Support</name>
+          <description>Help content available in Swedish and English</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>AI Assistant</name>
+          <description>Gemini-powered AI assistant for help and navigation</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Interactive Documentation</name>
+          <description>Searchable, categorized help documentation</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Action Integration</name>
+          <description>AI can perform actions like navigation and form filling</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>External Documentation</name>
+          <description>Help content served from external repository</description>
+          <access-level>All users</access-level>
+        </feature>
+      </features>
+    </help-system>
+
+    <tour-system>
+      <description>Interactive guided tours for user onboarding and feature discovery</description>
+      <features>
+        <feature>
+          <name>Guided Tours</name>
+          <description>Step-by-step interactive tours of system features</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Role-Based Tours</name>
+          <description>Different tours for admin and regular users</description>
+          <access-level>Role-specific</access-level>
+        </feature>
+        <feature>
+          <name>Tour Management</name>
+          <description>Admin interface for creating and managing tours</description>
+          <access-level>Admin only</access-level>
+        </feature>
+        <feature>
+          <name>Cinematic Effects</name>
+          <description>Animated transitions and visual effects during tours</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Progress Tracking</name>
+          <description>Track completed and skipped tours per user</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Database Integration</name>
+          <description>Tours stored in database with multi-language support</description>
+          <access-level>System managed</access-level>
+        </feature>
+      </features>
+    </tour-system>
+
+    <shoutout-system>
+      <description>Feature announcements and system notifications</description>
+      <features>
+        <feature>
+          <name>Feature Announcements</name>
+          <description>Display new features and improvements to users</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Targeted Messaging</name>
+          <description>Show different messages to different user groups</description>
+          <access-level>System managed</access-level>
+        </feature>
+        <feature>
+          <name>Shoutout Management</name>
+          <description>Admin interface for managing announcements</description>
+          <access-level>Admin only</access-level>
+        </feature>
+        <feature>
+          <name>Expiration System</name>
+          <description>Automatic expiration of time-sensitive announcements</description>
+          <access-level>System managed</access-level>
+        </feature>
+      </features>
+    </shoutout-system>
+
+    <internationalization>
+      <description>Multi-language support throughout the application</description>
+      <features>
+        <feature>
+          <name>Language Switching</name>
+          <description>Real-time language switching between Swedish and English</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Localized Content</name>
+          <description>All UI elements and help content translated</description>
+          <access-level>All users</access-level>
+        </feature>
+        <feature>
+          <name>Context-Aware Language</name>
+          <description>AI assistant responds in user's preferred language</description>
+          <access-level>All users</access-level>
+        </feature>
+      </features>
+    </internationalization>
+  </advanced-features>
+
+  <user-interfaces>
+    <public-interface>
+      <name>Public Subscription Page</name>
+      <description>Public-facing page for viewing and subscribing to trainings</description>
+      <features>
+        <feature>Hero banner with training overview</feature>
+        <feature>Search and filter functionality</feature>
+        <feature>Training cards with subscription options</feature>
+        <feature>Calendar integration for training dates</feature>
+        <feature>Subscriber count display</feature>
+      </features>
+    </public-interface>
+
+    <admin-interface>
+      <name>Administrative Dashboard</name>
+      <description>Comprehensive admin interface for system management</description>
+      <features>
+        <feature>User management with voucher system</feature>
+        <feature>Training creation and management</feature>
+        <feature>Tour management system</feature>
+        <feature>Shoutout management</feature>
+        <feature>System statistics and monitoring</feature>
+      </features>
+    </admin-interface>
+
+    <attendance-interface>
+      <name>Attendance Management</name>
+      <description>Interface for tracking and managing attendance</description>
+      <features>
+        <feature>Attendance marking with voucher deduction</feature>
+        <feature>Kiosk mode for training venues</feature>
+        <feature>Attendance history and reporting</feature>
+        <feature>Refund system for attendance corrections</feature>
+      </features>
+    </attendance-interface>
+
+    <help-interface>
+      <name>Help System</name>
+      <description>Comprehensive help and documentation interface</description>
+      <features>
+        <feature>Draggable and resizable help window</feature>
+        <feature>Hierarchical table of contents</feature>
+        <feature>Search functionality</feature>
+        <feature>AI chat interface</feature>
+        <feature>Context-aware help suggestions</feature>
+        <feature>Multi-language documentation</feature>
+      </features>
+    </help-interface>
+  </user-interfaces>
+
+  <database-schema>
+    <tables>
+      <table>
+        <name>users</name>
+        <description>User accounts and participant information</description>
+        <fields>
+          <field>id (UUID, Primary Key)</field>
+          <field>name (VARCHAR)</field>
+          <field>email (VARCHAR, Unique)</field>
+          <field>voucher_balance (INTEGER)</field>
+          <field>created_at (TIMESTAMP)</field>
+        </fields>
+      </table>
+      
+      <table>
+        <name>admin_users</name>
+        <description>Administrative user roles and permissions</description>
+        <fields>
+          <field>id (UUID, Primary Key)</field>
+          <field>role (VARCHAR)</field>
+        </fields>
+      </table>
+      
+      <table>
+        <name>trainings</name>
+        <description>Training sessions and courses</description>
+        <fields>
+          <field>id (UUID, Primary Key)</field>
+          <field>name (VARCHAR)</field>
+          <field>description (TEXT)</field>
+          <field>training_date (DATE)</field>
+          <field>training_time (TIME)</field>
+          <field>created_at (TIMESTAMP)</field>
+        </fields>
+      </table>
+      
+      <table>
+        <name>subscriptions</name>
+        <description>User subscriptions to training sessions</description>
+        <fields>
+          <field>id (UUID, Primary Key)</field>
+          <field>training_id (UUID, Foreign Key)</field>
+          <field>user_id (UUID, Foreign Key)</field>
+          <field>created_at (TIMESTAMP)</field>
+        </fields>
+      </table>
+      
+      <table>
+        <name>attendance</name>
+        <description>Attendance records for training sessions</description>
+        <fields>
+          <field>id (UUID, Primary Key)</field>
+          <field>training_id (UUID, Foreign Key)</field>
+          <field>user_id (UUID, Foreign Key)</field>
+          <field>created_at (TIMESTAMP)</field>
+        </fields>
+      </table>
+      
+      <table>
+        <name>help_tours</name>
+        <description>Guided tour definitions</description>
+        <fields>
+          <field>id (VARCHAR, Primary Key)</field>
+          <field>name (VARCHAR)</field>
+          <field>description (TEXT)</field>
+          <field>category (VARCHAR)</field>
+          <field>required_role (VARCHAR)</field>
+          <field>target_group (VARCHAR)</field>
+          <field>estimated_duration (INTEGER)</field>
+          <field>language (VARCHAR)</field>
+          <field>is_active (BOOLEAN)</field>
+        </fields>
+      </table>
+      
+      <table>
+        <name>help_tour_steps</name>
+        <description>Individual steps within guided tours</description>
+        <fields>
+          <field>id (UUID, Primary Key)</field>
+          <field>tour_id (VARCHAR, Foreign Key)</field>
+          <field>step_order (INTEGER)</field>
+          <field>target (VARCHAR)</field>
+          <field>title (VARCHAR)</field>
+          <field>content (TEXT)</field>
+          <field>position (VARCHAR)</field>
+          <field>action (VARCHAR)</field>
+          <field>action_target (VARCHAR)</field>
+          <field>wait_time (INTEGER)</field>
+          <field>language (VARCHAR)</field>
+        </fields>
+      </table>
+      
+      <table>
+        <name>help_shoutouts</name>
+        <description>Feature announcements and system notifications</description>
+        <fields>
+          <field>id (UUID, Primary Key)</field>
+          <field>title (VARCHAR)</field>
+          <field>description (TEXT)</field>
+          <field>icon (VARCHAR)</field>
+          <field>category (VARCHAR)</field>
+          <field>priority (VARCHAR)</field>
+          <field>language (VARCHAR)</field>
+          <field>target_group (VARCHAR)</field>
+          <field>release_date (DATE)</field>
+          <field>expire_date (DATE)</field>
+          <field>is_active (BOOLEAN)</field>
+        </fields>
+      </table>
+    </tables>
+  </database-schema>
+
+  <security-features>
+    <authentication>
+      <method>Supabase Auth with JWT tokens</method>
+      <features>
+        <feature>Email/password authentication</feature>
+        <feature>Session management</feature>
+        <feature>Secure token handling</feature>
+        <feature>Automatic token refresh</feature>
+      </features>
+    </authentication>
+    
+    <authorization>
+      <method>Role-based access control (RBAC)</method>
+      <roles>
+        <role>
+          <name>Admin</name>
+          <permissions>
+            <permission>Full system access</permission>
+            <permission>User management</permission>
+            <permission>Training management</permission>
+            <permission>Tour management</permission>
+            <permission>Shoutout management</permission>
+          </permissions>
+        </role>
+        <role>
+          <name>User</name>
+          <permissions>
+            <permission>View trainings</permission>
+            <permission>Subscribe to trainings</permission>
+            <permission>Mark attendance</permission>
+            <permission>Access help system</permission>
+          </permissions>
+        </role>
+        <role>
+          <name>Public</name>
+          <permissions>
+            <permission>View public training page</permission>
+            <permission>Access basic help</permission>
+          </permissions>
+        </role>
+      </roles>
+    </authorization>
+    
+    <data-protection>
+      <method>Row Level Security (RLS)</method>
+      <features>
+        <feature>User data isolation</feature>
+        <feature>Admin-only access to sensitive operations</feature>
+        <feature>Secure database queries</feature>
+        <feature>Input validation and sanitization</feature>
+      </features>
+    </data-protection>
+  </security-features>
+
+  <deployment>
+    <containerization>
+      <method>Docker with Docker Compose</method>
+      <features>
+        <feature>Multi-stage build process</feature>
+        <feature>Nginx reverse proxy</feature>
+        <feature>Production-ready configuration</feature>
+        <feature>Security headers and CORS</feature>
+      </features>
+    </containerization>
+    
+    <hosting>
+      <options>
+        <option>GitHub Pages (static hosting)</option>
+        <option>Docker container deployment</option>
+        <option>Supabase hosting integration</option>
+      </options>
+    </hosting>
+    
+    <environment-variables>
+      <required>
+        <variable>VITE_SUPABASE_URL</variable>
+        <variable>VITE_SUPABASE_ANON_KEY</variable>
+      </required>
+      <optional>
+        <variable>VITE_GEMINI_API_KEY</variable>
+        <variable>VITE_APP_ENV</variable>
+        <variable>VITE_APP_URL</variable>
+      </optional>
+    </environment-variables>
+  </deployment>
+
+  <technical-specifications>
+    <performance>
+      <optimizations>
+        <optimization>React.memo for component optimization</optimization>
+        <optimization>Lazy loading for large components</optimization>
+        <optimization>Debounced search and input handling</optimization>
+        <optimization>Efficient database queries with indexes</optimization>
+        <optimization>Client-side caching for help content</optimization>
+      </optimizations>
+    </performance>
+    
+    <accessibility>
+      <features>
+        <feature>Keyboard navigation support</feature>
+        <feature>Screen reader compatibility</feature>
+        <feature>High contrast color schemes</feature>
+        <feature>Focus management</feature>
+        <feature>ARIA labels and descriptions</feature>
+      </features>
+    </accessibility>
+    
+    <responsive-design>
+      <breakpoints>
+        <breakpoint>Mobile: 320px - 768px</breakpoint>
+        <breakpoint>Tablet: 768px - 1024px</breakpoint>
+        <breakpoint>Desktop: 1024px+</breakpoint>
+      </breakpoints>
+      <features>
+        <feature>Mobile-first design approach</feature>
+        <feature>Flexible grid layouts</feature>
+        <feature>Touch-friendly interface elements</feature>
+        <feature>Responsive typography</feature>
+      </features>
+    </responsive-design>
+  </technical-specifications>
+
+  <integration-capabilities>
+    <ai-integration>
+      <service>Google Gemini 2.0 Flash</service>
+      <capabilities>
+        <capability>Natural language help queries</capability>
+        <capability>Context-aware assistance</capability>
+        <capability>Action execution (navigation, form filling)</capability>
+        <capability>Multi-language support</capability>
+        <capability>Project planning assistance</capability>
+      </capabilities>
+    </ai-integration>
+    
+    <external-services>
+      <service>
+        <name>Supabase</name>
+        <purpose>Backend-as-a-Service</p>
+        <features>
+          <feature>PostgreSQL database</feature>
+          <feature>Authentication service</feature>
+          <feature>Real-time subscriptions</feature>
+          <feature>Row Level Security</feature>
+        </features>
+      </service>
+      <service>
+        <name>GitHub Pages</name>
+        <purpose>Static hosting</p>
+        <features>
+          <feature>Automatic deployment</feature>
+          <feature>HTTPS support</feature>
+          <feature>Custom domain support</feature>
+        </features>
+      </service>
+    </external-services>
+  </integration-capabilities>
+
+  <maintenance-and-monitoring>
+    <logging>
+      <features>
+        <feature>Console logging for development</feature>
+        <feature>Error tracking and reporting</feature>
+        <feature>User interaction tracking</feature>
+        <feature>Performance monitoring</feature>
+      </features>
+    </logging>
+    
+    <backup-and-recovery>
+      <features>
+        <feature>Supabase automatic backups</feature>
+        <feature>Database migration scripts</feature>
+        <feature>Environment variable backup</feature>
+        <feature>Code repository backup</feature>
+      </features>
+    </backup-and-recovery>
+    
+    <updates-and-maintenance>
+      <features>
+        <feature>Automated dependency updates</feature>
+        <feature>Database schema migrations</feature>
+        <feature>Feature flag system</feature>
+        <feature>Rollback capabilities</feature>
+      </features>
+    </updates-and-maintenance>
+  </maintenance-and-monitoring>
+
+  <future-enhancements>
+    <planned-features>
+      <feature>
+        <name>Advanced Reporting</name>
+        <description>Comprehensive analytics and reporting dashboard</description>
+        <priority>Medium</priority>
+      </feature>
+      <feature>
+        <name>Email Notifications</name>
+        <description>Automated email notifications for training updates</description>
+        <priority>Medium</priority>
+      </feature>
+      <feature>
+        <name>Calendar Integration</name>
+        <description>Integration with external calendar systems</description>
+        <priority>Low</priority>
+      </feature>
+      <feature>
+        <name>Mobile App</name>
+        <description>Native mobile application for iOS and Android</description>
+        <priority>Low</priority>
+      </feature>
+      <feature>
+        <name>Advanced AI Features</name>
+        <description>Enhanced AI capabilities for training recommendations</description>
+        <priority>Low</priority>
+      </feature>
+    </planned-features>
+  </future-enhancements>
+</application-overview>

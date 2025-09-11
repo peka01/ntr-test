@@ -67,6 +67,19 @@ const AppContent: React.FC = () => {
         console.log('User state changed:', { user, isAdmin });
     }, [user, isAdmin]);
 
+    // Listen for tour events to open help system
+    React.useEffect(() => {
+        const handleOpenHelpSystem = () => {
+            setHelpOpen(true);
+        };
+
+        document.addEventListener('open-help-system', handleOpenHelpSystem);
+        
+        return () => {
+            document.removeEventListener('open-help-system', handleOpenHelpSystem);
+        };
+    }, []);
+
     // Handle AI actions for navigation
     React.useEffect(() => {
         const handleAIAction = (event: CustomEvent) => {
@@ -191,6 +204,7 @@ const AppContent: React.FC = () => {
                             <HelpButton 
                                 onClick={() => setHelpOpen(true)}
                                 context={helpContext}
+                                data-tour="help-button"
                             />
                             
                             {/* User Menu */}

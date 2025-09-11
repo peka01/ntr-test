@@ -832,11 +832,11 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       // Add available tours information
       if (tourContext) {
         try {
-          const availableTours = tourContext.getAvailableTours();
+          const availableTours = await tourContext.getAvailableTours();
           if (availableTours.length > 0) {
             contextString += '## Available Guided Tours\n\n';
             availableTours.forEach(tour => {
-              contextString += `### ${tour.title}\n`;
+              contextString += `### ${tour.name}\n`;
               contextString += `ID: ${tour.id}\n`;
               contextString += `Description: ${tour.description}\n`;
               contextString += `Steps: ${tour.steps.length}\n\n`;

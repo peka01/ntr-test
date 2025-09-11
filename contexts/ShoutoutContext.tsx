@@ -47,7 +47,7 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   
   // Get current language at the top level
   const { language } = useLanguage();
-  const currentLanguage = language === 'sv-se' || language === 'sv' ? 'sv' : 'en';
+  const currentLanguage = language === 'sv' ? 'sv' : 'en';
   
   // Get authentication status
   const { user, isAdmin } = useAuth();
@@ -90,75 +90,9 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
-  // Memoize default shoutouts to prevent recreation on every render
-  const defaultShoutouts = useMemo((): ShoutoutFeature[] => [
-    {
-      id: 'tour-system',
-      title: t('shoutoutTourSystemTitle'),
-      description: t('shoutoutTourSystemDescription'),
-      icon: '🎯',
-      tourId: 'welcome-tour',
-      category: 'feature',
-      priority: 'high',
-      target_group: 'public',
-      releaseDate: '2024-01-15',
-      expireDate: '2026-01-15',
-      isNew: true,
-    },
-    {
-      id: 'admin-tours',
-      title: t('shoutoutAdminToursTitle'),
-      description: t('shoutoutAdminToursDescription'),
-      icon: '⚙️',
-      tourId: 'admin-tour',
-      category: 'feature',
-      priority: 'medium',
-      target_group: 'admin',
-      releaseDate: '2024-01-15',
-      expireDate: '2026-01-15',
-      isNew: true,
-    },
-    {
-      id: 'cinematic-tours',
-      title: t('shoutoutCinematicToursTitle'),
-      description: t('shoutoutCinematicToursDescription'),
-      icon: '🎬',
-      tourId: 'cinematic-demo',
-      category: 'feature',
-      priority: 'medium',
-      target_group: 'public',
-      releaseDate: '2024-01-15',
-      expireDate: '2026-01-15',
-      isNew: true,
-    },
-    {
-      id: 'performance-improvements',
-      title: t('shoutoutPerformanceTitle'),
-      description: t('shoutoutPerformanceDescription'),
-      icon: '⚡',
-      category: 'improvement',
-      priority: 'high',
-      target_group: 'public',
-      releaseDate: '2024-01-15',
-      expireDate: '2026-01-15',
-      isNew: true,
-    },
-    {
-      id: 'attendance-page-fix',
-      title: t('shoutoutAttendanceFixTitle'),
-      description: t('shoutoutAttendanceFixDescription'),
-      icon: '🐛',
-      category: 'bugfix',
-      priority: 'high',
-      target_group: 'authenticated',
-      releaseDate: new Date().toISOString().split('T')[0],
-      expireDate: '2026-01-15',
-      isNew: true,
-    },
-  ], [t]);
+  // No default shoutouts - database is the master
 
-  // Define available features (combines default and admin-created features)
-  // Memoized to prevent infinite re-renders
+  // Get available features from database only
   const getAvailableFeatures = useCallback(async (): Promise<ShoutoutFeature[]> => {
     try {
       // Get shoutouts from database for current language
@@ -180,38 +114,26 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         expireDate: dbShoutout.expire_date,
         isNew: dbShoutout.is_new,
       }));
-
-      // Combine with default shoutouts
-      const allShoutouts = [...shoutouts, ...defaultShoutouts];
       
       // Filter based on authentication status and target group
       if (!user) {
         // Non-logged-in users: only show public shoutouts
-        return allShoutouts.filter(shoutout => shoutout.target_group === 'public');
+        return shoutouts.filter(shoutout => shoutout.target_group === 'public');
       } else if (!isAdmin) {
         // Logged-in users (non-admin): show public and authenticated shoutouts
-        return allShoutouts.filter(shoutout => 
+        return shoutouts.filter(shoutout => 
           shoutout.target_group === 'public' || shoutout.target_group === 'authenticated'
         );
       } else {
         // Admin users: see all shoutouts
-        return allShoutouts;
+        return shoutouts;
       }
     } catch (error) {
       console.error('Error fetching shoutouts from database:', error);
-      
-      // Fallback to default shoutouts if database fails, with same filtering logic
-      if (!user) {
-        return defaultShoutouts.filter(shoutout => shoutout.target_group === 'public');
-      } else if (!isAdmin) {
-        return defaultShoutouts.filter(shoutout => 
-          shoutout.target_group === 'public' || shoutout.target_group === 'authenticated'
-        );
-      } else {
-        return defaultShoutouts;
-      }
+      // No fallback - database is the master
+      return [];
     }
-  }, [currentLanguage, defaultShoutouts, user]);
+  }, [currentLanguage, user, isAdmin]);
 
   const showShoutout = useCallback(async (featureId: string) => {
     const features = await getAvailableFeatures();

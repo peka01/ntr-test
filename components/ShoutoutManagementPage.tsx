@@ -397,7 +397,26 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
     }
   };
 
-  const availableTours = tourContext ? tourContext.getAvailableTours() : [];
+  const [availableTours, setAvailableTours] = useState<Tour[]>([]);
+
+  // Load available tours when component mounts or tourContext changes
+  useEffect(() => {
+    const loadTours = async () => {
+      if (tourContext) {
+        try {
+          const tours = await tourContext.getAvailableTours();
+          setAvailableTours(tours);
+        } catch (error) {
+          console.error('Error loading tours:', error);
+          setAvailableTours([]);
+        }
+      } else {
+        setAvailableTours([]);
+      }
+    };
+
+    loadTours();
+  }, [tourContext]);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">

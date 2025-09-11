@@ -1,7 +1,8 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { useAuth } from './AuthContext';
-import { tourManagementService } from '../services/tourManagementService';
+import { useLanguage } from './LanguageContext';
+import { helpSystemService } from '../services/helpSystemService';
 
 export interface TourStep {
   id: string;
@@ -9,7 +10,7 @@ export interface TourStep {
   content: string;
   target?: string;
   position?: 'top' | 'bottom' | 'left' | 'right' | 'center';
-  action?: 'none' | 'click' | 'wait' | 'navigate' | 'scroll';
+  action?: 'none' | 'click' | 'wait' | 'navigate' | 'scroll' | 'open-help';
   actionTarget?: string;
   waitTime?: number;
   requiredView?: string;
@@ -25,6 +26,7 @@ export interface Tour {
   requiredRole?: 'any' | 'admin' | 'user';
   target_group: 'public' | 'authenticated' | 'admin';
   estimatedDuration: number;
+  language: 'en' | 'sv';
   steps: TourStep[];
 }
 
@@ -39,7 +41,7 @@ interface TourContextType {
   previousStep: () => void;
   completeTour: () => void;
   skipTour: () => void;
-  getAvailableTours: () => Tour[];
+  getAvailableTours: () => Promise<Tour[]>;
 }
 
 const TourContext = createContext<TourContextType | undefined>(undefined);
@@ -55,6 +57,7 @@ export const useTour = () => {
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslations();
   const { user, isAdmin } = useAuth();
+  const { currentLanguage } = useLanguage();
   const [currentTour, setCurrentTour] = useState<Tour | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -436,26 +439,60 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     ];
   }, [t]);
 
-  // Get available tours (default + admin created)
-  const getAvailableTours = useCallback(() => {
-    const defaultTours = getTours();
-    const adminTours = tourManagementService.getTours();
-    const allTours = [...defaultTours, ...adminTours];
-    
-    // Filter based on authentication status and target group
-    if (!user) {
-      // Non-logged-in users: only show public tours
-      return allTours.filter(tour => tour.target_group === 'public');
-    } else if (!isAdmin) {
-      // Logged-in users (non-admin): show public and authenticated tours
-      return allTours.filter(tour => 
-        tour.target_group === 'public' || tour.target_group === 'authenticated'
-      );
-    } else {
-      // Admin users: see all tours
-      return allTours;
+  // Get available tours from database only
+  const getAvailableTours = useCallback(async (): Promise<Tour[]> => {
+    try {
+      // Load tours from database for current language
+      const dbTours = await helpSystemService.getTours(currentLanguage);
+      
+      // Convert database format to Tour format
+      const tours: Tour[] = [];
+      for (const dbTour of dbTours) {
+        const steps = await helpSystemService.getTourSteps(dbTour.id, currentLanguage);
+        const tour: Tour = {
+          id: dbTour.id,
+          name: dbTour.name,
+          description: dbTour.description || '',
+          category: dbTour.category,
+          requiredRole: dbTour.required_role,
+          target_group: dbTour.target_group,
+          estimatedDuration: dbTour.estimated_duration,
+          language: dbTour.language,
+          steps: steps.map(step => ({
+            id: step.id,
+            title: step.title,
+            content: step.content,
+            target: step.target,
+            position: step.position,
+            action: step.action,
+            actionTarget: step.action_target,
+            actionData: step.action_data,
+            waitTime: step.wait_time,
+            requiredView: step.required_view,
+            skipIfNotFound: step.skip_if_not_found
+          }))
+        };
+        tours.push(tour);
+      }
+      
+      // Filter based on authentication status and target group
+      if (!user) {
+        // Non-logged-in users: only show public tours
+        return tours.filter(tour => tour.target_group === 'public');
+      } else if (!isAdmin) {
+        // Logged-in users (non-admin): show public and authenticated tours
+        return tours.filter(tour => 
+          tour.target_group === 'public' || tour.target_group === 'authenticated'
+        );
+      } else {
+        // Admin users: see all tours
+        return tours;
+      }
+    } catch (error) {
+      console.error('Error loading tours from database:', error);
+      return [];
     }
-  }, [getTours, user]);
+  }, [user, isAdmin, currentLanguage]);
 
   // Execute step action
   const executeStepAction = useCallback(async (step: TourStep) => {
@@ -508,11 +545,18 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }
         }
         break;
+      case 'open-help':
+        // Dispatch event to open help system
+        const openHelpEvent = new CustomEvent('open-help-system');
+        document.dispatchEvent(openHelpEvent);
+        // Wait for help system to open
+        await new Promise(resolve => setTimeout(resolve, 500));
+        break;
     }
   }, []);
 
   const startTour = useCallback(async (tourId: string) => {
-    const tours = getAvailableTours();
+    const tours = await getAvailableTours();
     const tour = tours.find(t => t.id === tourId);
     if (!tour) return;
 
@@ -534,6 +578,37 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const currentStep = currentTour.steps[currentStepIndex];
     if (currentStep) {
+      // Check if this step targets help-related elements and help system is not open
+      if (currentStep.target && (
+        currentStep.target.includes('help') || 
+        currentStep.target === 'help-window' ||
+        currentStep.target === 'help-button'
+      )) {
+        // Check if help system is open by looking for help-window element
+        const helpWindow = document.querySelector('[data-tour="help-window"]');
+        if (!helpWindow) {
+          // Help system is not open, open it first
+          const openHelpEvent = new CustomEvent('open-help-system');
+          document.dispatchEvent(openHelpEvent);
+          // Wait for help system to open and elements to be rendered
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
+        // Wait for the specific target element to be available
+        if (currentStep.target !== 'help-button') {
+          let attempts = 0;
+          const maxAttempts = 10;
+          while (attempts < maxAttempts) {
+            const targetElement = document.querySelector(`[data-tour="${currentStep.target}"]`);
+            if (targetElement) {
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 200));
+            attempts++;
+          }
+        }
+      }
+
       await executeStepAction(currentStep);
     }
 

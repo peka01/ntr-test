@@ -20,6 +20,7 @@ export interface TourFormData {
   category: 'onboarding' | 'feature' | 'admin' | 'user';
   requiredRole: 'admin' | 'user' | 'any';
   estimatedDuration: number;
+  language: 'en' | 'sv';
   steps: TourStep[];
 }
 
