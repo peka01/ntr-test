@@ -1,11 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
-import { tourManagementService, type ShoutoutFormData } from '../services/tourManagementService';
+import { helpSystemService, HelpShoutout } from '../services/helpSystemService';
 import { useTour } from '../contexts/TourContext';
 import { ShoutoutFeature } from '../contexts/ShoutoutContext';
 
 interface ShoutoutManagementPageProps {
   onClose: () => void;
+}
+
+interface ShoutoutFormData {
+  id: string;
+  title: string;
+  description: string;
+  image?: string;
+  icon?: string;
+  tourId?: string;
+  category: 'feature' | 'improvement' | 'announcement' | 'bugfix';
+  priority: 'low' | 'medium' | 'high';
+  language: 'en' | 'sv';
+  releaseDate: string;
+  expireDate?: string;
+  isNew: boolean;
 }
 
 export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ onClose }) => {
@@ -33,21 +48,82 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
     tourId: '',
     category: 'feature',
     priority: 'medium',
+    language: 'en',
     releaseDate: new Date().toISOString().split('T')[0],
+    expireDate: undefined,
     isNew: true
   });
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [importData, setImportData] = useState('');
+  const [languageFilter, setLanguageFilter] = useState<'all' | 'en' | 'sv'>('all');
+
+  // Filter shoutouts based on selected language
+  const filteredShoutouts = useMemo(() => {
+    if (languageFilter === 'all') {
+      return shoutouts;
+    }
+    return shoutouts.filter(shoutout => shoutout.language === languageFilter);
+  }, [shoutouts, languageFilter]);
+
+  // Check if a shoutout is a default one (not admin-created)
+  const isDefaultShoutout = useCallback((shoutoutId: string): boolean => {
+    const defaultIds = ['tour-system', 'admin-tours', 'cinematic-tours', 'performance-improvements', 'attendance-page-fix'];
+    return defaultIds.includes(shoutoutId);
+  }, []);
+
+  const loadShoutouts = useCallback(async () => {
+    try {
+      // Get shoutouts from database for all languages (admin view)
+      const [enShoutouts, svShoutouts] = await Promise.all([
+        helpSystemService.getShoutouts('en'),
+        helpSystemService.getShoutouts('sv')
+      ]);
+      
+      // Combine all shoutouts
+      const allShoutouts = [...enShoutouts, ...svShoutouts];
+      
+      // Convert database format to ShoutoutFeature format
+      const shoutouts: ShoutoutFeature[] = allShoutouts.map(dbShoutout => ({
+        id: dbShoutout.id,
+        title: dbShoutout.title,
+        description: dbShoutout.description,
+        image: dbShoutout.image,
+        icon: dbShoutout.icon,
+        tourId: dbShoutout.tour_id,
+        category: dbShoutout.category,
+        priority: dbShoutout.priority,
+        language: dbShoutout.language,
+        releaseDate: dbShoutout.release_date,
+        expireDate: dbShoutout.expire_date,
+        isNew: dbShoutout.is_new,
+      }));
+      
+      setShoutouts(shoutouts);
+    } catch (error) {
+      console.error('Error loading shoutouts:', error);
+      setShoutouts([]);
+    }
+  }, []);
 
   // Load shoutouts on mount
   useEffect(() => {
-    loadShoutouts();
-  }, []);
+    const loadData = async () => {
+      await loadShoutouts();
+    };
+    loadData();
+  }, [loadShoutouts]);
 
-  const loadShoutouts = () => {
-    const loadedShoutouts = tourManagementService.getShoutouts();
-    setShoutouts(loadedShoutouts);
-  };
+  // Handle Esc key to close management page
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const handleCreateShoutout = () => {
     setIsCreating(true);
@@ -63,6 +139,7 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
       category: 'feature',
       priority: 'medium',
       releaseDate: new Date().toISOString().split('T')[0],
+      expireDate: undefined,
       isNew: true
     });
     setValidationErrors([]);
@@ -81,50 +158,129 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
       tourId: shoutout.tourId || '',
       category: shoutout.category,
       priority: shoutout.priority,
+      language: shoutout.language || 'en',
       releaseDate: shoutout.releaseDate,
+      expireDate: shoutout.expireDate,
       isNew: shoutout.isNew || false
     });
     setValidationErrors([]);
   };
 
-  const handleDuplicateShoutout = (shoutout: ShoutoutFeature) => {
-    const duplicated = tourManagementService.duplicateShoutout(shoutout.id);
-    if (duplicated) {
-      loadShoutouts();
+  const handleDuplicateShoutout = async (shoutout: ShoutoutFeature) => {
+    try {
+      // Create a duplicate with a new title
+      const duplicateData: Omit<HelpShoutout, 'id' | 'created_at' | 'updated_at'> = {
+        title: `${shoutout.title} (Copy)`,
+        description: shoutout.description,
+        image: shoutout.image,
+        icon: shoutout.icon,
+        tour_id: shoutout.tourId,
+        category: shoutout.category,
+        priority: shoutout.priority,
+        language: shoutout.language || 'en',
+        release_date: new Date().toISOString().split('T')[0],
+        expire_date: shoutout.expireDate,
+        is_new: true,
+        is_active: true,
+        created_by: 'admin',
+        updated_by: 'admin'
+      };
+      
+      const result = await helpSystemService.createShoutout(duplicateData);
+      if (result) {
+        await loadShoutouts();
+      }
+    } catch (error) {
+      console.error('Error duplicating shoutout:', error);
+      alert('Failed to duplicate shoutout. Please try again.');
     }
   };
 
-  const handleDeleteShoutout = (shoutout: ShoutoutFeature) => {
+  const handleDeleteShoutout = async (shoutout: ShoutoutFeature) => {
     if (window.confirm(t('shoutoutAdminConfirmDelete'))) {
-      const success = tourManagementService.deleteShoutout(shoutout.id);
-      if (success) {
-        loadShoutouts();
-        if (selectedShoutout?.id === shoutout.id) {
-          setSelectedShoutout(null);
-          setIsEditing(false);
+      try {
+        const success = await helpSystemService.deleteShoutout(shoutout.id);
+        if (success) {
+          await loadShoutouts();
+          if (selectedShoutout?.id === shoutout.id) {
+            setSelectedShoutout(null);
+            setIsEditing(false);
+          }
         }
+      } catch (error) {
+        console.error('Error deleting shoutout:', error);
+        alert('Failed to delete shoutout. Please try again.');
       }
     }
   };
 
-  const handleSaveShoutout = () => {
-    const validation = tourManagementService.validateShoutouts([formData as ShoutoutFeature]);
-    if (!validation.isValid) {
-      setValidationErrors(validation.errors);
+  const handleSaveShoutout = async () => {
+    console.log('Saving shoutout with data:', formData);
+    
+    // Basic validation
+    const errors: string[] = [];
+    if (!formData.title.trim()) errors.push('Title is required');
+    if (!formData.description.trim()) errors.push('Description is required');
+    if (!formData.category) errors.push('Category is required');
+    if (!formData.priority) errors.push('Priority is required');
+    if (!formData.releaseDate) errors.push('Release date is required');
+    
+    if (errors.length > 0) {
+      setValidationErrors(errors);
       return;
     }
 
-    if (isCreating) {
-      tourManagementService.createShoutout(formData);
-    } else if (selectedShoutout) {
-      tourManagementService.updateShoutout(selectedShoutout.id, formData);
-    }
+    try {
+      if (isCreating) {
+        console.log('Creating new shoutout');
+        const createData: Omit<HelpShoutout, 'id' | 'created_at' | 'updated_at'> = {
+          title: formData.title,
+          description: formData.description,
+          image: formData.image,
+          icon: formData.icon,
+          tour_id: formData.tourId,
+          category: formData.category,
+          priority: formData.priority,
+          language: formData.language,
+          release_date: formData.releaseDate,
+          expire_date: formData.expireDate,
+          is_new: formData.isNew,
+          is_active: true,
+          created_by: 'admin',
+          updated_by: 'admin'
+        };
+        const result = await helpSystemService.createShoutout(createData);
+        console.log('Created shoutout:', result);
+      } else if (selectedShoutout) {
+        console.log('Updating existing shoutout:', selectedShoutout.id);
+        const updateData: Partial<HelpShoutout> = {
+          title: formData.title,
+          description: formData.description,
+          image: formData.image,
+          icon: formData.icon,
+          tour_id: formData.tourId,
+          category: formData.category,
+          priority: formData.priority,
+          language: formData.language,
+          release_date: formData.releaseDate,
+          expire_date: formData.expireDate,
+          is_new: formData.isNew,
+          updated_by: 'admin'
+        };
+        const result = await helpSystemService.updateShoutout(selectedShoutout.id, updateData);
+        console.log('Updated shoutout:', result);
+      }
 
-    loadShoutouts();
-    setIsCreating(false);
-    setIsEditing(false);
-    setSelectedShoutout(null);
-    setValidationErrors([]);
+      await loadShoutouts();
+      setIsCreating(false);
+      setIsEditing(false);
+      setSelectedShoutout(null);
+      setValidationErrors([]);
+      console.log('Shoutout saved successfully');
+    } catch (error) {
+      console.error('Error saving shoutout:', error);
+      setValidationErrors(['Failed to save shoutout. Please try again.']);
+    }
   };
 
   const handleCancel = () => {
@@ -134,28 +290,84 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
     setValidationErrors([]);
   };
 
-  const handleExport = () => {
-    const data = tourManagementService.exportShoutouts();
-    const blob = new Blob([data], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'shoutouts.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleExport = async () => {
+    try {
+      // Get all shoutouts from database
+      const [enShoutouts, svShoutouts] = await Promise.all([
+        helpSystemService.getShoutouts('en'),
+        helpSystemService.getShoutouts('sv')
+      ]);
+      
+      const allShoutouts = [...enShoutouts, ...svShoutouts];
+      const data = JSON.stringify(allShoutouts, null, 2);
+      
+      const blob = new Blob([data], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'shoutouts.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting shoutouts:', error);
+      alert('Failed to export shoutouts. Please try again.');
+    }
   };
 
-  const handleImport = () => {
-    const result = tourManagementService.importShoutouts(importData);
-    if (result.success) {
-      loadShoutouts();
+  const handleImport = async () => {
+    try {
+      const importShoutouts = JSON.parse(importData);
+      
+      if (!Array.isArray(importShoutouts)) {
+        alert('Invalid import data. Expected an array of shoutouts.');
+        return;
+      }
+      
+      let successCount = 0;
+      let errorCount = 0;
+      
+      for (const shoutout of importShoutouts) {
+        try {
+          // Convert imported data to the correct format
+          const importData: Omit<HelpShoutout, 'id' | 'created_at' | 'updated_at'> = {
+            title: shoutout.title || 'Imported Shoutout',
+            description: shoutout.description || '',
+            image: shoutout.image,
+            icon: shoutout.icon,
+            tour_id: shoutout.tour_id,
+            category: shoutout.category || 'feature',
+            priority: shoutout.priority || 'medium',
+            language: shoutout.language || 'en',
+            release_date: shoutout.release_date || new Date().toISOString().split('T')[0],
+            expire_date: shoutout.expire_date,
+            is_new: shoutout.is_new !== undefined ? shoutout.is_new : true,
+            is_active: shoutout.is_active !== undefined ? shoutout.is_active : true,
+            created_by: 'admin',
+            updated_by: 'admin'
+          };
+          
+          await helpSystemService.createShoutout(importData);
+          successCount++;
+        } catch (error) {
+          console.error('Error importing shoutout:', error);
+          errorCount++;
+        }
+      }
+      
+      await loadShoutouts();
       setImportData('');
       setShowImportExport(false);
-      alert(`${result.message} (${result.count} shoutouts)`);
-    } else {
-      alert(`Import failed: ${result.message}`);
+      
+      if (errorCount > 0) {
+        alert(`Import completed with ${successCount} successful imports and ${errorCount} errors.`);
+      } else {
+        alert(`Successfully imported ${successCount} shoutouts.`);
+      }
+    } catch (error) {
+      console.error('Error parsing import data:', error);
+      alert('Invalid JSON format. Please check your import data.');
     }
   };
 
@@ -219,6 +431,22 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
                   </button>
                 </div>
               </div>
+              
+              {/* Language Filter */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  {t('shoutoutAdminFilterByLanguage')}
+                </label>
+                <select
+                  value={languageFilter}
+                  onChange={(e) => setLanguageFilter(e.target.value as 'all' | 'en' | 'sv')}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                  <option value="all">{t('shoutoutAdminAllLanguages')}</option>
+                  <option value="en">{t('shoutoutAdminEnglish')}</option>
+                  <option value="sv">{t('shoutoutAdminSwedish')}</option>
+                </select>
+              </div>
 
               {/* Import/Export Panel */}
               {showImportExport && (
@@ -253,18 +481,18 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
               {/* Statistics */}
               <div className="grid grid-cols-3 gap-2 text-sm">
                 <div className="bg-blue-50 p-2 rounded text-center">
-                  <div className="font-semibold text-blue-900">{shoutouts.length}</div>
+                  <div className="font-semibold text-blue-900">{filteredShoutouts.length}</div>
                   <div className="text-blue-600">{t('shoutoutAdminTotalShoutouts')}</div>
                 </div>
                 <div className="bg-green-50 p-2 rounded text-center">
                   <div className="font-semibold text-green-900">
-                    {shoutouts.filter(s => s.isNew).length}
+                    {filteredShoutouts.filter(s => s.isNew).length}
                   </div>
                   <div className="text-green-600">{t('shoutoutAdminNewShoutouts')}</div>
                 </div>
                 <div className="bg-purple-50 p-2 rounded text-center">
                   <div className="font-semibold text-purple-900">
-                    {shoutouts.filter(s => s.tourId).length}
+                    {filteredShoutouts.filter(s => s.tourId).length}
                   </div>
                   <div className="text-purple-600">{t('shoutoutAdminWithTours')}</div>
                 </div>
@@ -273,15 +501,18 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
 
             {/* Shoutouts List */}
             <div className="flex-1 overflow-y-auto">
-              {shoutouts.length === 0 ? (
+              {filteredShoutouts.length === 0 ? (
                 <div className="p-8 text-center text-gray-500">
                   <div className="text-4xl mb-4">🎁</div>
                   <div className="text-lg font-medium mb-2">{t('shoutoutAdminNoShoutouts')}</div>
-                  <div className="text-sm">{t('shoutoutAdminCreateFirstShoutout')}</div>
+                  <div className="text-sm mb-4">{t('shoutoutAdminCreateFirstShoutout')}</div>
+                  <div className="text-xs text-gray-500 bg-blue-50 p-3 rounded-lg">
+                    <strong>{t('shoutoutAdminSystemNote')}:</strong> {t('shoutoutAdminSystemNoteTextUpdated')}
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-2 p-4">
-                  {shoutouts.map((shoutout) => (
+                  {filteredShoutouts.map((shoutout) => (
                     <div
                       key={shoutout.id}
                       className={`p-4 border rounded-lg cursor-pointer transition-colors duration-200 ${
@@ -296,9 +527,17 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
                           <div className="flex items-center space-x-2 mb-2">
                             <span className="text-lg">{shoutout.icon}</span>
                             <h4 className="font-medium text-gray-900">{shoutout.title}</h4>
+                            <span className="px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded-full">
+                              {shoutout.language?.toUpperCase() || 'EN'}
+                            </span>
+                            {isDefaultShoutout(shoutout.id) && (
+                              <span className="px-2 py-0.5 text-xs bg-blue-100 text-blue-800 rounded-full">
+                                {t('shoutoutAdminDefault')}
+                              </span>
+                            )}
                             {shoutout.isNew && (
                               <span className="px-2 py-0.5 text-xs bg-red-100 text-red-800 rounded-full">
-                                {t('shoutoutAdminNew')}
+                                {t('shoutoutAdminNewShoutouts')}
                               </span>
                             )}
                           </div>
@@ -450,6 +689,21 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
                           <option value="feature">{t('shoutoutCategoryFeature')}</option>
                           <option value="improvement">{t('shoutoutCategoryImprovement')}</option>
                           <option value="announcement">{t('shoutoutCategoryAnnouncement')}</option>
+                          <option value="bugfix">{t('shoutoutCategoryBugfix')}</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {t('shoutoutAdminLanguage')}
+                        </label>
+                        <select
+                          value={formData.language}
+                          onChange={(e) => setFormData({ ...formData, language: e.target.value as 'en' | 'sv' })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="en">{t('shoutoutAdminEnglish')}</option>
+                          <option value="sv">{t('shoutoutAdminSwedish')}</option>
                         </select>
                       </div>
                     </div>
@@ -480,6 +734,22 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
                           onChange={(e) => setFormData({ ...formData, releaseDate: e.target.value })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                         />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {t('shoutoutAdminExpireDate')}
+                        </label>
+                        <input
+                          type="date"
+                          value={formData.expireDate || ''}
+                          onChange={(e) => setFormData({ ...formData, expireDate: e.target.value || undefined })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          placeholder={t('shoutoutAdminExpireDatePlaceholder')}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          {t('shoutoutAdminExpireDateHelp')}
+                        </p>
                       </div>
                     </div>
 

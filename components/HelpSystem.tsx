@@ -205,6 +205,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
 
   const [isCompact, setIsCompact] = useState<boolean>(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
   const [selectedSection, setSelectedSection] = useState<string>('overview');
   const [filter, setFilter] = useState<string>('all');
   const [helpSections, setHelpSections] = useState<HelpSection[]>([]);
@@ -232,6 +233,14 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
 
   // TOC tree state
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
+
+  // Debounce search term to prevent excessive filtering
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Bring window to front when clicked
   const handleWindowClick = () => {
@@ -313,16 +322,18 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
     }
   };
 
-  // Filter sections based on search and category
-  const filteredSections = helpSections.filter(section => {
-    const matchesSearch = searchTerm === '' || 
-      section.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      section.keywords.some(keyword => keyword.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesFilter = filter === 'all' || section.category === filter;
-    
-    return matchesSearch && matchesFilter;
-  });
+  // Filter sections based on search and category - memoized with debounced search
+  const filteredSections = React.useMemo(() => {
+    return helpSections.filter(section => {
+      const matchesSearch = debouncedSearchTerm === '' || 
+        section.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+        section.keywords.some(keyword => keyword.toLowerCase().includes(debouncedSearchTerm.toLowerCase()));
+      
+      const matchesFilter = filter === 'all' || section.category === filter;
+      
+      return matchesSearch && matchesFilter;
+    });
+  }, [helpSections, debouncedSearchTerm, filter]);
 
   // Build hierarchical TOC tree from filtered sections
   interface TocNode {
@@ -381,15 +392,39 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
     setExpandedPaths(next);
   }, [selectedSection]);
 
-  const toggleExpand = (path: string) => {
+  const toggleExpand = React.useCallback((path: string) => {
     setExpandedPaths(prev => {
       const next = new Set(prev);
       if (next.has(path)) next.delete(path); else next.add(path);
       return next;
     });
+  }, []);
+
+  // Helper function to render icons (not a hook)
+  const renderIcon = (iconType?: string) => {
+    if (iconType) {
+      switch (iconType) {
+        case 'settings':
+          return (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          );
+        case 'user':
+          return (
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+            </svg>
+          );
+        default:
+          return null;
+      }
+    }
+    return null;
   };
 
-  const renderTocNode = (node: TocNode, depth: number, isCompactMode: boolean) => {
+  const renderTocNode = React.useCallback((node: TocNode, depth: number, isCompactMode: boolean) => {
     const items: React.ReactNode[] = [];
     const children = Array.from(node.children.values());
     children.sort((a, b) => a.name.localeCompare(b.name, undefined, { numeric: true }));
@@ -399,37 +434,17 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       const isSelected = child.section && child.section.id === selectedSection;
       const padding = 8 * depth;
       
-      // Get icon for folder or section
-      const getIcon = () => {
-        if (child.icon) {
-          switch (child.icon) {
-            case 'settings':
-              return (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              );
-            case 'user':
-              return (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              );
-            default:
-              return null;
-          }
-        }
-        return null;
-      };
-      
       items.push(
         <div key={child.path} className="flex flex-col">
           <div className={`flex items-center ${isSelected ? 'bg-cyan-500 text-white' : 'hover:bg-slate-100 text-slate-700'} rounded-lg`} style={{ paddingLeft: padding }}>
             {hasChildren ? (
               <button
                 className={`w-6 h-6 flex items-center justify-center text-slate-500 ${isSelected ? 'text-white/80' : ''}`}
-                onClick={() => toggleExpand(child.path)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  toggleExpand(child.path);
+                }}
                 title={isExpanded ? t('helpMinimizeTitle') : t('helpMaximizeTitle')}
               >
                 <svg className={`w-4 h-4 transition-transform ${isExpanded ? 'rotate-90' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -442,12 +457,14 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
             
             {/* Icon for folder/section */}
             <div className={`w-5 h-5 flex items-center justify-center mr-2 ${isSelected ? 'text-white/80' : 'text-slate-500'}`}>
-              {getIcon()}
+              {renderIcon(child.icon)}
             </div>
             
             {child.section ? (
               <button
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
                   setSelectedSection(child.section!.id);
                   if (isCompactMode) setShowToc(false);
                 }}
@@ -479,7 +496,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       );
     });
     return <>{items}</>;
-  };
+  }, [expandedPaths, selectedSection, t, toggleExpand, isCompact]);
 
   // Auto-select relevant section based on context
   useEffect(() => {
@@ -744,8 +761,8 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const [svFallbackContent, setSvFallbackContent] = useState<string | null>(null);
   const [showToc, setShowToc] = useState<boolean>(false);
 
-  // AI Chat function
-  const sendAIMessage = async (content: string) => {
+  // AI Chat function - memoized
+  const sendAIMessage = React.useCallback(async (content: string) => {
     if (!content.trim()) return;
 
     setIsAILoading(true);
@@ -977,13 +994,13 @@ Användarens fråga: ${content}`;
     } finally {
       setIsAILoading(false);
     }
-  };
+  }, [helpSections, context, t]);
 
   // Update document info when section changes
 
 
-  // Render content as React elements instead of HTML to preserve text selection
-  const renderContentAsText = (content: string): React.ReactNode => {
+  // Render content as React elements instead of HTML to preserve text selection - memoized
+  const renderContentAsText = React.useCallback((content: string): React.ReactNode => {
     if (!content) return null;
 
     // Interpolate translation variables like {{navPublic}} using current i18n
@@ -1153,10 +1170,10 @@ Användarens fråga: ${content}`;
     }
 
     return <>{elements}</>;
-  };
+  }, [t]);
 
-  // Format inline text (bold, italic)
-  const formatInlineText = (text: string): React.ReactNode => {
+  // Format inline text (bold, italic) - memoized
+  const formatInlineText = React.useCallback((text: string): React.ReactNode => {
     if (!text) return text;
     
     
@@ -1200,7 +1217,7 @@ Användarens fråga: ${content}`;
     }
 
     return <>{parts}</>;
-  };
+  }, []);
 
   const renderContent = (content: string) => {
     let html = content;
@@ -1282,8 +1299,8 @@ Användarens fråga: ${content}`;
     return html;
   };
 
-  // Format AI responses (basic markdown) and sanitize
-  const renderAIResponse = (content: string): string => {
+  // Format AI responses (basic markdown) and sanitize - memoized
+  const renderAIResponse = React.useCallback((content: string): string => {
     if (!content) return '';
     // Escape HTML
     let html = content
@@ -1302,7 +1319,7 @@ Användarens fråga: ${content}`;
     // Newlines to <br>
     html = html.replace(/\n/g, '<br>');
     return html;
-  };
+  }, []);
 
   const getActionLabel = (action: { type: string; payload: Record<string, string> }): string => {
     const { type, payload } = action || { type: '', payload: {} };
@@ -1362,6 +1379,7 @@ Användarens fråga: ${content}`;
         key={language}
         ref={modalRef}
         className="fixed bg-white rounded-2xl shadow-2xl flex flex-col border border-slate-200 z-50"
+        data-tour="help-window"
         style={
           {
             left: `${position.x}px`,
@@ -1508,7 +1526,7 @@ Användarens fråga: ${content}`;
         <div className="flex flex-1 overflow-hidden">
           {/* Sidebar (hidden in compact mode) */}
           {!isCompact && (
-          <div className="w-80 border-r border-slate-200 flex flex-col">
+          <div className="w-80 border-r border-slate-200 flex flex-col" data-tour="help-toc">
             {/* Search */}
             <div className="p-4 border-b border-slate-200">
               <input
@@ -1518,6 +1536,7 @@ Användarens fråga: ${content}`;
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent"
+                data-tour="help-search"
               />
             </div>
 
@@ -1634,12 +1653,14 @@ Användarens fråga: ${content}`;
                 placeholder={t('aiChatPlaceholder')}
                 className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm"
                 disabled={isAILoading}
+                data-tour="help-ai-input"
               />
               <button
                 type="submit"
                 disabled={isAILoading || !aiInputValue.trim()}
                 className="px-4 py-2 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                 title={`${t('aiHelpContextTitle')}\n- ${t('aiHelpContextScreen')}: ${context.screen}\n- ${t('aiHelpContextAction')}: ${context.action}${Object.keys(context.data).length > 0 ? `\n- Data: ${JSON.stringify(context.data)}` : ''}`}
+                data-tour="help-context-info"
               >
                 {isAILoading ? (
                   <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -1651,7 +1672,7 @@ Användarens fråga: ${content}`;
             
             {/* AI Response Display */}
             {aiResponse && (
-              <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2">
+              <div className="bg-white border border-slate-200 rounded-lg p-3 space-y-2" data-tour="help-ai-response">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium text-slate-700">{t('aiHelpResponseTitle')}</span>
                   <button
@@ -1672,14 +1693,12 @@ Användarens fråga: ${content}`;
                         onClick={() => {
                           // Handle tour actions directly
                           if (a.type === 'start_tour' && tourContext && a.payload.tourId) {
-                            console.log('🚀 Starting tour:', a.payload.tourId);
                             tourContext.startTour(a.payload.tourId);
                             return;
                           }
                           
                           // Confirm for destructive or changing actions in the future
                           const detail = { type: a.type, payload: a.payload };
-                          console.log('🚀 Dispatching AI action:', detail);
                           window.dispatchEvent(new CustomEvent('ai-action', { detail }));
                         }}
                         className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded hover:bg-cyan-200 transition-colors cursor-pointer"

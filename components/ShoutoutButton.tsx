@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useShoutout } from '../contexts/ShoutoutContext';
 import { useTranslations } from '../hooks/useTranslations';
+import { useAuth } from '../contexts/AuthContext';
 
 interface ShoutoutButtonProps {
   className?: string;
@@ -16,6 +17,7 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
   }
 
   const { t } = useTranslations();
+  const { user, isAdmin } = useAuth();
   
   // If shoutout context is not available, don't render the button
   if (!shoutoutContext) {
@@ -25,12 +27,24 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
   const { getAvailableFeatures, showShoutout, hasUnseenFeatures, markAsSeen } = shoutoutContext;
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnseen, setHasUnseen] = useState(false);
+  const [showContextMenu, setShowContextMenu] = useState(false);
+  const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
+  const contextMenuRef = useRef<HTMLDivElement>(null);
 
   // Check for unseen features
   useEffect(() => {
-    setHasUnseen(hasUnseenFeatures());
+    const checkUnseen = async () => {
+      const unseen = await hasUnseenFeatures();
+      setHasUnseen(unseen);
+    };
+    checkUnseen();
   }, [hasUnseenFeatures]);
+
+  // Debug context menu state
+  useEffect(() => {
+    console.log('Context menu state changed:', { showContextMenu, isAdmin, user });
+  }, [showContextMenu, isAdmin, user]);
 
   // Check if a specific feature has been seen
   const isFeatureSeen = (featureId: string): boolean => {
@@ -46,22 +60,70 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
     return false;
   };
 
-  // Close dropdown when clicking outside
+  // Close dropdown and context menu when clicking outside or pressing Esc
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
+      if (contextMenuRef.current && !contextMenuRef.current.contains(event.target as Node)) {
+        setShowContextMenu(false);
+      }
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+        setShowContextMenu(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
   }, []);
 
-  const features = getAvailableFeatures();
+  // Handle right-click context menu
+  const handleContextMenu = (event: React.MouseEvent) => {
+    event.preventDefault();
+    console.log('Right-click detected on ShoutoutButton');
+    console.log('isAdmin:', isAdmin);
+    console.log('user:', user);
+    
+    if (!isAdmin) {
+      console.log('User is not an admin, context menu not shown');
+      return; // Only show context menu for admins
+    }
+    
+    console.log('Showing context menu at position:', { x: event.clientX, y: event.clientY });
+    setContextMenuPosition({ x: event.clientX, y: event.clientY });
+    setShowContextMenu(true);
+    setIsOpen(false); // Close dropdown if open
+  };
 
-  const handleFeatureClick = (featureId: string) => {
-    showShoutout(featureId);
+  // Handle context menu actions
+  const handleManageShoutouts = () => {
+    setShowContextMenu(false);
+    // Dispatch event to open shoutout management
+    window.dispatchEvent(new CustomEvent('open-shoutout-management'));
+  };
+
+  const [features, setFeatures] = useState<ShoutoutFeature[]>([]);
+
+  // Load features on mount
+  useEffect(() => {
+    const loadFeatures = async () => {
+      const fetchedFeatures = await getAvailableFeatures();
+      setFeatures(fetchedFeatures);
+    };
+    loadFeatures();
+  }, [getAvailableFeatures]);
+
+  const handleFeatureClick = async (featureId: string) => {
+    await showShoutout(featureId);
     setIsOpen(false);
   };
 
@@ -70,6 +132,7 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
       {/* Gift box button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
+        onContextMenu={handleContextMenu}
         className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors duration-200"
         title={t('shoutoutButtonTitle')}
       >
@@ -140,16 +203,16 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
                             </span>
                           )}
                           {!isFeatureSeen(feature.id) && (
-                            <button
+                            <span
                               onClick={(e) => {
                                 e.stopPropagation();
                                 markAsSeen(feature.id);
                                 setHasUnseen(hasUnseenFeatures());
                               }}
-                              className="text-xs text-slate-500 hover:text-slate-700 underline"
+                              className="text-xs text-slate-500 hover:text-slate-700 underline cursor-pointer"
                             >
                               {t('shoutoutDismiss')}
-                            </button>
+                            </span>
                           )}
                         </div>
                       </div>
@@ -166,6 +229,29 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
               {t('shoutoutMenuFooter')}
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Context Menu */}
+      {showContextMenu && isAdmin && (
+        <div
+          ref={contextMenuRef}
+          className="fixed bg-white rounded-lg shadow-lg border border-slate-200 z-50 py-1 min-w-48"
+          style={{
+            left: contextMenuPosition.x,
+            top: contextMenuPosition.y,
+          }}
+        >
+          <button
+            onClick={handleManageShoutouts}
+            className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-100 flex items-center space-x-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>{t('shoutoutManageShoutouts')}</span>
+          </button>
         </div>
       )}
     </div>

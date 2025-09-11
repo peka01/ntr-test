@@ -278,9 +278,11 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
     }
   };
 
+
   if (!isActive || !currentTour || !isVisible || !elementPosition) {
     return null;
   }
+
 
   const currentStep = currentTour.steps[currentStepIndex];
   const progress = ((currentStepIndex + 1) / currentTour.steps.length) * 100;
@@ -293,6 +295,7 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
         animationPhase === 'exiting' ? 'opacity-0' : 'opacity-100'
       }`}
       onClick={handleOverlayClick}
+      style={{ pointerEvents: 'none' }}
     >
       {/* Backdrop with spotlight */}
       <div className={`absolute inset-0 bg-black transition-all duration-300 ${
@@ -329,6 +332,7 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
           top: tooltipPosition.top,
           left: tooltipPosition.left,
           zIndex: 10000,
+          pointerEvents: 'auto',
           transform: animationPhase === 'entering' ? 'scale(0.75) translateY(16px)' : 
                     animationPhase === 'exiting' ? 'scale(0.75) translateY(16px)' : 'scale(1) translateY(0)'
         }}

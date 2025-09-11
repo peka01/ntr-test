@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { tourManagementService, TourFormData, TourStepFormData } from '../services/tourManagementService';
 import { Tour, TourStep, useTour } from '../contexts/TourContext';
@@ -51,21 +51,21 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
   const [showImportExport, setShowImportExport] = useState(false);
   const [importData, setImportData] = useState('');
 
-  // Load tours on component mount
-  useEffect(() => {
-    loadTours();
-  }, []);
-
-  const loadTours = () => {
+  const loadTours = useCallback(() => {
     const allTours = getAvailableTours();
     const defaultToursList = allTours.filter(tour => 
-      ['welcome-tour', 'admin-tour', 'attendance-tour', 'cinematic-demo'].includes(tour.id)
+      ['welcome-tour', 'admin-tour', 'attendance-tour', 'cinematic-demo', 'help-tour'].includes(tour.id)
     );
     setDefaultTours(defaultToursList);
     
     const allToursForManagement = tourManagementService.getAllToursForManagement(defaultToursList);
     setTours(allToursForManagement);
-  };
+  }, [getAvailableTours]);
+
+  // Load tours on component mount
+  useEffect(() => {
+    loadTours();
+  }, [loadTours]);
 
   const handleCreateTour = () => {
     setFormData({
@@ -436,9 +436,12 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                       <input
                         type="text"
                         value={formData.name}
-                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        onChange={(e) => {
+                          setFormData({ ...formData, name: e.target.value });
+                        }}
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
                         placeholder={t('tourAdminTourNamePlaceholder')}
+                        style={{ pointerEvents: 'auto' }}
                       />
                     </div>
 
@@ -449,7 +452,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                       <textarea
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
                         rows={3}
                         placeholder={t('tourAdminTourDescriptionPlaceholder')}
                       />
@@ -463,7 +466,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                         <select
                           value={formData.category}
                           onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
                         >
                           <option value="onboarding">{t('tourAdminCategoryOnboarding')}</option>
                           <option value="feature">{t('tourAdminCategoryFeature')}</option>
@@ -479,7 +482,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                         <select
                           value={formData.requiredRole}
                           onChange={(e) => setFormData({ ...formData, requiredRole: e.target.value as any })}
-                          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
                         >
                           <option value="any">{t('tourAdminRoleAny')}</option>
                           <option value="admin">{t('tourAdminRoleAdmin')}</option>
@@ -497,7 +500,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                         min="1"
                         value={formData.estimatedDuration}
                         onChange={(e) => setFormData({ ...formData, estimatedDuration: parseInt(e.target.value) || 1 })}
-                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-slate-900"
                       />
                     </div>
                   </div>

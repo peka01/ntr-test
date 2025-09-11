@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTour } from '../contexts/TourContext';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
@@ -34,6 +34,7 @@ export const TourLauncher: React.FC<TourLauncherProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const [showManagement, setShowManagement] = useState(false);
   const [showShoutoutManagement, setShowShoutoutManagement] = useState(false);
+
   const [showContextMenu, setShowContextMenu] = useState(false);
 
   const availableTours = tourContext ? tourContext.getAvailableTours().filter(tour => {
@@ -41,6 +42,18 @@ export const TourLauncher: React.FC<TourLauncherProps> = ({
     // Users can restart completed tours or retry skipped ones
     return true;
   }) : [];
+
+  // Listen for shoutout management events from ShoutoutButton
+  useEffect(() => {
+    const handleOpenShoutoutManagement = () => {
+      setShowShoutoutManagement(true);
+    };
+
+    window.addEventListener('open-shoutout-management', handleOpenShoutoutManagement);
+    return () => {
+      window.removeEventListener('open-shoutout-management', handleOpenShoutoutManagement);
+    };
+  }, []);
 
   const handleStartTour = async (tourId: string) => {
     if (!tourContext) return;
@@ -126,7 +139,7 @@ export const TourLauncher: React.FC<TourLauncherProps> = ({
                   setShowManagement(true);
                   setShowContextMenu(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 rounded-t-lg transition-colors"
+                className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 rounded-lg transition-colors"
               >
                 <div className="flex items-center space-x-2">
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -134,20 +147,6 @@ export const TourLauncher: React.FC<TourLauncherProps> = ({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
                   <span>{t('tourAdminManageTours')}</span>
-                </div>
-              </button>
-              <button
-                onClick={() => {
-                  setShowShoutoutManagement(true);
-                  setShowContextMenu(false);
-                }}
-                className="w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 rounded-b-lg transition-colors"
-              >
-                <div className="flex items-center space-x-2">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-                  </svg>
-                  <span>{t('shoutoutAdminManageShoutouts')}</span>
                 </div>
               </button>
             </div>

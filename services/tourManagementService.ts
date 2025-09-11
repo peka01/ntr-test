@@ -44,7 +44,7 @@ export interface ShoutoutFormData {
   image?: string;
   icon?: string;
   tourId?: string;
-  category: 'feature' | 'improvement' | 'announcement';
+  category: 'feature' | 'improvement' | 'announcement' | 'bugfix';
   priority: 'low' | 'medium' | 'high';
   releaseDate: string;
   expireDate?: string;
@@ -55,6 +55,11 @@ class TourManagementService {
   private readonly STORAGE_KEY = 'admin-tours';
   private readonly SHOUTOUT_STORAGE_KEY = 'admin-shoutouts';
   private readonly VERSION = '1.0.0';
+
+  // Generate a unique ID
+  private generateId(): string {
+    return 'id-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+  }
 
   // Get all tours from storage
   getTours(): Tour[] {
@@ -513,7 +518,7 @@ class TourManagementService {
       if (!shoutout.description || shoutout.description.trim().length === 0) {
         errors.push(`Shoutout ${index + 1}: Description is required`);
       }
-      if (!shoutout.category || !['feature', 'improvement', 'announcement'].includes(shoutout.category)) {
+      if (!shoutout.category || !['feature', 'improvement', 'announcement', 'bugfix'].includes(shoutout.category)) {
         errors.push(`Shoutout ${index + 1}: Valid category is required`);
       }
       if (!shoutout.priority || !['low', 'medium', 'high'].includes(shoutout.priority)) {

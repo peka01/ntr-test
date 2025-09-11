@@ -32,8 +32,8 @@ interface TourContextType {
   isActive: boolean;
   completedTours: string[];
   skippedTours: string[];
-  startTour: (tourId: string) => void;
-  nextStep: () => void;
+  startTour: (tourId: string) => Promise<void>;
+  nextStep: () => Promise<void>;
   previousStep: () => void;
   completeTour: () => void;
   skipTour: () => void;
@@ -57,6 +57,25 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isActive, setIsActive] = useState(false);
   const [completedTours, setCompletedTours] = useState<Set<string>>(new Set());
   const [skippedTours, setSkippedTours] = useState<Set<string>>(new Set());
+
+  // Reset any body styles that might be causing issues
+  const resetBodyStyles = useCallback(() => {
+    document.body.style.opacity = '';
+    document.body.style.transition = '';
+    document.body.style.pointerEvents = '';
+    document.body.style.overflow = '';
+  }, []);
+
+  // Reset body styles on mount and when tour completes
+  useEffect(() => {
+    resetBodyStyles();
+  }, [resetBodyStyles]);
+
+  useEffect(() => {
+    if (!isActive) {
+      resetBodyStyles();
+    }
+  }, [isActive, resetBodyStyles]);
 
   // Load completed/skipped tours from localStorage
   useEffect(() => {
@@ -124,7 +143,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, []);
 
-  // Get default tours with translations
+  // Get default tours with translations - memoized to prevent infinite re-renders
   const getTours = useCallback(() => {
     return [
       {
@@ -268,7 +287,6 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
               // Check if user is logged in, if not, skip this step
               const userElement = document.querySelector('[data-tour="nav-attendance"]');
               if (!userElement) {
-                console.log('User not logged in, skipping attendance tour step');
                 return;
               }
             },
@@ -330,6 +348,85 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           },
         ],
       },
+      {
+        id: 'help-tour',
+        name: t('tourHelpName'),
+        description: t('tourHelpDescription'),
+        category: 'feature' as const,
+        requiredRole: 'any' as const,
+        estimatedDuration: 6,
+        steps: [
+          {
+            id: 'help-1',
+            title: t('tourHelpStep1Title'),
+            content: t('tourHelpStep1Content'),
+            target: 'help-window',
+            position: 'center' as const,
+            action: 'none' as const,
+            skipIfNotFound: true,
+            beforeStep: async () => {
+              // Check if help system is already open
+              const helpWindow = document.querySelector('[data-tour="help-window"]');
+              if (!helpWindow) {
+                // Help system is not open, trigger the help button click
+                const helpButton = document.querySelector('[data-tour="help-button"]') as HTMLButtonElement;
+                if (helpButton) {
+                  helpButton.click();
+                  // Wait a moment for the help system to open
+                  await new Promise(resolve => setTimeout(resolve, 500));
+                } else {
+                  console.warn('Help button not found, cannot open help system');
+                }
+              }
+            },
+          },
+          {
+            id: 'help-2',
+            title: t('tourHelpStep2Title'),
+            content: t('tourHelpStep2Content'),
+            target: 'help-toc',
+            position: 'right' as const,
+            action: 'none' as const,
+            skipIfNotFound: true,
+          },
+          {
+            id: 'help-3',
+            title: t('tourHelpStep3Title'),
+            content: t('tourHelpStep3Content'),
+            target: 'help-search',
+            position: 'bottom' as const,
+            action: 'none' as const,
+            skipIfNotFound: true,
+          },
+          {
+            id: 'help-4',
+            title: t('tourHelpStep4Title'),
+            content: t('tourHelpStep4Content'),
+            target: 'help-ai-input',
+            position: 'top' as const,
+            action: 'none' as const,
+            skipIfNotFound: true,
+          },
+          {
+            id: 'help-5',
+            title: t('tourHelpStep5Title'),
+            content: t('tourHelpStep5Content'),
+            target: 'help-ai-response',
+            position: 'top' as const,
+            action: 'none' as const,
+            skipIfNotFound: true,
+          },
+          {
+            id: 'help-6',
+            title: t('tourHelpStep6Title'),
+            content: t('tourHelpStep6Content'),
+            target: 'help-context-info',
+            position: 'bottom' as const,
+            action: 'none' as const,
+            skipIfNotFound: true,
+          },
+        ],
+      },
     ];
   }, [t]);
 
@@ -373,6 +470,10 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
           
           await new Promise(resolve => setTimeout(resolve, 150));
           document.body.style.opacity = '1';
+          // Ensure we reset the transition after the animation
+          setTimeout(() => {
+            document.body.style.transition = '';
+          }, 300);
         }
         break;
       case 'wait':

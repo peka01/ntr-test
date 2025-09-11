@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import type { Training } from './types';
 import type { User } from '@supabase/supabase-js';
@@ -12,18 +11,22 @@ import { LoadingSpinner } from './components/LoadingSpinner';
 import { HelpSystem } from './components/HelpSystem';
 import { HelpButton } from './components/HelpButton';
 
-import { useAuth } from './contexts/AuthContext';
+import { useAuth, AuthProvider } from './contexts/AuthContext';
 import { TourProvider } from './contexts/TourContext';
 import { ShoutoutProvider } from './contexts/ShoutoutContext';
+import { LanguageProvider } from './contexts/LanguageContext';
+import { UserInteractionProvider } from './contexts/UserInteractionContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserMenu } from './components/UserMenu';
 import { LoginForm } from './components/LoginForm';
 import { TourOverlay } from './components/TourOverlay';
 import { ShoutoutButton } from './components/ShoutoutButton';
+import { TourLauncher } from './components/TourLauncher';
 import { ShoutoutSplash } from './components/ShoutoutSplash';
 import TourManagementPage from './components/TourManagementPage';
+import { ShoutoutManagementPage } from './components/ShoutoutManagementPage';
 
-type View = 'public' | 'attendance' | 'trainings' | 'users' | 'tour-management';
+type View = 'public' | 'attendance' | 'trainings' | 'users' | 'tour-management' | 'shoutout-management';
 
 const AppContent: React.FC = () => {
     const { t } = useTranslations();
@@ -32,17 +35,62 @@ const AppContent: React.FC = () => {
     const [helpOpen, setHelpOpen] = useState(false);
     const [helpContext, setHelpContext] = useState<string>('');
     const [showLogin, setShowLogin] = useState(false);
-    
-    const {
-        users,
-        trainings,
-        subscriptions,
-        attendance,
-        loading,
+
+    // Debug: Log when component mounts
+    React.useEffect(() => {
+        console.log('AppContent mounted, checking for interaction issues...');
+        console.log('User state:', { user, isAdmin });
+        
+        // Check if body has any problematic styles
+        const bodyStyles = window.getComputedStyle(document.body);
+        console.log('Body styles:', {
+            pointerEvents: bodyStyles.pointerEvents,
+            overflow: bodyStyles.overflow,
+            opacity: bodyStyles.opacity,
+            position: bodyStyles.position,
+            zIndex: bodyStyles.zIndex
+        });
+        
+        // Force reset any problematic styles
+        document.body.style.pointerEvents = 'auto';
+        document.body.style.overflow = 'auto';
+        document.body.style.opacity = '1';
+        document.body.style.position = 'relative';
+        document.body.style.zIndex = '1';
+        
+        console.log('Forced body styles reset');
+    }, []); // Empty dependency array for mount-only effect
+
+    // Track user state changes
+    React.useEffect(() => {
+        console.log('User state changed:', { user, isAdmin });
+    }, [user, isAdmin]);
+
+    // Handle AI actions for navigation
+    React.useEffect(() => {
+        const handleAIAction = (event: CustomEvent) => {
+            console.log('📡 Received AI action event:', event.detail);
+            const { type, payload } = event.detail;
+            
+            if (type === 'navigate' && payload?.view) {
+                console.log('🧭 Navigating to view:', payload.view);
+                setView(payload.view as View);
+            }
+        };
+
+        window.addEventListener('ai-action', handleAIAction as EventListener);
+        return () => window.removeEventListener('ai-action', handleAIAction as EventListener);
+    }, []);
+
+    const { 
+        users, 
+        trainings, 
+        subscriptions, 
+        attendance, 
+        loading, 
         error,
         createUser,
         updateUser,
-        updateUserVoucherBalance,
         createTraining,
         updateTraining,
         deleteTraining,
@@ -52,121 +100,6 @@ const AppContent: React.FC = () => {
         unmarkAttendance
     } = useData();
 
-    const handleHelpClick = (context?: string) => {
-        setHelpContext(context || '');
-        setHelpOpen(true);
-    };
-
-    // Listen for AI action events (navigation, etc.)
-    React.useEffect(() => {
-        const handler = (event: Event) => {
-            const custom = event as CustomEvent<any>;
-            console.log('📡 Received AI action event:', custom.detail);
-            if (!custom.detail) return;
-            const { type, payload } = custom.detail;
-            if (type === 'navigate' && payload?.view) {
-                console.log('🧭 Navigating to view:', payload.view);
-                setView(payload.view);
-            }
-        };
-        window.addEventListener('ai-action', handler as EventListener);
-        return () => window.removeEventListener('ai-action', handler as EventListener);
-    }, []);
-
-    const handleCreateUser = async (name: string, email: string) => {
-        try {
-            await createUser(name, email);
-        } catch (err) {
-            console.error('Failed to create user:', err);
-        }
-    };
-
-    const handleUpdateUser = async (userId: string, name: string, email: string) => {
-        try {
-            await updateUser(userId, name, email);
-        } catch (err) {
-            console.error('Failed to update user:', err);
-        }
-    };
-
-    const handleCreateTraining = async (name: string, description: string, trainingDate?: string, trainingTime?: string) => {
-        try {
-            await createTraining(name, description, trainingDate, trainingTime);
-        } catch (err) {
-            console.error('Failed to create training:', err);
-        }
-    };
-    
-    const handleUpdateTraining = async (trainingId: string, name: string, description: string, trainingDate?: string, trainingTime?: string) => {
-        try {
-            await updateTraining(trainingId, name, description, trainingDate, trainingTime);
-        } catch (err) {
-            console.error('Failed to update training:', err);
-        }
-    };
-
-    const handleDeleteTraining = async (trainingId: string) => {
-        try {
-            await deleteTraining(trainingId);
-        } catch (err) {
-            console.error('Failed to delete training:', err);
-        }
-    };
-
-    const handleSubscribe = async (trainingId: string, userId: string) => {
-        try {
-            await subscribe(trainingId, userId);
-        } catch (err) {
-            console.error('Failed to subscribe:', err);
-        }
-    };
-
-    const handleUnsubscribe = async (trainingId: string, userId: string) => {
-        try {
-            await unsubscribe(trainingId, userId);
-        } catch (err) {
-            console.error('Failed to unsubscribe:', err);
-        }
-    };
-
-    const handleMarkAttendance = async (trainingId: string, userId: string) => {
-        try {
-            await markAttendance(trainingId, userId);
-        } catch (err) {
-            console.error('Failed to mark attendance:', err);
-        }
-    };
-
-    const handleUnmarkAttendance = async (trainingId: string, userId: string) => {
-        try {
-            await unmarkAttendance(trainingId, userId);
-        } catch (err) {
-            console.error('Failed to unmark attendance:', err);
-        }
-    };
-
-    const handleAddVoucher = async (userId: string) => {
-        try {
-            const user = users.find(u => u.id === userId);
-            if (user) {
-                await updateUserVoucherBalance(userId, user.voucherBalance + 1);
-            }
-        } catch (err) {
-            console.error('Failed to add voucher:', err);
-        }
-    };
-
-    const handleRemoveVoucher = async (userId: string) => {
-        try {
-            const user = users.find(u => u.id === userId);
-            if (user) {
-                await updateUserVoucherBalance(userId, user.voucherBalance - 1);
-            }
-        } catch (err) {
-            console.error('Failed to remove voucher:', err);
-        }
-    };
-
     if (loading) {
         return <LoadingSpinner />;
     }
@@ -175,8 +108,8 @@ const AppContent: React.FC = () => {
         return (
             <div className="min-h-screen bg-slate-50 flex items-center justify-center">
                 <div className="text-center">
-                    <h2 className="text-2xl font-bold text-red-600 mb-4">{t('errorTitle')}</h2>
-                    <p className="text-gray-600">{error}</p>
+                    <h2 className="text-xl font-semibold text-slate-900 mb-2">Error Loading Data</h2>
+                    <p className="text-slate-600">{error}</p>
                 </div>
             </div>
         );
@@ -187,95 +120,91 @@ const AppContent: React.FC = () => {
             {/* Header */}
             <header className="bg-white shadow-sm border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex items-center h-16">
-                        {/* Left: Logo */}
-                        <div className="flex items-center">
+                    <div className="flex justify-between items-center h-16">
+                        <div className="flex items-center space-x-8">
                             <h1 className="text-xl font-semibold text-slate-900" data-tour="app-title">
-                                {t('appTitle')}
+                                Training Management System
                             </h1>
-                        </div>
-                        
-                        {/* Center: Navigation */}
-                        <div className="flex-1 flex justify-center">
-                            {user ? (
-                                <div className="flex items-center space-x-1">
-                                    {/* Main Application Menu */}
-                                    <div className="flex items-center space-x-1">
-                                        {isAdmin && (
-                                            <>
-                                                <button
-                                                    onClick={() => setView('trainings')}
-                                                    data-tour="nav-trainings"
-                                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                                                        view === 'trainings' 
-                                                            ? 'bg-blue-600 text-white shadow-sm' 
-                                                            : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50 border border-slate-200'
-                                                    }`}
-                                                >
-                                                    {t('navTrainings')}
-                                                </button>
-                                                <button
-                                                    onClick={() => setView('users')}
-                                                    data-tour="nav-users"
-                                                    className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                                                        view === 'users' 
-                                                            ? 'bg-blue-600 text-white shadow-sm' 
-                                                            : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50 border border-slate-200'
-                                                    }`}
-                                                >
-                                                    {t('navUsers')}
-                                                </button>
-                                            </>
-                                        )}
-                                        <button
-                                            onClick={() => setView('attendance')}
-                                            data-tour="nav-attendance"
-                                            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all duration-200 ${
-                                                view === 'attendance' 
-                                                    ? 'bg-blue-600 text-white shadow-sm' 
-                                                    : 'text-slate-700 hover:text-blue-600 hover:bg-blue-50 border border-slate-200'
-                                            }`}
-                                        >
-                                            {t('navAttendance')}
-                                        </button>
-                                    </div>
-                                    
-                                    {/* Divider */}
-                                    <div className="h-6 w-px bg-slate-300 mx-2"></div>
-                                    
-                                    {/* System Menu */}
+                            
+                            {/* Navigation */}
+                            <nav className="hidden md:flex space-x-6">
+                                <button
+                                    onClick={() => setView('public')}
+                                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                        view === 'public'
+                                            ? 'bg-blue-100 text-blue-700'
+                                            : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                    }`}
+                                    data-tour="nav-home"
+                                >
+                                    {t('navPublic')}
+                                </button>
+                                
+                                <ProtectedRoute>
                                     <button
-                                        onClick={() => setView('public')}
-                                        className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
-                                            view === 'public' 
-                                                ? 'bg-slate-100 text-slate-700' 
-                                                : 'text-slate-500 hover:text-slate-700 hover:bg-slate-50'
+                                        onClick={() => setView('attendance')}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                            view === 'attendance'
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                                         }`}
+                                        data-tour="nav-attendance"
                                     >
-                                        {t('navPublic')}
+                                        {t('navAttendance')}
                                     </button>
-                                </div>
-                            ) : null}
+                                </ProtectedRoute>
+                                
+                                <ProtectedRoute requireAdmin={true}>
+                                    <button
+                                        onClick={() => setView('trainings')}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                            view === 'trainings'
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                        }`}
+                                        data-tour="nav-trainings"
+                                    >
+                                        {t('navTrainings')}
+                                    </button>
+                                    
+                                    <button
+                                        onClick={() => setView('users')}
+                                        className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                                            view === 'users'
+                                                ? 'bg-blue-100 text-blue-700'
+                                                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                                        }`}
+                                        data-tour="nav-users"
+                                    >
+                                        {t('navUsers')}
+                                    </button>
+                                </ProtectedRoute>
+                            </nav>
                         </div>
                         
-                        {/* Right: Icons */}
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-4">
+                            {/* Shoutout Button */}
                             <ShoutoutButton />
+                            
+                            {/* Help Button */}
                             <HelpButton 
-                                onClick={handleHelpClick}
-                                context="main"
-                                variant="icon"
-                                size="lg"
-                                data-tour="help-button"
+                                onClick={() => setHelpOpen(true)}
+                                context={helpContext}
                             />
-                            {user ? (
-                                <UserMenu user={user} />
+                            
+                            {/* User Menu */}
+                            {user && user.id ? (
+                                <UserMenu 
+                                    user={user}
+                                    onTourManagement={() => setView('tour-management')}
+                                    onShoutoutManagement={() => setView('shoutout-management')}
+                                />
                             ) : (
                                 <button
                                     onClick={() => setShowLogin(true)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                                 >
-                                    {t('adminLoginButton')}
+                                    {t('signInButton')}
                                 </button>
                             )}
                         </div>
@@ -283,84 +212,59 @@ const AppContent: React.FC = () => {
                 </div>
             </header>
 
-
-
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Show public subscription page by default for non-authenticated users */}
-                {!user ? (
-                    <SubscriptionPage
+                {view === 'public' && (
+                    <SubscriptionPage 
                         users={users}
                         trainings={trainings}
                         subscriptions={subscriptions}
-                        onSubscribe={handleSubscribe}
-                        onUnsubscribe={handleUnsubscribe}
-                        onHelpClick={handleHelpClick}
+                        onSubscribe={subscribe}
+                        onUnsubscribe={unsubscribe}
                     />
-                ) : (
-                    <>
-
-                        {view === 'public' && (
-                            <SubscriptionPage
-                                users={users}
-                                trainings={trainings}
-                                subscriptions={subscriptions}
-                                onSubscribe={handleSubscribe}
-                                onUnsubscribe={handleUnsubscribe}
-                                onHelpClick={handleHelpClick}
-                            />
-                        )}
-
-                        {view === 'attendance' && (
-                            <ProtectedRoute>
-                                <AttendancePage
-                                    users={users}
-                                    trainings={trainings}
-                                    subscriptions={subscriptions}
-                                    attendance={attendance}
-                                    onMarkAttendance={handleMarkAttendance}
-                                    onUnmarkAttendance={handleUnmarkAttendance}
-                                    onHelpClick={handleHelpClick}
-                                />
-                            </ProtectedRoute>
-                        )}
-
-                        {view === 'trainings' && (
-                            <ProtectedRoute requireAdmin={true}>
-                                <TrainingsPage
-                                    trainings={trainings}
-                                    onCreateTraining={handleCreateTraining}
-                                    onUpdateTraining={handleUpdateTraining}
-                                    onDeleteTraining={handleDeleteTraining}
-                                    onHelpClick={handleHelpClick}
-                                />
-                            </ProtectedRoute>
-                        )}
-
-                        {view === 'users' && (
-                            <ProtectedRoute requireAdmin={true}>
-                                <UsersPage
-                                    users={users}
-                                    onCreateUser={handleCreateUser}
-                                    onUpdateUser={handleUpdateUser}
-                                    onAddVoucher={handleAddVoucher}
-                                    onRemoveVoucher={handleRemoveVoucher}
-                                    onHelpClick={handleHelpClick}
-                                />
-                            </ProtectedRoute>
-                        )}
-
-                    </>
                 )}
-
+                {view === 'attendance' && (
+                    <AttendancePage 
+                        users={users}
+                        trainings={trainings}
+                        subscriptions={subscriptions}
+                        attendance={attendance}
+                        onMarkAttendance={markAttendance}
+                        onUnmarkAttendance={unmarkAttendance}
+                        onHelpClick={() => setHelpOpen(true)}
+                    />
+                )}
+                {view === 'trainings' && (
+                    <TrainingsPage 
+                        trainings={trainings}
+                        onCreateTraining={createTraining}
+                        onUpdateTraining={updateTraining}
+                        onDeleteTraining={deleteTraining}
+                    />
+                )}
+                {view === 'users' && (
+                    <UsersPage 
+                        users={users}
+                        onCreateUser={createUser}
+                        onUpdateUser={updateUser}
+                        onAddVoucher={() => {}}
+                        onRemoveVoucher={() => {}}
+                    />
+                )}
+                {view === 'tour-management' && isAdmin && (
+                    <TourManagementPage onClose={() => setView('public')} />
+                )}
+                {view === 'shoutout-management' && isAdmin && (
+                    <ShoutoutManagementPage onClose={() => setView('public')} />
+                )}
             </main>
 
-            {/* Help System */}
+            {/* Help System Modal */}
             {helpOpen && (
                 <HelpSystem 
-                    isOpen={helpOpen} 
-                    onClose={() => setHelpOpen(false)} 
-                    context={helpContext} 
+                    isOpen={helpOpen}
+                    onClose={() => setHelpOpen(false)}
+                    context={helpContext}
                 />
             )}
 
@@ -369,22 +273,27 @@ const AppContent: React.FC = () => {
                 <LoginForm onClose={() => setShowLogin(false)} />
             )}
 
-            {/* Tour Overlay */}
+            {/* Tour and Shoutout Components */}
             <TourOverlay />
-            
-            {/* Shoutout Splash */}
             <ShoutoutSplash />
+            <TourLauncher />
         </div>
     );
 };
 
 const App: React.FC = () => {
     return (
-        <TourProvider>
-            <ShoutoutProvider>
-                <AppContent />
-            </ShoutoutProvider>
-        </TourProvider>
+        <AuthProvider>
+            <LanguageProvider>
+                <UserInteractionProvider>
+                    <TourProvider>
+                        <ShoutoutProvider>
+                            <AppContent />
+                        </ShoutoutProvider>
+                    </TourProvider>
+                </UserInteractionProvider>
+            </LanguageProvider>
+        </AuthProvider>
     );
 };
 

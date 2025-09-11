@@ -6,14 +6,21 @@ import { User } from '@supabase/supabase-js';
 
 interface UserMenuProps {
     user: User;
+    onTourManagement?: () => void;
+    onShoutoutManagement?: () => void;
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ user, onTourManagement, onShoutoutManagement }) => {
     const { t } = useTranslations();
-    const { signOut } = useAuth();
+    const { signOut, isAdmin } = useAuth();
     const { language, setLanguage } = useLanguage();
     const [isOpen, setIsOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
+
+    // Safety check: don't render if no user
+    if (!user) {
+        return null;
+    }
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -72,6 +79,42 @@ export const UserMenu: React.FC<UserMenuProps> = ({ user }) => {
                             </div>
                         </div>
                     </div>
+
+                    {/* Admin Options */}
+                    {isAdmin && (onTourManagement || onShoutoutManagement) && (
+                        <div className="px-4 py-3 border-b border-slate-200">
+                            <div className="space-y-2">
+                                {onTourManagement && (
+                                    <button
+                                        onClick={() => {
+                                            onTourManagement();
+                                            setIsOpen(false);
+                                        }}
+                                        className="w-full px-3 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-md transition-colors duration-200 flex items-center justify-center space-x-2"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                        </svg>
+                                        <span>{t('navTourManagement')}</span>
+                                    </button>
+                                )}
+                                {onShoutoutManagement && (
+                                    <button
+                                        onClick={() => {
+                                            onShoutoutManagement();
+                                            setIsOpen(false);
+                                        }}
+                                        className="w-full px-3 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-md transition-colors duration-200 flex items-center justify-center space-x-2"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+                                        </svg>
+                                        <span>{t('navShoutoutManagement')}</span>
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Language Selector */}
                     <div className="px-4 py-3 border-b border-slate-200">

@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { useTour } from './TourContext';
-import { tourManagementService } from '../services/tourManagementService';
+import { useLanguage } from './LanguageContext';
+import { helpSystemService, HelpShoutout } from '../services/helpSystemService';
 
 export interface ShoutoutFeature {
   id: string;
@@ -10,8 +11,9 @@ export interface ShoutoutFeature {
   image?: string;
   icon?: string;
   tourId?: string;
-  category: 'feature' | 'improvement' | 'announcement';
+  category: 'feature' | 'improvement' | 'announcement' | 'bugfix';
   priority: 'low' | 'medium' | 'high';
+  language?: 'en' | 'sv';
   releaseDate: string;
   expireDate?: string;
   isNew?: boolean;
@@ -22,9 +24,9 @@ interface ShoutoutContextType {
   isVisible: boolean;
   showShoutout: (featureId: string) => void;
   hideShoutout: () => void;
-  getAvailableFeatures: () => ShoutoutFeature[];
+  getAvailableFeatures: () => Promise<ShoutoutFeature[]>;
   markAsSeen: (featureId: string) => void;
-  hasUnseenFeatures: () => boolean;
+  hasUnseenFeatures: () => Promise<boolean>;
   handleStartTour: () => void;
 }
 
@@ -40,6 +42,10 @@ export const useShoutout = () => {
 
 export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslations();
+  
+  // Get current language at the top level
+  const { language } = useLanguage();
+  const currentLanguage = language === 'sv-se' || language === 'sv' ? 'sv' : 'en';
   
   // Optional tour integration - handle cases where TourProvider might not be available
   let startTour: ((tourId: string) => void) | null = null;
@@ -79,77 +85,102 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   }, []);
 
+  // Memoize default shoutouts to prevent recreation on every render
+  const defaultShoutouts = useMemo((): ShoutoutFeature[] => [
+    {
+      id: 'tour-system',
+      title: t('shoutoutTourSystemTitle'),
+      description: t('shoutoutTourSystemDescription'),
+      icon: '🎯',
+      tourId: 'welcome-tour',
+      category: 'feature',
+      priority: 'high',
+      releaseDate: '2024-01-15',
+      expireDate: '2026-01-15',
+      isNew: true,
+    },
+    {
+      id: 'admin-tours',
+      title: t('shoutoutAdminToursTitle'),
+      description: t('shoutoutAdminToursDescription'),
+      icon: '⚙️',
+      tourId: 'admin-tour',
+      category: 'feature',
+      priority: 'medium',
+      releaseDate: '2024-01-15',
+      expireDate: '2026-01-15',
+      isNew: true,
+    },
+    {
+      id: 'cinematic-tours',
+      title: t('shoutoutCinematicToursTitle'),
+      description: t('shoutoutCinematicToursDescription'),
+      icon: '🎬',
+      tourId: 'cinematic-demo',
+      category: 'feature',
+      priority: 'medium',
+      releaseDate: '2024-01-15',
+      expireDate: '2026-01-15',
+      isNew: true,
+    },
+    {
+      id: 'performance-improvements',
+      title: t('shoutoutPerformanceTitle'),
+      description: t('shoutoutPerformanceDescription'),
+      icon: '⚡',
+      category: 'improvement',
+      priority: 'high',
+      releaseDate: '2024-01-15',
+      expireDate: '2026-01-15',
+      isNew: true,
+    },
+    {
+      id: 'attendance-page-fix',
+      title: t('shoutoutAttendanceFixTitle'),
+      description: t('shoutoutAttendanceFixDescription'),
+      icon: '🐛',
+      category: 'bugfix',
+      priority: 'high',
+      releaseDate: new Date().toISOString().split('T')[0],
+      expireDate: '2026-01-15',
+      isNew: true,
+    },
+  ], [t]);
+
   // Define available features (combines default and admin-created features)
-  const getAvailableFeatures = useCallback((): ShoutoutFeature[] => {
-    // Get admin-created shoutouts from backend
-    const adminShoutouts = tourManagementService.getShoutouts();
-    
-    // Default shoutouts (fallback if no admin shoutouts exist)
-    const defaultShoutouts: ShoutoutFeature[] = [
-      {
-        id: 'tour-system',
-        title: t('shoutoutTourSystemTitle'),
-        description: t('shoutoutTourSystemDescription'),
-        icon: '🎯',
-        tourId: 'welcome-tour',
-        category: 'feature',
-        priority: 'high',
-        releaseDate: '2024-01-15',
-        expireDate: '2025-01-15',
-        isNew: true,
-      },
-      {
-        id: 'admin-tours',
-        title: t('shoutoutAdminToursTitle'),
-        description: t('shoutoutAdminToursDescription'),
-        icon: '⚙️',
-        tourId: 'admin-tour',
-        category: 'feature',
-        priority: 'medium',
-        releaseDate: '2024-01-15',
-        expireDate: '2025-01-15',
-        isNew: true,
-      },
-      {
-        id: 'cinematic-tours',
-        title: t('shoutoutCinematicToursTitle'),
-        description: t('shoutoutCinematicToursDescription'),
-        icon: '🎬',
-        tourId: 'cinematic-demo',
-        category: 'feature',
-        priority: 'medium',
-        releaseDate: '2024-01-15',
-        expireDate: '2025-01-15',
-        isNew: true,
-      },
-      {
-        id: 'performance-improvements',
-        title: t('shoutoutPerformanceTitle'),
-        description: t('shoutoutPerformanceDescription'),
-        icon: '⚡',
-        category: 'improvement',
-        priority: 'high',
-        releaseDate: '2024-01-15',
-        expireDate: '2025-01-15',
-        isNew: true,
-      },
-    ];
+  // Memoized to prevent infinite re-renders
+  const getAvailableFeatures = useCallback(async (): Promise<ShoutoutFeature[]> => {
+    try {
+      // Get shoutouts from database for current language
+      const dbShoutouts = await helpSystemService.getShoutouts(currentLanguage);
+      
+      // Convert database format to ShoutoutFeature format
+      const shoutouts: ShoutoutFeature[] = dbShoutouts.map(dbShoutout => ({
+        id: dbShoutout.id,
+        title: dbShoutout.title,
+        description: dbShoutout.description,
+        image: dbShoutout.image,
+        icon: dbShoutout.icon,
+        tourId: dbShoutout.tour_id,
+        category: dbShoutout.category,
+        priority: dbShoutout.priority,
+        language: dbShoutout.language,
+        releaseDate: dbShoutout.release_date,
+        expireDate: dbShoutout.expire_date,
+        isNew: dbShoutout.is_new,
+      }));
 
-    // If admin has created shoutouts, use those; otherwise use defaults
-    const allShoutouts = adminShoutouts.length > 0 ? adminShoutouts : defaultShoutouts;
-    
-    // Filter out expired items
-    const currentDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-    return allShoutouts.filter(shoutout => {
-      if (!shoutout.expireDate) {
-        return true; // No expire date means it never expires
-      }
-      return shoutout.expireDate >= currentDate;
-    });
-  }, [t]);
+      return shoutouts;
+    } catch (error) {
+      console.error('Error fetching shoutouts from database:', error);
+      
+      // Fallback to default shoutouts if database fails
+      return defaultShoutouts;
+    }
+  }, [currentLanguage, defaultShoutouts]);
 
-  const showShoutout = useCallback((featureId: string) => {
-    const features = getAvailableFeatures();
+  const showShoutout = useCallback(async (featureId: string) => {
+    const features = await getAvailableFeatures();
     const feature = features.find(f => f.id === featureId);
     
     if (feature) {
@@ -170,8 +201,8 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     saveSeenFeatures(newSeenFeatures);
   }, [seenFeatures, saveSeenFeatures]);
 
-  const hasUnseenFeatures = useCallback(() => {
-    const features = getAvailableFeatures();
+  const hasUnseenFeatures = useCallback(async (): Promise<boolean> => {
+    const features = await getAvailableFeatures();
     return features.some(feature => !seenFeatures.has(feature.id));
   }, [getAvailableFeatures, seenFeatures]);
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useShoutout } from '../contexts/ShoutoutContext';
 import { useTranslations } from '../hooks/useTranslations';
 
@@ -21,6 +21,17 @@ export const ShoutoutSplash: React.FC = () => {
   const { t } = useTranslations();
   const [animationPhase, setAnimationPhase] = useState<'entering' | 'active' | 'exiting'>('entering');
 
+  const handleDismiss = useCallback(() => {
+    if (currentShoutout) {
+      markAsSeen(currentShoutout.id);
+    }
+    hideShoutout();
+  }, [currentShoutout, markAsSeen, hideShoutout]);
+
+  const handleStartTourClick = () => {
+    handleStartTour();
+  };
+
   useEffect(() => {
     if (isVisible) {
       setAnimationPhase('entering');
@@ -31,16 +42,19 @@ export const ShoutoutSplash: React.FC = () => {
     }
   }, [isVisible]);
 
-  const handleStartTourClick = () => {
-    handleStartTour();
-  };
+  // Handle Esc key to close shoutout
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && isVisible) {
+        handleDismiss();
+      }
+    };
 
-  const handleDismiss = () => {
-    if (currentShoutout) {
-      markAsSeen(currentShoutout.id);
+    if (isVisible) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
     }
-    hideShoutout();
-  };
+  }, [isVisible, handleDismiss]);
 
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
