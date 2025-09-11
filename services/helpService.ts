@@ -67,6 +67,42 @@ const helpConfig = {
       },
       keywords: ["error", "problem", "issue", "cannot mark", "not appearing", "balance not updating"],
       category: "general" as const
+    },
+    {
+      id: "tour-management",
+      title: {
+        sv: "Rundturshantering (Admin)",
+        en: "Tour Management (Admin)"
+      },
+      keywords: ["rundtur", "guidad rundtur", "tour", "guida", "steg", "navigera", "klicka", "scrolla", "vänta", "markera", "tour management", "create tour", "edit tour", "tour steps", "tour statistics", "tour import", "tour export", "rundturshantering", "skapa rundtur", "redigera rundtur", "rundturssteg", "rundtursstatistik", "importera rundtur", "exportera rundtur", "guided tour", "step", "navigate", "click", "scroll", "wait", "highlight", "guide"],
+      category: "admin" as const
+    },
+    {
+      id: "shoutout-management",
+      title: {
+        sv: "Hantera nyheter (Admin)",
+        en: "Shoutout Management (Admin)"
+      },
+      keywords: ["nyheter", "meddelanden", "funktioner", "förbättringar", "utgångsdatum", "markera som läst", "nytt", "news", "announcements", "features", "improvements", "expire date", "mark as read", "new", "shoutout management", "create shoutout", "edit shoutout", "news items", "feature announcements", "nyhetshantering", "skapa nyhet", "redigera nyhet", "nyhetsmeddelanden", "funktionsannonser"],
+      category: "admin" as const
+    },
+    {
+      id: "guided-tours",
+      title: {
+        sv: "Guidade rundturer (Användare)",
+        en: "Guided Tours (User)"
+      },
+      keywords: ["rundtur", "guidad rundtur", "tour", "guida", "steg", "navigera", "klicka", "scrolla", "vänta", "markera", "guided tour", "step", "navigate", "click", "scroll", "wait", "highlight", "guide", "interactive walkthrough", "user guidance", "step by step"],
+      category: "user" as const
+    },
+    {
+      id: "news-announcements",
+      title: {
+        sv: "Nyhetsmeddelanden (Användare)",
+        en: "News Announcements (User)"
+      },
+      keywords: ["nyheter", "meddelanden", "funktioner", "förbättringar", "utgångsdatum", "markera som läst", "nytt", "news", "announcements", "features", "improvements", "expire date", "mark as read", "new", "system updates", "feature highlights", "notifications"],
+      category: "user" as const
     }
   ]
 };

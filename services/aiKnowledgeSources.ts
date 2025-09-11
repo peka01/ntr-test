@@ -209,6 +209,82 @@ Admin Issues:
     keywords: ['troubleshooting', 'errors', 'problems', 'solutions', 'debug', 'fix'],
     category: 'user-guide',
     priority: 7
+  },
+  {
+    name: 'Tour System Overview',
+    content: `The tour system provides interactive guided walkthroughs to help users learn the system:
+
+Tour Features:
+- Step-by-step guidance through system features
+- Interactive elements with click, scroll, navigate, wait, and highlight actions
+- Role-based access control (admin, user, or any user)
+- Tour categories: onboarding, feature, admin, user
+- Import/export functionality for tour management
+- Tour statistics and analytics
+
+Tour Step Types:
+- Navigate: Moves user to specific pages
+- Click: Highlights elements for user interaction
+- Scroll: Shows content that's not visible
+- Wait: Pauses tour for reading time
+- Highlight: Draws attention to important elements
+
+Tour Management (Admin):
+- Create, edit, duplicate, and delete tours
+- Configure step actions and target selectors
+- Set tour categories and role requirements
+- Import/export tours for backup and sharing
+- View tour statistics and completion rates
+
+User Experience:
+- Tours can be started from news announcements
+- Context-sensitive help integration
+- Smooth transitions between steps
+- Ability to skip, pause, or exit tours`,
+    keywords: ['tour', 'guided tour', 'step', 'navigate', 'click', 'scroll', 'wait', 'highlight', 'guide', 'rundtur', 'guidad rundtur', 'steg', 'navigera', 'klicka', 'scrolla', 'vänta', 'markera', 'guida', 'tour management', 'create tour', 'edit tour', 'tour steps', 'tour statistics', 'tour import', 'tour export'],
+    category: 'system',
+    priority: 8
+  },
+  {
+    name: 'Shoutout System Overview',
+    content: `The shoutout system manages news announcements and feature highlights:
+
+Shoutout Features:
+- News announcements for new features and updates
+- Feature highlights and improvements
+- System notifications and important messages
+- Priority levels: low, medium, high
+- Expiration date management
+- "New" indicator for unread messages
+- Mark as read functionality
+
+Shoutout Categories:
+- Feature: New features or functionality
+- Improvement: Enhancements to existing features
+- Announcement: Important system notifications
+
+Shoutout Management (Admin):
+- Create, edit, duplicate, and delete shoutouts
+- Set priority levels and expiration dates
+- Link shoutouts to guided tours
+- Import/export shoutouts for backup and sharing
+- View read statistics and user engagement
+
+User Experience:
+- "New" indicators for unread messages
+- Direct links to guided tours from announcements
+- Automatic expiration of time-limited messages
+- Integration with help system and AI assistant
+- Context-sensitive information based on user role
+
+Tour Integration:
+- Shoutouts can link to guided tours
+- Smooth transition from information to practical guidance
+- Contextual help for new features
+- Improved user onboarding experience`,
+    keywords: ['shoutout', 'news', 'announcements', 'features', 'improvements', 'expire date', 'mark as read', 'new', 'nyheter', 'meddelanden', 'funktioner', 'förbättringar', 'utgångsdatum', 'markera som läst', 'nytt', 'shoutout management', 'create shoutout', 'edit shoutout', 'news items', 'feature announcements'],
+    category: 'system',
+    priority: 8
   }
 ];
 
