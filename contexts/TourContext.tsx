@@ -23,6 +23,7 @@ export interface Tour {
   description: string;
   category: 'onboarding' | 'feature' | 'admin' | 'user';
   requiredRole?: 'any' | 'admin' | 'user';
+  target_group: 'public' | 'authenticated' | 'admin';
   estimatedDuration: number;
   steps: TourStep[];
 }
@@ -154,6 +155,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: t('tourWelcomeDescription'),
         category: 'onboarding' as const,
         requiredRole: 'any' as const,
+        target_group: 'public' as const,
         estimatedDuration: 3,
         steps: [
           {
@@ -182,6 +184,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: t('tourAdminDescription'),
         category: 'admin' as const,
         requiredRole: 'admin' as const,
+        target_group: 'admin' as const,
         estimatedDuration: 5,
         steps: [
           {
@@ -356,6 +359,7 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: t('tourHelpDescription'),
         category: 'feature' as const,
         requiredRole: 'any' as const,
+        target_group: 'authenticated' as const,
         estimatedDuration: 6,
         steps: [
           {
@@ -438,16 +442,17 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const adminTours = tourManagementService.getTours();
     const allTours = [...defaultTours, ...adminTours];
     
-    // Filter based on authentication status
+    // Filter based on authentication status and target group
     if (!user) {
-      // Non-logged-in users: only show public tours (no admin-only tours)
+      // Non-logged-in users: only show public tours
+      return allTours.filter(tour => tour.target_group === 'public');
+    } else if (!isAdmin) {
+      // Logged-in users (non-admin): show public and authenticated tours
       return allTours.filter(tour => 
-        !tour.id.includes('admin') && 
-        !tour.id.includes('management') &&
-        tour.id !== 'help-tour' // Help tour requires authentication
+        tour.target_group === 'public' || tour.target_group === 'authenticated'
       );
     } else {
-      // Logged-in users: see all tours
+      // Admin users: see all tours
       return allTours;
     }
   }, [getTours, user]);

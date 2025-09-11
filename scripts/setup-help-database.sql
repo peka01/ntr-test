@@ -4,6 +4,10 @@
 -- Enable UUID extension if not already enabled
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- Add target_group column to existing tables if it doesn't exist
+ALTER TABLE help_shoutouts ADD COLUMN IF NOT EXISTS target_group VARCHAR(20) NOT NULL DEFAULT 'public' CHECK (target_group IN ('public', 'authenticated', 'admin'));
+ALTER TABLE help_tours ADD COLUMN IF NOT EXISTS target_group VARCHAR(20) NOT NULL DEFAULT 'public' CHECK (target_group IN ('public', 'authenticated', 'admin'));
+
 -- Shoutouts table for feature announcements and news
 CREATE TABLE IF NOT EXISTS help_shoutouts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -15,6 +19,7 @@ CREATE TABLE IF NOT EXISTS help_shoutouts (
     category VARCHAR(50) NOT NULL CHECK (category IN ('feature', 'improvement', 'announcement', 'bugfix')),
     priority VARCHAR(20) NOT NULL CHECK (priority IN ('low', 'medium', 'high')),
     language VARCHAR(10) NOT NULL DEFAULT 'en' CHECK (language IN ('en', 'sv')),
+    target_group VARCHAR(20) NOT NULL DEFAULT 'public' CHECK (target_group IN ('public', 'authenticated', 'admin')),
     release_date DATE NOT NULL,
     expire_date DATE,
     is_new BOOLEAN DEFAULT true,
@@ -32,6 +37,7 @@ CREATE TABLE IF NOT EXISTS help_tours (
     description TEXT,
     category VARCHAR(50) NOT NULL CHECK (category IN ('onboarding', 'feature', 'admin', 'user')),
     required_role VARCHAR(20) NOT NULL CHECK (required_role IN ('admin', 'user', 'any')),
+    target_group VARCHAR(20) NOT NULL DEFAULT 'public' CHECK (target_group IN ('public', 'authenticated', 'admin')),
     estimated_duration INTEGER DEFAULT 5,
     is_active BOOLEAN DEFAULT true,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -114,23 +120,23 @@ CREATE INDEX IF NOT EXISTS idx_help_user_interactions_created_at ON help_user_in
 -- ALTER TABLE help_user_interactions ENABLE ROW LEVEL SECURITY;
 
 -- Insert some default data
-INSERT INTO help_shoutouts (title, description, icon, category, priority, language, release_date, expire_date, is_new, created_by) VALUES
+INSERT INTO help_shoutouts (title, description, icon, category, priority, language, target_group, release_date, expire_date, is_new, created_by) VALUES
 -- English shoutouts
-('Welcome to the Help System', 'Discover our comprehensive help system with guided tours and feature announcements.', '🎯', 'feature', 'high', 'en', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
-('Interactive Tours Available', 'Take guided tours to learn about new features and system functionality.', '🎬', 'feature', 'medium', 'en', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
-('Help Documentation', 'Access detailed help documentation for all system features.', '📚', 'improvement', 'medium', 'en', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
-('New Help System Tour', 'Learn how to use the help system and AI assistant with our new guided tour!', '🤖', 'feature', 'high', 'en', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
+('Welcome to the Help System', 'Discover our comprehensive help system with guided tours and feature announcements.', '🎯', 'feature', 'high', 'en', 'public', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
+('Interactive Tours Available', 'Take guided tours to learn about new features and system functionality.', '🎬', 'feature', 'medium', 'en', 'public', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
+('Help Documentation', 'Access detailed help documentation for all system features.', '📚', 'improvement', 'medium', 'en', 'public', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
+('New Help System Tour', 'Learn how to use the help system and AI assistant with our new guided tour!', '🤖', 'feature', 'high', 'en', 'authenticated', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
 -- Swedish shoutouts
-('Välkommen till Hjälpsystemet', 'Upptäck vårt omfattande hjälpsystem med guidade rundturer och funktionsmeddelanden.', '🎯', 'feature', 'high', 'sv', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
-('Interaktiva Rundturer Tillgängliga', 'Ta guidade rundturer för att lära dig om nya funktioner och systemfunktionalitet.', '🎬', 'feature', 'medium', 'sv', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
-('Hjälpdokumentation', 'Få tillgång till detaljerad hjälpdokumentation för alla systemfunktioner.', '📚', 'improvement', 'medium', 'sv', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
-('Ny Hjälpsystem Rundtur', 'Lär dig hur du använder hjälpsystemet och AI-assistenten med vår nya guidade rundtur!', '🤖', 'feature', 'high', 'sv', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system');
+('Välkommen till Hjälpsystemet', 'Upptäck vårt omfattande hjälpsystem med guidade rundturer och funktionsmeddelanden.', '🎯', 'feature', 'high', 'sv', 'public', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
+('Interaktiva Rundturer Tillgängliga', 'Ta guidade rundturer för att lära dig om nya funktioner och systemfunktionalitet.', '🎬', 'feature', 'medium', 'sv', 'public', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
+('Hjälpdokumentation', 'Få tillgång till detaljerad hjälpdokumentation för alla systemfunktioner.', '📚', 'improvement', 'medium', 'sv', 'public', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system'),
+('Ny Hjälpsystem Rundtur', 'Lär dig hur du använder hjälpsystemet och AI-assistenten med vår nya guidade rundtur!', '🤖', 'feature', 'high', 'sv', 'authenticated', CURRENT_DATE, CURRENT_DATE + INTERVAL '1 year', true, 'system');
 
-INSERT INTO help_tours (id, name, description, category, required_role, estimated_duration, created_by) VALUES
-('welcome-tour', 'Welcome Tour', 'Introduction to the system and main features', 'onboarding', 'any', 5, 'system'),
-('admin-tour', 'Admin Features Tour', 'Learn about administrative functions and user management', 'admin', 'admin', 8, 'system'),
-('user-tour', 'User Features Tour', 'Learn about user features and how to use the system', 'user', 'user', 6, 'system'),
-('help-tour', 'Help System Tour', 'Learn how to use the help system and AI assistant', 'feature', 'any', 6, 'system')
+INSERT INTO help_tours (id, name, description, category, required_role, target_group, estimated_duration, created_by) VALUES
+('welcome-tour', 'Welcome Tour', 'Introduction to the system and main features', 'onboarding', 'any', 'public', 5, 'system'),
+('admin-tour', 'Admin Features Tour', 'Learn about administrative functions and user management', 'admin', 'admin', 'admin', 8, 'system'),
+('user-tour', 'User Features Tour', 'Learn about user features and how to use the system', 'user', 'user', 'authenticated', 6, 'system'),
+('help-tour', 'Help System Tour', 'Learn how to use the help system and AI assistant', 'feature', 'any', 'authenticated', 6, 'system')
 ON CONFLICT (id) DO NOTHING;
 
 -- Add some tour steps for the welcome tour

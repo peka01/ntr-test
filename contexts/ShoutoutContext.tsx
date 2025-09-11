@@ -15,6 +15,7 @@ export interface ShoutoutFeature {
   category: 'feature' | 'improvement' | 'announcement' | 'bugfix';
   priority: 'low' | 'medium' | 'high';
   language?: 'en' | 'sv';
+  target_group: 'public' | 'authenticated' | 'admin';
   releaseDate: string;
   expireDate?: string;
   isNew?: boolean;
@@ -99,6 +100,7 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       tourId: 'welcome-tour',
       category: 'feature',
       priority: 'high',
+      target_group: 'public',
       releaseDate: '2024-01-15',
       expireDate: '2026-01-15',
       isNew: true,
@@ -111,6 +113,7 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       tourId: 'admin-tour',
       category: 'feature',
       priority: 'medium',
+      target_group: 'admin',
       releaseDate: '2024-01-15',
       expireDate: '2026-01-15',
       isNew: true,
@@ -123,6 +126,7 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       tourId: 'cinematic-demo',
       category: 'feature',
       priority: 'medium',
+      target_group: 'public',
       releaseDate: '2024-01-15',
       expireDate: '2026-01-15',
       isNew: true,
@@ -134,6 +138,7 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       icon: '⚡',
       category: 'improvement',
       priority: 'high',
+      target_group: 'public',
       releaseDate: '2024-01-15',
       expireDate: '2026-01-15',
       isNew: true,
@@ -145,6 +150,7 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       icon: '🐛',
       category: 'bugfix',
       priority: 'high',
+      target_group: 'authenticated',
       releaseDate: new Date().toISOString().split('T')[0],
       expireDate: '2026-01-15',
       isNew: true,
@@ -169,6 +175,7 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         category: dbShoutout.category,
         priority: dbShoutout.priority,
         language: dbShoutout.language,
+        target_group: dbShoutout.target_group,
         releaseDate: dbShoutout.release_date,
         expireDate: dbShoutout.expire_date,
         isNew: dbShoutout.is_new,
@@ -177,15 +184,17 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       // Combine with default shoutouts
       const allShoutouts = [...shoutouts, ...defaultShoutouts];
       
-      // Filter based on authentication status
+      // Filter based on authentication status and target group
       if (!user) {
-        // Non-logged-in users: only show public shoutouts (no admin-only content)
+        // Non-logged-in users: only show public shoutouts
+        return allShoutouts.filter(shoutout => shoutout.target_group === 'public');
+      } else if (!isAdmin) {
+        // Logged-in users (non-admin): show public and authenticated shoutouts
         return allShoutouts.filter(shoutout => 
-          shoutout.category !== 'announcement' || 
-          shoutout.priority !== 'high' // High priority announcements are typically admin-only
+          shoutout.target_group === 'public' || shoutout.target_group === 'authenticated'
         );
       } else {
-        // Logged-in users: see all shoutouts
+        // Admin users: see all shoutouts
         return allShoutouts;
       }
     } catch (error) {
@@ -193,9 +202,10 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       
       // Fallback to default shoutouts if database fails, with same filtering logic
       if (!user) {
+        return defaultShoutouts.filter(shoutout => shoutout.target_group === 'public');
+      } else if (!isAdmin) {
         return defaultShoutouts.filter(shoutout => 
-          shoutout.category !== 'announcement' || 
-          shoutout.priority !== 'high'
+          shoutout.target_group === 'public' || shoutout.target_group === 'authenticated'
         );
       } else {
         return defaultShoutouts;

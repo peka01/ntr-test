@@ -10,6 +10,7 @@ export interface HelpShoutout {
   category: 'feature' | 'improvement' | 'announcement' | 'bugfix';
   priority: 'low' | 'medium' | 'high';
   language: 'en' | 'sv';
+  target_group: 'public' | 'authenticated' | 'admin';
   release_date: string;
   expire_date?: string;
   is_new: boolean;
@@ -26,6 +27,7 @@ export interface HelpTour {
   description?: string;
   category: 'onboarding' | 'feature' | 'admin' | 'user';
   required_role: 'admin' | 'user' | 'any';
+  target_group: 'public' | 'authenticated' | 'admin';
   estimated_duration: number;
   is_active: boolean;
   created_at: string;

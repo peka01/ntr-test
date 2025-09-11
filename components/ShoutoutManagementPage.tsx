@@ -18,6 +18,7 @@ interface ShoutoutFormData {
   category: 'feature' | 'improvement' | 'announcement' | 'bugfix';
   priority: 'low' | 'medium' | 'high';
   language: 'en' | 'sv';
+  target_group: 'public' | 'authenticated' | 'admin';
   releaseDate: string;
   expireDate?: string;
   isNew: boolean;
@@ -49,6 +50,7 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
     category: 'feature',
     priority: 'medium',
     language: 'en',
+    target_group: 'public',
     releaseDate: new Date().toISOString().split('T')[0],
     expireDate: undefined,
     isNew: true
@@ -93,6 +95,7 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
         category: dbShoutout.category,
         priority: dbShoutout.priority,
         language: dbShoutout.language,
+        target_group: dbShoutout.target_group,
         releaseDate: dbShoutout.release_date,
         expireDate: dbShoutout.expire_date,
         isNew: dbShoutout.is_new,
@@ -138,6 +141,8 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
       tourId: '',
       category: 'feature',
       priority: 'medium',
+      language: 'en',
+      target_group: 'public',
       releaseDate: new Date().toISOString().split('T')[0],
       expireDate: undefined,
       isNew: true
@@ -159,6 +164,7 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
       category: shoutout.category,
       priority: shoutout.priority,
       language: shoutout.language || 'en',
+      target_group: shoutout.target_group,
       releaseDate: shoutout.releaseDate,
       expireDate: shoutout.expireDate,
       isNew: shoutout.isNew || false
@@ -242,6 +248,7 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
           category: formData.category,
           priority: formData.priority,
           language: formData.language,
+          target_group: formData.target_group,
           release_date: formData.releaseDate,
           expire_date: formData.expireDate,
           is_new: formData.isNew,
@@ -262,6 +269,7 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
           category: formData.category,
           priority: formData.priority,
           language: formData.language,
+          target_group: formData.target_group,
           release_date: formData.releaseDate,
           expire_date: formData.expireDate,
           is_new: formData.isNew,
@@ -721,6 +729,21 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
                           <option value="low">{t('shoutoutAdminPriorityLow')}</option>
                           <option value="medium">{t('shoutoutAdminPriorityMedium')}</option>
                           <option value="high">{t('shoutoutAdminPriorityHigh')}</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          {t('targetGroup')}
+                        </label>
+                        <select
+                          value={formData.target_group}
+                          onChange={(e) => setFormData({ ...formData, target_group: e.target.value as any })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        >
+                          <option value="public">{t('targetGroupPublic')}</option>
+                          <option value="authenticated">{t('targetGroupAuthenticated')}</option>
+                          <option value="admin">{t('targetGroupAdmin')}</option>
                         </select>
                       </div>
 
