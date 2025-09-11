@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
+import { useAuth } from './AuthContext';
 import { tourManagementService } from '../services/tourManagementService';
 
 export interface TourStep {
@@ -52,6 +53,7 @@ export const useTour = () => {
 
 export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { t } = useTranslations();
+  const { user, isAdmin } = useAuth();
   const [currentTour, setCurrentTour] = useState<Tour | null>(null);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [isActive, setIsActive] = useState(false);
@@ -434,8 +436,21 @@ export const TourProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const getAvailableTours = useCallback(() => {
     const defaultTours = getTours();
     const adminTours = tourManagementService.getTours();
-    return [...defaultTours, ...adminTours];
-  }, [getTours]);
+    const allTours = [...defaultTours, ...adminTours];
+    
+    // Filter based on authentication status
+    if (!user) {
+      // Non-logged-in users: only show public tours (no admin-only tours)
+      return allTours.filter(tour => 
+        !tour.id.includes('admin') && 
+        !tour.id.includes('management') &&
+        tour.id !== 'help-tour' // Help tour requires authentication
+      );
+    } else {
+      // Logged-in users: see all tours
+      return allTours;
+    }
+  }, [getTours, user]);
 
   // Execute step action
   const executeStepAction = useCallback(async (step: TourStep) => {

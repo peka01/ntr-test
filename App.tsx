@@ -19,6 +19,7 @@ import { UserInteractionProvider } from './contexts/UserInteractionContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { UserMenu } from './components/UserMenu';
 import { LoginForm } from './components/LoginForm';
+import { LanguageSelector } from './components/LanguageSelector';
 import { TourOverlay } from './components/TourOverlay';
 import { ShoutoutButton } from './components/ShoutoutButton';
 import { TourLauncher } from './components/TourLauncher';
@@ -140,7 +141,7 @@ const AppContent: React.FC = () => {
                                     {t('navPublic')}
                                 </button>
                                 
-                                <ProtectedRoute>
+                                <ProtectedRoute fallback={null}>
                                     <button
                                         onClick={() => setView('attendance')}
                                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -154,7 +155,7 @@ const AppContent: React.FC = () => {
                                     </button>
                                 </ProtectedRoute>
                                 
-                                <ProtectedRoute requireAdmin={true}>
+                                <ProtectedRoute requireAdmin={true} fallback={null}>
                                     <button
                                         onClick={() => setView('trainings')}
                                         className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
@@ -200,12 +201,17 @@ const AppContent: React.FC = () => {
                                     onShoutoutManagement={() => setView('shoutout-management')}
                                 />
                             ) : (
-                                <button
-                                    onClick={() => setShowLogin(true)}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                                >
-                                    {t('signInButton')}
-                                </button>
+                                <div className="flex items-center space-x-3">
+                                    {/* Language Selector for non-logged-in users */}
+                                    <LanguageSelector />
+                                    
+                                    <button
+                                        onClick={() => setShowLogin(true)}
+                                        className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                                    >
+                                        {t('signInButton')}
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </div>

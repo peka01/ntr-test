@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect, use
 import { useTranslations } from '../hooks/useTranslations';
 import { useTour } from './TourContext';
 import { useLanguage } from './LanguageContext';
+import { useAuth } from './AuthContext';
 import { helpSystemService, HelpShoutout } from '../services/helpSystemService';
 
 export interface ShoutoutFeature {
@@ -46,6 +47,9 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Get current language at the top level
   const { language } = useLanguage();
   const currentLanguage = language === 'sv-se' || language === 'sv' ? 'sv' : 'en';
+  
+  // Get authentication status
+  const { user, isAdmin } = useAuth();
   
   // Optional tour integration - handle cases where TourProvider might not be available
   let startTour: ((tourId: string) => void) | null = null;
@@ -170,14 +174,34 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         isNew: dbShoutout.is_new,
       }));
 
-      return shoutouts;
+      // Combine with default shoutouts
+      const allShoutouts = [...shoutouts, ...defaultShoutouts];
+      
+      // Filter based on authentication status
+      if (!user) {
+        // Non-logged-in users: only show public shoutouts (no admin-only content)
+        return allShoutouts.filter(shoutout => 
+          shoutout.category !== 'announcement' || 
+          shoutout.priority !== 'high' // High priority announcements are typically admin-only
+        );
+      } else {
+        // Logged-in users: see all shoutouts
+        return allShoutouts;
+      }
     } catch (error) {
       console.error('Error fetching shoutouts from database:', error);
       
-      // Fallback to default shoutouts if database fails
-      return defaultShoutouts;
+      // Fallback to default shoutouts if database fails, with same filtering logic
+      if (!user) {
+        return defaultShoutouts.filter(shoutout => 
+          shoutout.category !== 'announcement' || 
+          shoutout.priority !== 'high'
+        );
+      } else {
+        return defaultShoutouts;
+      }
     }
-  }, [currentLanguage, defaultShoutouts]);
+  }, [currentLanguage, defaultShoutouts, user]);
 
   const showShoutout = useCallback(async (featureId: string) => {
     const features = await getAvailableFeatures();
