@@ -3,7 +3,6 @@ import type { Training } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
-import { HelpButton } from './HelpButton';
 import { TrashIcon } from './icons/TrashIcon';
 import { CalendarCard } from './CalendarCard';
 
@@ -145,12 +144,6 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center space-x-4">
                     <h1 className="text-3xl font-bold text-slate-900">{t('navTrainings')}</h1>
-                    <HelpButton
-                        onClick={onHelpClick}
-                        context="trainings management list view"
-                        variant="icon"
-                        size="lg"
-                    />
                 </div>
                 <button
                     onClick={() => setShowAddForm(true)}

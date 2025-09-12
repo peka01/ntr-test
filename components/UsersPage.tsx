@@ -3,7 +3,6 @@ import type { User } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 import { useTranslations } from '../hooks/useTranslations';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
-import { HelpButton } from './HelpButton';
 
 interface UsersPageProps {
     users: User[];
@@ -116,12 +115,6 @@ export const UsersPage: React.FC<UsersPageProps> = ({
             <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center space-x-4">
                     <h1 className="text-3xl font-bold text-slate-900">{t('navUsers')}</h1>
-                    <HelpButton 
-                        onClick={onHelpClick}
-                        context="users management list view"
-                        variant="icon"
-                        size="lg"
-                    />
                 </div>
                 <button
                     onClick={() => setShowAddForm(true)}

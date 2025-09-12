@@ -62,6 +62,11 @@ const AppContent: React.FC = () => {
         console.log('Forced body styles reset');
     }, []); // Empty dependency array for mount-only effect
 
+    // Update document title when language changes
+    React.useEffect(() => {
+        document.title = t('appTitle');
+    }, [t]);
+
     // Track user state changes
     React.useEffect(() => {
         console.log('User state changed:', { user, isAdmin });
@@ -137,7 +142,7 @@ const AppContent: React.FC = () => {
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center space-x-8">
                             <h1 className="text-xl font-semibold text-slate-900" data-tour="app-title">
-                                Training Management System
+                                {t('appTitle')}
                             </h1>
                             
                             {/* Navigation */}
