@@ -152,33 +152,54 @@ class AIManagementService {
   }
 
   async createPrompt(prompt: Omit<AIPrompt, 'id' | 'createdAt' | 'updatedAt'>): Promise<AIPrompt> {
+    // Convert camelCase to snake_case for database
+    const dbPrompt = {
+      name: prompt.name,
+      description: prompt.description,
+      category: prompt.category,
+      content: prompt.content,
+      variables: prompt.variables,
+      is_active: prompt.isActive,
+      priority: prompt.priority,
+      created_by: prompt.createdBy,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+
     const { data, error } = await supabase
       .from('ai_prompts')
-      .insert([{
-        ...prompt,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      }])
+      .insert([dbPrompt])
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return this.convertDbPromptToCamelCase(data);
   }
 
   async updatePrompt(id: string, updates: Partial<AIPrompt>): Promise<AIPrompt> {
+    // Convert camelCase to snake_case for database
+    const dbUpdates: any = {
+      updated_at: new Date().toISOString()
+    };
+    
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.description !== undefined) dbUpdates.description = updates.description;
+    if (updates.category !== undefined) dbUpdates.category = updates.category;
+    if (updates.content !== undefined) dbUpdates.content = updates.content;
+    if (updates.variables !== undefined) dbUpdates.variables = updates.variables;
+    if (updates.isActive !== undefined) dbUpdates.is_active = updates.isActive;
+    if (updates.priority !== undefined) dbUpdates.priority = updates.priority;
+    if (updates.createdBy !== undefined) dbUpdates.created_by = updates.createdBy;
+
     const { data, error } = await supabase
       .from('ai_prompts')
-      .update({
-        ...updates,
-        updatedAt: new Date().toISOString()
-      })
+      .update(dbUpdates)
       .eq('id', id)
       .select()
       .single();
 
     if (error) throw error;
-    return data;
+    return this.convertDbPromptToCamelCase(data);
   }
 
   async deletePrompt(id: string): Promise<void> {
@@ -192,7 +213,24 @@ class AIManagementService {
 
   // ===== KNOWLEDGE SOURCE MANAGEMENT =====
 
-  // Helper function to convert database fields to camelCase
+  // Helper function to convert database fields to camelCase for prompts
+  private convertDbPromptToCamelCase(dbPrompt: any): AIPrompt {
+    return {
+      id: dbPrompt.id,
+      name: dbPrompt.name,
+      description: dbPrompt.description,
+      category: dbPrompt.category,
+      content: dbPrompt.content,
+      variables: dbPrompt.variables || [],
+      isActive: dbPrompt.is_active,
+      priority: dbPrompt.priority,
+      createdAt: dbPrompt.created_at,
+      updatedAt: dbPrompt.updated_at,
+      createdBy: dbPrompt.created_by
+    };
+  }
+
+  // Helper function to convert database fields to camelCase for knowledge sources
   private convertDbToCamelCase(dbSource: any): KnowledgeSource {
     return {
       id: dbSource.id,
@@ -390,36 +428,62 @@ class AIManagementService {
 
   async compileSystemPrompt(context: any = {}): Promise<string> {
     try {
-      const config = await this.getAIConfig();
-      if (!config) {
-        console.warn('No AI configuration found, using fallback prompt');
+      // Load all active prompts and compile them by category
+      const allPrompts = await this.getPrompts();
+      const activePrompts = allPrompts.filter(prompt => prompt.isActive);
+      
+      console.log('🔍 Loading active prompts:', activePrompts.map(p => ({ name: p.name, category: p.category, isActive: p.isActive })));
+
+      if (activePrompts.length === 0) {
+        console.warn('No active prompts found, using fallback prompt');
         return this.getFallbackSystemPrompt(context);
       }
 
-      const systemPrompt = await this.getPrompt(config.systemPromptId);
-      const contextPrompt = await this.getPrompt(config.contextPromptId);
-      const actionPrompt = await this.getPrompt(config.actionPromptId);
+      // Find prompts by category
+      const systemPrompts = activePrompts.filter(p => p.category === 'system');
+      const contextPrompts = activePrompts.filter(p => p.category === 'context');
+      const actionPrompts = activePrompts.filter(p => p.category === 'action');
+      const customPrompts = activePrompts.filter(p => p.category === 'custom');
+
+      // Use the highest priority prompt from each category
+      const getHighestPriority = (prompts: AIPrompt[]) => 
+        prompts.sort((a, b) => b.priority - a.priority)[0];
+
+      const systemPrompt = getHighestPriority(systemPrompts);
+      const contextPrompt = getHighestPriority(contextPrompts);
+      const actionPrompt = getHighestPriority(actionPrompts);
+      const customPrompt = getHighestPriority(customPrompts);
 
       if (!systemPrompt) {
-        console.warn('System prompt not found, using fallback prompt');
+        console.warn('No active system prompt found, using fallback prompt');
         return this.getFallbackSystemPrompt(context);
       }
 
       let compiledPrompt = systemPrompt.content;
+      console.log('📝 Using system prompt:', systemPrompt.name);
 
       // Add context prompt if available
       if (contextPrompt) {
         compiledPrompt += `\n\n${contextPrompt.content}`;
+        console.log('📝 Adding context prompt:', contextPrompt.name);
       }
 
       // Add action prompt if available
       if (actionPrompt) {
         compiledPrompt += `\n\n${actionPrompt.content}`;
+        console.log('📝 Adding action prompt:', actionPrompt.name);
+      }
+
+      // Add custom prompt if available
+      if (customPrompt) {
+        compiledPrompt += `\n\n${customPrompt.content}`;
+        console.log('📝 Adding custom prompt:', customPrompt.name);
       }
 
       // Interpolate variables
       compiledPrompt = this.interpolateVariables(compiledPrompt, context);
 
+      console.log('✅ Compiled system prompt length:', compiledPrompt.length);
       return compiledPrompt;
     } catch (error) {
       console.error('Error compiling system prompt:', error);

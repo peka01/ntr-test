@@ -218,6 +218,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const [aiResponse, setAiResponse] = useState('');
   const [aiSources, setAiSources] = useState<SourceInfo[]>([]);
   const [isAILoading, setIsAILoading] = useState(false);
+  const [conversationHistory, setConversationHistory] = useState<Array<{role: 'user' | 'assistant', content: string}>>([]);
 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [size, setSize] = useState({ width: 1200, height: 800 });
@@ -852,43 +853,29 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
         contextString = `## System Information\n\nThis is a training management system with the following features:\n- User management and roles\n- Training session management\n- Voucher/credit system\n- Attendance tracking\n\n`;
       }
 
-      const systemPrompt = `Du är en hjälpsam AI-assistent för ett träningshanteringssystem. Använd följande information för att svara på användarens frågor:
+      // Use centralized system prompt from database
+      const { aiManagementService } = await import('../services/aiManagementService');
+      const systemPrompt = await aiManagementService.compileSystemPrompt({
+        context: contextString,
+        userQuestion: content
+      });
 
-${contextString}
+      // Build conversation history for context
+      const conversationContents = [
+        { role: 'user', parts: [{ text: systemPrompt }] },
+        ...conversationHistory.map(msg => ({
+          role: msg.role === 'user' ? 'user' : 'model',
+          parts: [{ text: msg.content }]
+        })),
+        { role: 'user', parts: [{ text: content }] }
+      ];
 
-Instruktioner:
-- Svara på svenska om användaren skriver på svenska, annars på engelska
-- Var hjälpsam, vänlig och professionell
-- Använd informationen från dokumentationen och systemkunskapen
-- Om du inte vet svaret, säg det tydligt
-- Ge praktiska exempel när det är lämpligt
-- Citera relevanta delar av dokumentationen när det hjälper
-- Håll svaret koncist men informativt
-- Om dokumentationen inte är tillgänglig, svara baserat på din allmänna kunskap om systemadministration
-
-VIKTIGT - Interaktiva åtgärder (AI actions):
-- Efter ditt svar, om det är relevant, lägg till en eller flera åtgärdshints på separata rader i formatet [action:NAMN nyckel=värde ...]
-- Stödda åtgärder:
-  - navigate view=public|admin|attendance|users|trainings|tour-management|shoutout-management
-  - set_search value="text"
-  - open_help id=overview|vouchers|user-management|training-management|subscriptions|attendance|troubleshooting
-  - toggle_source value=local|remote
-  - unsubscribe trainingId="..." userId="..." (använd endast som förslag)
-  - start_tour tourId="tour-id" (starta en guidad rundtur)
-  - add_user (öppna formuläret för att lägga till användare)
-  - add_training (öppna formuläret för att lägga till träning)
-  - create_tour (öppna formuläret för att skapa rundtur)
-  - create_shoutout (öppna formuläret för att skapa shoutout)
-- När du förklarar hur man skapar något, lägg alltid till en följdfråga som "Vill du att jag gör det åt dig?" (svenska) eller "Do you want me to do this for you?" (engelska)
-- Exempel: [action:navigate view=public] eller [action:add_user]
-
-Viktigt: Skriv alltid din naturliga text först. Lägg därefter (om relevant) till åtgärdshints på egna rader.
-
-Användarens fråga: ${content}`;
+      console.log('💬 Conversation history:', conversationHistory.length, 'messages');
+      console.log('📝 Current message:', content);
 
       const result = await ai.models.generateContent({
         model: "gemini-2.0-flash-exp",
-        contents: systemPrompt,
+        contents: conversationContents,
       });
 
       const text = result.text.trim();
@@ -943,22 +930,34 @@ Användarens fråga: ${content}`;
       const textWithoutActions = interpolatedText.replace(/\[action:[^\]]*\]/g, '').trim();
       setAiResponse(textWithoutActions);
 
+      // Update conversation history
+      setConversationHistory(prev => [
+        ...prev,
+        { role: 'user', content: content },
+        { role: 'assistant', content: textWithoutActions }
+      ]);
+
       // Parse lightweight action hints in AI output, e.g.:
       // [action:navigate view=public]
       // We surface as buttons under the answer; clicking dispatches a window event
-      const actionRegex = /\[action:([^\]\s]+)([^\]]*)\]/g;
+      const actionRegex = /\[action:([^\]]+)\]/g;
       const actions: { type: string; payload: Record<string, string> }[] = [];
       let match: RegExpExecArray | null;
       while ((match = actionRegex.exec(text)) !== null) {
-        const type = match[1];
-        const params = match[2] || '';
+        const actionString = match[1];
+        const [actionType, ...params] = actionString.split(' ');
         const payload: Record<string, string> = {};
-        params.trim().split(/\s+/).forEach(kv => {
-          const [k, v] = kv.split('=');
-          if (k && v) payload[k] = v;
+        
+        // Parse parameters
+        params.forEach(param => {
+          if (param.includes('=')) {
+            const [key, value] = param.split('=');
+            payload[key] = value.replace(/"/g, '');
+          }
         });
-        actions.push({ type, payload });
-        console.log('✅ Found action:', { type, payload });
+        
+        actions.push({ type: actionType, payload });
+        console.log('✅ Found action:', { type: actionType, payload });
       }
       console.log('📋 Total actions found:', actions.length);
       
@@ -999,7 +998,7 @@ Användarens fråga: ${content}`;
     } finally {
       setIsAILoading(false);
     }
-  }, [helpSections, context, t]);
+  }, [helpSections, context, conversationHistory, t]);
 
   // Update document info when section changes
 
