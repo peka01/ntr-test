@@ -811,9 +811,9 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
 
       // Add additional knowledge sources (this should always work)
       try {
-        const { getAllSourcesAsText, searchSourcesByKeyword } = await import('../services/aiKnowledgeSources');
+        const { getAllSourcesAsText, searchSourcesByKeyword } = await import('../services/aiKnowledgeService');
         contextString += '## Additional System Knowledge\n\n';
-        contextString += getAllSourcesAsText();
+        contextString += await getAllSourcesAsText();
       } catch (knowledgeError) {
         console.error('Could not load additional knowledge sources:', knowledgeError);
         contextString += '## Additional System Knowledge\n\n';
@@ -866,16 +866,21 @@ Instruktioner:
 - Håll svaret koncist men informativt
 - Om dokumentationen inte är tillgänglig, svara baserat på din allmänna kunskap om systemadministration
 
-VIKTIGT - Interaktiva åtgärder (machine-action hints):
+VIKTIGT - Interaktiva åtgärder (AI actions):
 - Efter ditt svar, om det är relevant, lägg till en eller flera åtgärdshints på separata rader i formatet [action:NAMN nyckel=värde ...]
 - Stödda åtgärder:
-  - navigate view=public|admin|attendance
+  - navigate view=public|admin|attendance|users|trainings|tour-management|shoutout-management
   - set_search value="text"
   - open_help id=overview|vouchers|user-management|training-management|subscriptions|attendance|troubleshooting
   - toggle_source value=local|remote
   - unsubscribe trainingId="..." userId="..." (använd endast som förslag)
   - start_tour tourId="tour-id" (starta en guidad rundtur)
-- Exempel: [action:navigate view=public] eller [action:start_tour tourId=welcome-tour]
+  - add_user (öppna formuläret för att lägga till användare)
+  - add_training (öppna formuläret för att lägga till träning)
+  - create_tour (öppna formuläret för att skapa rundtur)
+  - create_shoutout (öppna formuläret för att skapa shoutout)
+- När du förklarar hur man skapar något, lägg alltid till en följdfråga som "Vill du att jag gör det åt dig?" (svenska) eller "Do you want me to do this for you?" (engelska)
+- Exempel: [action:navigate view=public] eller [action:add_user]
 
 Viktigt: Skriv alltid din naturliga text först. Lägg därefter (om relevant) till åtgärdshints på egna rader.
 
@@ -914,8 +919,8 @@ Användarens fråga: ${content}`;
       
       try {
         // Search for sources in additional knowledge
-        const { searchSourcesByKeyword } = await import('../services/aiKnowledgeSources');
-        const relevantSources = searchSourcesByKeyword(text);
+        const { searchSourcesByKeyword } = await import('../services/aiKnowledgeService');
+        const relevantSources = await searchSourcesByKeyword(text);
         relevantSources.forEach(source => {
           if (!sources.some(s => s.name === source.name)) {
             sources.push({ name: source.name, type: 'knowledge' });
@@ -1310,11 +1315,20 @@ Användarens fråga: ${content}`;
       .replace(/\"/g, '&quot;')
       .replace(/'/g, '&#39;');
 
-    // Bold, italic, inline code, links
+    // Bold, italic, inline code
     html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
     html = html.replace(/`([^`]+)`/g, '<code class="px-1 py-0.5 bg-slate-100 rounded">$1<\/code>');
-    html = html.replace(/\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-cyan-600 hover:underline">$1<\/a>');
+    
+    // Handle external source links - distinguish them from regular links
+    html = html.replace(/\[(.*?)\]\((https?:\/\/[^\s)]+)\)/g, (match, text, url) => {
+      // Check if this is an external source by looking for common external patterns
+      const isExternal = url.startsWith('http') && !url.includes(window.location.hostname);
+      const target = isExternal ? ' target="_blank" rel="noopener noreferrer"' : '';
+      const className = isExternal ? 'external-source-link text-green-600 font-semibold hover:text-green-700' : 'text-cyan-600 hover:underline';
+      
+      return `<a href="${url}"${target} class="${className}">${text}${isExternal ? ' ↗' : ''}</a>`;
+    });
 
     // Newlines to <br>
     html = html.replace(/\n/g, '<br>');
@@ -1343,6 +1357,18 @@ Användarens fråga: ${content}`;
     }
     if (type === 'start_tour') {
       return t('aiActionStartTour');
+    }
+    if (type === 'add_user') {
+      return t('aiActionAddUser');
+    }
+    if (type === 'add_training') {
+      return t('aiActionAddTraining');
+    }
+    if (type === 'create_tour') {
+      return t('aiActionCreateTour');
+    }
+    if (type === 'create_shoutout') {
+      return t('aiActionCreateShoutout');
     }
     return t('aiActionUnknown');
   };

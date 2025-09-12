@@ -52,6 +52,8 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Get authentication status
   const { user, isAdmin } = useAuth();
   
+  console.log('🔧 ShoutoutProvider initializing:', { currentLanguage, user: !!user, isAdmin });
+  
   // Optional tour integration - handle cases where TourProvider might not be available
   let startTour: ((tourId: string) => void) | null = null;
   try {
@@ -130,7 +132,8 @@ export const ShoutoutProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       }
     } catch (error) {
       console.error('Error fetching shoutouts from database:', error);
-      // No fallback - database is the master
+      console.warn('ShoutoutProvider: Database table may not exist. Run setup-help-database.sql to create the help_shoutouts table.');
+      // Return empty array instead of throwing - this allows the provider to work
       return [];
     }
   }, [currentLanguage, user, isAdmin]);

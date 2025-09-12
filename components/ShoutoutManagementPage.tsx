@@ -40,6 +40,17 @@ export const ShoutoutManagementPage: React.FC<ShoutoutManagementPageProps> = ({ 
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [showImportExport, setShowImportExport] = useState(false);
+
+  // Listen for AI-triggered form opening
+  React.useEffect(() => {
+    const handleOpenCreateShoutoutForm = () => {
+      console.log('📢 AI triggered: Opening create shoutout form');
+      setIsCreating(true);
+    };
+
+    window.addEventListener('open-create-shoutout-form', handleOpenCreateShoutoutForm);
+    return () => window.removeEventListener('open-create-shoutout-form', handleOpenCreateShoutoutForm);
+  }, []);
   const [formData, setFormData] = useState<ShoutoutFormData>({
     id: '',
     title: '',

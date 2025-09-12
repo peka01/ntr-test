@@ -56,6 +56,17 @@ export const UsersPage: React.FC<UsersPageProps> = ({
     const [userEmail, setUserEmail] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
+    // Listen for AI-triggered form opening
+    React.useEffect(() => {
+        const handleOpenAddUserForm = () => {
+            console.log('👤 AI triggered: Opening add user form');
+            setShowAddForm(true);
+        };
+
+        window.addEventListener('open-add-user-form', handleOpenAddUserForm);
+        return () => window.removeEventListener('open-add-user-form', handleOpenAddUserForm);
+    }, []);
+
     const handleUserInputChange = (setter: React.Dispatch<React.SetStateAction<any>>, field: string, value: any) => {
         setter(value);
         setContext(prev => ({

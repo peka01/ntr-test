@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { aiManagementService } from '../services/aiManagementService';
 
 export const AITest: React.FC = () => {
   const [question, setQuestion] = useState('');
@@ -22,23 +23,17 @@ export const AITest: React.FC = () => {
       const { GoogleGenAI } = await import('@google/genai');
       const ai = new GoogleGenAI({ apiKey });
       
-      const systemPrompt = `Du är en hjälpsam AI-assistent för ett träningshanteringssystem. 
-
-Systemet har följande huvudfunktioner:
-- Användarhantering med admin- och vanliga användare
-- Träningssessioner som användare kan prenumerera på
-- Klippkortssystem för att hantera krediter
-- Incheckningshantering för träningssessioner
-
-Svara på svenska om användaren skriver på svenska, annars på engelska.
-Var hjälpsam, vänlig och professionell.
-
-Användarens fråga: ${question}`;
-
-      const result = await ai.models.generateContent({
-        model: "gemini-2.0-flash-exp",
-        contents: systemPrompt,
+      // Get system prompt from centralized service
+      const systemPrompt = await aiManagementService.compileSystemPrompt({ 
+        context: 'Test context for AI testing' 
       });
+
+      const model = ai.getGenerativeModel({ 
+        model: 'gemini-2.0-flash-exp',
+        systemInstruction: systemPrompt
+      });
+
+      const result = await model.generateContent(question);
 
       const text = result.text.trim();
 

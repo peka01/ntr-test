@@ -26,8 +26,9 @@ import { TourLauncher } from './components/TourLauncher';
 import { ShoutoutSplash } from './components/ShoutoutSplash';
 import TourManagementPage from './components/TourManagementPage';
 import { ShoutoutManagementPage } from './components/ShoutoutManagementPage';
+import { AIAdministrationPage } from './components/AIAdministrationPage';
 
-type View = 'public' | 'attendance' | 'trainings' | 'users' | 'tour-management' | 'shoutout-management';
+type View = 'public' | 'attendance' | 'trainings' | 'users' | 'tour-management' | 'shoutout-management' | 'ai-administration';
 
 const AppContent: React.FC = () => {
     const { t } = useTranslations();
@@ -85,15 +86,62 @@ const AppContent: React.FC = () => {
         };
     }, []);
 
-    // Handle AI actions for navigation
+    // Handle AI actions for navigation and form opening
     React.useEffect(() => {
         const handleAIAction = (event: CustomEvent) => {
             console.log('📡 Received AI action event:', event.detail);
-            const { type, payload } = event.detail;
+            const { type, ...payload } = event.detail;
             
-            if (type === 'navigate' && payload?.view) {
-                console.log('🧭 Navigating to view:', payload.view);
-                setView(payload.view as View);
+            switch (type) {
+                case 'navigate':
+                    if (payload.view) {
+                        console.log('🧭 Navigating to view:', payload.view);
+                        setView(payload.view as View);
+                    }
+                    break;
+                    
+                case 'add_user':
+                    console.log('👤 Opening add user form');
+                    setView('users');
+                    // Trigger the add user form by dispatching a custom event
+                    setTimeout(() => {
+                        const addUserEvent = new CustomEvent('open-add-user-form');
+                        window.dispatchEvent(addUserEvent);
+                    }, 100);
+                    break;
+                    
+                case 'add_training':
+                    console.log('🏃 Opening add training form');
+                    setView('trainings');
+                    // Trigger the add training form by dispatching a custom event
+                    setTimeout(() => {
+                        const addTrainingEvent = new CustomEvent('open-add-training-form');
+                        window.dispatchEvent(addTrainingEvent);
+                    }, 100);
+                    break;
+                    
+                case 'create_tour':
+                    console.log('🎯 Opening create tour form');
+                    setView('tour-management');
+                    // Trigger the create tour form by dispatching a custom event
+                    setTimeout(() => {
+                        const createTourEvent = new CustomEvent('open-create-tour-form');
+                        window.dispatchEvent(createTourEvent);
+                    }, 100);
+                    break;
+                    
+                case 'create_shoutout':
+                    console.log('📢 Opening create shoutout form');
+                    setView('shoutout-management');
+                    // Trigger the create shoutout form by dispatching a custom event
+                    setTimeout(() => {
+                        const createShoutoutEvent = new CustomEvent('open-create-shoutout-form');
+                        window.dispatchEvent(createShoutoutEvent);
+                    }, 100);
+                    break;
+                    
+                default:
+                    console.log('❓ Unknown AI action type:', type);
             }
         };
 
@@ -218,6 +266,7 @@ const AppContent: React.FC = () => {
                                     user={user}
                                     onTourManagement={() => setView('tour-management')}
                                     onShoutoutManagement={() => setView('shoutout-management')}
+                                    onAIAdministration={() => setView('ai-administration')}
                                 />
                             ) : (
                                 <div className="flex items-center space-x-3">
@@ -281,6 +330,9 @@ const AppContent: React.FC = () => {
                 )}
                 {view === 'shoutout-management' && isAdmin && (
                     <ShoutoutManagementPage onClose={() => setView('public')} />
+                )}
+                {view === 'ai-administration' && isAdmin && (
+                    <AIAdministrationPage onClose={() => setView('public')} />
                 )}
             </main>
 

@@ -26,6 +26,17 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [showStepEditor, setShowStepEditor] = useState(false);
+
+  // Listen for AI-triggered form opening
+  React.useEffect(() => {
+    const handleOpenCreateTourForm = () => {
+      console.log('🎯 AI triggered: Opening create tour form');
+      setIsCreating(true);
+    };
+
+    window.addEventListener('open-create-tour-form', handleOpenCreateTourForm);
+    return () => window.removeEventListener('open-create-tour-form', handleOpenCreateTourForm);
+  }, []);
   const [editingStepIndex, setEditingStepIndex] = useState(-1);
   const [formData, setFormData] = useState<TourFormData>({
     id: '',

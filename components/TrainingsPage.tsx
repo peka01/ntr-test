@@ -67,6 +67,17 @@ export const TrainingsPage: React.FC<TrainingsPageProps> = ({
     const [trainingDescription, setTrainingDescription] = useState('');
     const [trainingDate, setTrainingDate] = useState('');
     const [trainingTime, setTrainingTime] = useState('');
+
+    // Listen for AI-triggered form opening
+    React.useEffect(() => {
+        const handleOpenAddTrainingForm = () => {
+            console.log('🏃 AI triggered: Opening add training form');
+            setShowAddForm(true);
+        };
+
+        window.addEventListener('open-add-training-form', handleOpenAddTrainingForm);
+        return () => window.removeEventListener('open-add-training-form', handleOpenAddTrainingForm);
+    }, []);
     const [searchTerm, setSearchTerm] = useState('');
 
     const handleTrainingInputChange = (setter: React.Dispatch<React.SetStateAction<string>>, field: string, value: string) => {

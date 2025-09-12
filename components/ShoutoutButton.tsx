@@ -8,20 +8,37 @@ interface ShoutoutButtonProps {
 }
 
 export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }) => {
-  // Optional shoutout integration - handle cases where ShoutoutProvider might not be available
+  const { t } = useTranslations();
+  const { user, isAdmin } = useAuth();
+  
+  // Try to get shoutout context
   let shoutoutContext = null;
   try {
     shoutoutContext = useShoutout();
   } catch (error) {
-    console.warn('ShoutoutProvider not available, shoutout button will be disabled');
+    console.warn('ShoutoutProvider not available:', error);
+    // Don't return null - render a basic button instead
   }
-
-  const { t } = useTranslations();
-  const { user, isAdmin } = useAuth();
   
-  // If shoutout context is not available, don't render the button
+  // If shoutout context is not available, render a basic button that still works
   if (!shoutoutContext) {
-    return null;
+    return (
+      <div className={`relative ${className}`}>
+        <button
+          className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors duration-200"
+          title="Shoutouts (Database not set up - Run setup-help-database.sql)"
+          onClick={() => {
+            console.log('Shoutouts button clicked - database setup needed');
+            alert('Shoutouts feature requires database setup. Please run the setup-help-database.sql script in your Supabase SQL editor.');
+          }}
+        >
+          {/* Gift box icon */}
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+          </svg>
+        </button>
+      </div>
+    );
   }
 
   const { getAvailableFeatures, showShoutout, hasUnseenFeatures, markAsSeen } = shoutoutContext;
