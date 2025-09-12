@@ -353,7 +353,6 @@ const AppContent: React.FC = () => {
             {/* Tour and Shoutout Components */}
             <TourOverlay />
             <ShoutoutSplash />
-            <TourLauncher />
         </div>
     );
 };
