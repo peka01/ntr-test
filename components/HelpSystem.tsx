@@ -1672,15 +1672,20 @@ Användarens fråga: ${content}`;
                 sendAIMessage(aiInputValue);
               }
             }} className="flex space-x-2">
-              <input
-                type="text"
-                value={aiInputValue}
-                onChange={(e) => setAiInputValue(e.target.value)}
-                placeholder={t('aiChatPlaceholder')}
-                className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm"
-                disabled={isAILoading}
-                data-tour="help-ai-input"
-              />
+              <div className="flex-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-cyan-500 text-lg">✨</span>
+                </div>
+                <input
+                  type="text"
+                  value={aiInputValue}
+                  onChange={(e) => setAiInputValue(e.target.value)}
+                  placeholder={t('aiChatPlaceholder')}
+                  className="w-full pl-10 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-sm"
+                  disabled={isAILoading}
+                  data-tour="help-ai-input"
+                />
+              </div>
               <button
                 type="submit"
                 disabled={isAILoading || !aiInputValue.trim()}
