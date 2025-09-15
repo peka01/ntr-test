@@ -15,22 +15,9 @@ interface ElementPosition {
 }
 
 export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
-  // Optional tour integration - handle cases where TourProvider might not be available
-  let tourContext = null;
-  try {
-    tourContext = useTour();
-  } catch (error) {
-    console.warn('TourProvider not available, tour overlay will be disabled');
-  }
-
   const { t } = useTranslations();
   
-  // If tour context is not available, don't render the overlay
-  if (!tourContext) {
-    return null;
-  }
-
-  const { currentTour, currentStepIndex, isActive, nextStep, previousStep, skipTour, completeTour } = tourContext;
+  // Always call hooks in the same order - move all hooks to the top
   const [elementPosition, setElementPosition] = useState<ElementPosition | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const [isVisible, setIsVisible] = useState(false);
@@ -39,6 +26,21 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
   const overlayRef = useRef<HTMLDivElement>(null);
   const tooltipRef = useRef<HTMLDivElement>(null);
   const spotlightRef = useRef<HTMLDivElement>(null);
+
+  // Optional tour integration - handle cases where TourProvider might not be available
+  let tourContext = null;
+  try {
+    tourContext = useTour();
+  } catch (error) {
+    console.warn('TourProvider not available, tour overlay will be disabled');
+  }
+  
+  // If tour context is not available, don't render the overlay
+  if (!tourContext) {
+    return null;
+  }
+
+  const { currentTour, currentStepIndex, isActive, nextStep, previousStep, skipTour, completeTour } = tourContext;
 
   // Cache for element positions to avoid repeated DOM queries
   const elementCache = useRef<Map<string, ElementPosition>>(new Map());
@@ -106,6 +108,7 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
     let top = 0;
     let left = 0;
 
+
     switch (position) {
       case 'top':
         top = elementPos.top - tooltipHeight - padding - arrowSize;
@@ -129,18 +132,39 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
         break;
     }
 
-    // Ensure tooltip stays within viewport
+    const originalTop = top;
+    const originalLeft = left;
+
+    // Ensure tooltip stays within viewport - be very conservative
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
 
-    if (left < padding) left = padding;
-    if (left + tooltipWidth > viewportWidth - padding) {
+    // Only adjust if tooltip would be completely off-screen (negative values)
+    if (left < 0) left = padding;
+    if (top < 0) top = padding;
+    
+    // For right/left positions, only adjust if tooltip would be completely off-screen
+    if (position === 'right' && left + tooltipWidth > viewportWidth) {
       left = viewportWidth - tooltipWidth - padding;
     }
-    if (top < padding) top = padding;
-    if (top + tooltipHeight > viewportHeight - padding) {
+    if (position === 'left' && left + tooltipWidth > viewportWidth) {
+      left = viewportWidth - tooltipWidth - padding;
+    }
+    
+    // For top/bottom positions, only adjust if tooltip would be completely off-screen
+    if (position === 'top' && top + tooltipHeight > viewportHeight) {
       top = viewportHeight - tooltipHeight - padding;
     }
+    if (position === 'bottom' && top + tooltipHeight > viewportHeight) {
+      top = viewportHeight - tooltipHeight - padding;
+    }
+
+    // For center position, ensure it's always visible
+    if (position === 'center') {
+      top = Math.max(padding, Math.min(top, viewportHeight - tooltipHeight - padding));
+      left = Math.max(padding, Math.min(left, viewportWidth - tooltipWidth - padding));
+    }
+
 
     return { top, left };
   }, []);
@@ -154,7 +178,11 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
     }
 
     const currentStep = currentTour.steps[currentStepIndex];
-    if (!currentStep) return;
+    if (!currentStep) {
+      console.warn('🎯 Tour step not found at index:', currentStepIndex, 'Total steps:', currentTour.steps.length);
+      return;
+    }
+
 
     // Start transition animation
     setIsTransitioning(true);
@@ -163,10 +191,11 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
     // Try to find element immediately
     const pos = getElementPosition(currentStep.target);
     if (pos) {
+
       // Set position immediately
       setElementPosition(pos);
       
-      // Calculate tooltip position
+      // Calculate tooltip position (will be recalculated with actual dimensions after render)
       const tooltipPos = calculateTooltipPosition(pos, currentStep.position);
       setTooltipPosition(tooltipPos);
       
@@ -187,6 +216,8 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
     }
 
     // Element not found
+    console.warn('Tour step target not found:', currentStep.target);
+
     if (currentStep.skipIfNotFound) {
       // Auto-advance to next step with delay
       setTimeout(() => {
@@ -233,6 +264,27 @@ export const TourOverlay: React.FC<TourOverlayProps> = ({ className = '' }) => {
       window.removeEventListener('scroll', handleScroll);
     };
   }, [updateElementPosition]);
+
+  // Recalculate position with actual tooltip dimensions after render
+  useEffect(() => {
+    if (!isActive || !elementPosition || !currentTour || currentStepIndex < 0) return;
+
+    const currentStep = currentTour.steps[currentStepIndex];
+    if (!currentStep) return;
+
+    const tooltipElement = tooltipRef.current;
+    if (tooltipElement) {
+      const actualWidth = tooltipElement.offsetWidth;
+      const actualHeight = tooltipElement.offsetHeight;
+      
+      // Only recalculate if dimensions are significantly different
+      if (Math.abs(actualWidth - 300) > 50 || Math.abs(actualHeight - 200) > 50) {
+        
+        const tooltipPos = calculateTooltipPosition(elementPosition, currentStep.position, actualWidth, actualHeight);
+        setTooltipPosition(tooltipPos);
+      }
+    }
+  }, [isActive, elementPosition, currentTour, currentStepIndex, calculateTooltipPosition]);
 
   // Clear cache on unmount
   useEffect(() => {

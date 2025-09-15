@@ -167,14 +167,19 @@ class HelpSystemService {
   }
 
   // Tours
-  async getTours(language: 'en' | 'sv' = 'en'): Promise<HelpTour[]> {
+  async getTours(language?: 'en' | 'sv'): Promise<HelpTour[]> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('help_tours')
         .select('*')
-        .eq('is_active', true)
-        .or(`language.eq.${language},language.is.null`) // Allow null/empty language for backward compatibility
-        .order('name');
+        .eq('is_active', true);
+
+      // Only filter by language if specified
+      if (language) {
+        query = query.or(`language.eq.${language},language.is.null`); // Allow null/empty language for backward compatibility
+      }
+
+      const { data, error } = await query.order('name');
 
       if (error) {
         console.error('Error fetching tours:', error);
@@ -188,14 +193,19 @@ class HelpSystemService {
     }
   }
 
-  async getTourSteps(tourId: string, language: 'en' | 'sv' = 'en'): Promise<HelpTourStep[]> {
+  async getTourSteps(tourId: string, language?: 'en' | 'sv'): Promise<HelpTourStep[]> {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('help_tour_steps')
         .select('*')
-        .eq('tour_id', tourId)
-        .or(`language.eq.${language},language.is.null`) // Allow null/empty language for backward compatibility
-        .order('step_order');
+        .eq('tour_id', tourId);
+
+      // Only filter by language if specified
+      if (language) {
+        query = query.or(`language.eq.${language},language.is.null`); // Allow null/empty language for backward compatibility
+      }
+
+      const { data, error } = await query.order('step_order');
 
       if (error) {
         console.error('Error fetching tour steps:', error);

@@ -145,8 +145,22 @@ const AppContent: React.FC = () => {
             }
         };
 
+        const handleElementPickerNavigation = (event: CustomEvent) => {
+            console.log('🎯 Element picker navigation:', event.detail);
+            const { view } = event.detail;
+            if (view) {
+                console.log('🧭 Element picker navigating to view:', view);
+                setView(view as View);
+            }
+        };
+
         window.addEventListener('ai-action', handleAIAction as EventListener);
-        return () => window.removeEventListener('ai-action', handleAIAction as EventListener);
+        window.addEventListener('navigate-view', handleElementPickerNavigation as EventListener);
+        
+        return () => {
+            window.removeEventListener('ai-action', handleAIAction as EventListener);
+            window.removeEventListener('navigate-view', handleElementPickerNavigation as EventListener);
+        };
     }, []);
 
     const { 

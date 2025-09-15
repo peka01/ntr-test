@@ -3,6 +3,7 @@ import { useTranslations } from '../hooks/useTranslations';
 import { tourManagementService, TourFormData, TourStepFormData } from '../services/tourManagementService';
 import { helpSystemService, HelpTour, HelpTourStep } from '../services/helpSystemService';
 import { Tour, TourStep, useTour } from '../contexts/TourContext';
+import { PageAwareElementPicker } from './PageAwareElementPicker';
 
 interface TourManagementPageProps {
   onClose?: () => void;
@@ -64,6 +65,7 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
   const [showImportExport, setShowImportExport] = useState(false);
   const [importData, setImportData] = useState('');
   const [languageFilter, setLanguageFilter] = useState<'all' | 'en' | 'sv'>('all');
+  const [showElementPicker, setShowElementPicker] = useState(false);
 
   // Filter tours based on selected language
   const filteredTours = useMemo(() => {
@@ -879,13 +881,25 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
                   <label className="block text-sm font-medium text-slate-700 mb-2">
                     {t('tourAdminStepTarget')}
                   </label>
-                  <input
-                    type="text"
-                    value={stepFormData.target}
-                    onChange={(e) => setStepFormData({ ...stepFormData, target: e.target.value })}
-                    className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="[data-tour='example']"
-                  />
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={stepFormData.target}
+                      onChange={(e) => setStepFormData({ ...stepFormData, target: e.target.value })}
+                      className="flex-1 px-3 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="[data-tour='example']"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowElementPicker(true)}
+                      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                      title={t('pickElement')}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -1050,6 +1064,23 @@ const TourManagementPage: React.FC<TourManagementPageProps> = ({ onClose }) => {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Element Picker - only show when editing a step */}
+        {(isEditing || isCreating) && (
+          <PageAwareElementPicker
+            isOpen={showElementPicker}
+            onClose={() => setShowElementPicker(false)}
+            onSelect={(selector) => {
+              setStepFormData({ ...stepFormData, target: selector });
+              setShowElementPicker(false);
+            }}
+            currentSelector={stepFormData.target}
+            tourContext={{
+              category: formData.category,
+              targetGroup: formData.target_group
+            }}
+          />
         )}
       </div>
     </div>

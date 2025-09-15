@@ -3,6 +3,11 @@ import { useShoutout } from '../contexts/ShoutoutContext';
 import { useTranslations } from '../hooks/useTranslations';
 
 export const ShoutoutSplash: React.FC = () => {
+  const { t } = useTranslations();
+  
+  // Always call hooks in the same order - move all hooks to the top
+  const [animationPhase, setAnimationPhase] = useState<'entering' | 'active' | 'exiting'>('entering');
+  
   // Make resilient to missing ShoutoutProvider
   let shoutoutContext = null;
   try {
@@ -18,8 +23,6 @@ export const ShoutoutSplash: React.FC = () => {
   }
 
   const { currentShoutout, isVisible, hideShoutout, markAsSeen, handleStartTour } = shoutoutContext;
-  const { t } = useTranslations();
-  const [animationPhase, setAnimationPhase] = useState<'entering' | 'active' | 'exiting'>('entering');
 
   const handleDismiss = useCallback(() => {
     if (currentShoutout) {

@@ -11,52 +11,33 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
   const { t } = useTranslations();
   const { user, isAdmin } = useAuth();
   
-  // Try to get shoutout context
-  let shoutoutContext = null;
-  try {
-    shoutoutContext = useShoutout();
-  } catch (error) {
-    console.warn('ShoutoutProvider not available:', error);
-    // Don't return null - render a basic button instead
-  }
-  
-  // If shoutout context is not available, render a basic button that still works
-  if (!shoutoutContext) {
-    return (
-      <div className={`relative ${className}`}>
-        <button
-          className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors duration-200"
-          title="Shoutouts (Database not set up - Run setup-help-database.sql)"
-          onClick={() => {
-            console.log('Shoutouts button clicked - database setup needed');
-            alert('Shoutouts feature requires database setup. Please run the setup-help-database.sql script in your Supabase SQL editor.');
-          }}
-        >
-          {/* Gift box icon */}
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
-          </svg>
-        </button>
-      </div>
-    );
-  }
-
-  const { getAvailableFeatures, showShoutout, hasUnseenFeatures, markAsSeen } = shoutoutContext;
+  // Always call hooks in the same order - move all hooks to the top
   const [isOpen, setIsOpen] = useState(false);
   const [hasUnseen, setHasUnseen] = useState(false);
   const [showContextMenu, setShowContextMenu] = useState(false);
   const [contextMenuPosition, setContextMenuPosition] = useState({ x: 0, y: 0 });
   const buttonRef = useRef<HTMLDivElement>(null);
   const contextMenuRef = useRef<HTMLDivElement>(null);
+  
+  // Try to get shoutout context - but don't return early
+  let shoutoutContext = null;
+  try {
+    shoutoutContext = useShoutout();
+  } catch (error) {
+    console.warn('ShoutoutProvider not available:', error);
+    // Context not available, but we continue with the component
+  }
 
   // Check for unseen features
   useEffect(() => {
-    const checkUnseen = async () => {
-      const unseen = await hasUnseenFeatures();
-      setHasUnseen(unseen);
-    };
-    checkUnseen();
-  }, [hasUnseenFeatures]);
+    if (shoutoutContext?.hasUnseenFeatures) {
+      const checkUnseen = async () => {
+        const unseen = await shoutoutContext.hasUnseenFeatures();
+        setHasUnseen(unseen);
+      };
+      checkUnseen();
+    }
+  }, [shoutoutContext]);
 
   // Debug context menu state
   useEffect(() => {
@@ -132,17 +113,42 @@ export const ShoutoutButton: React.FC<ShoutoutButtonProps> = ({ className = '' }
 
   // Load features on mount
   useEffect(() => {
-    const loadFeatures = async () => {
-      const fetchedFeatures = await getAvailableFeatures();
-      setFeatures(fetchedFeatures);
-    };
-    loadFeatures();
-  }, [getAvailableFeatures]);
+    if (shoutoutContext?.getAvailableFeatures) {
+      const loadFeatures = async () => {
+        const fetchedFeatures = await shoutoutContext.getAvailableFeatures();
+        setFeatures(fetchedFeatures);
+      };
+      loadFeatures();
+    }
+  }, [shoutoutContext]);
 
   const handleFeatureClick = async (featureId: string) => {
-    await showShoutout(featureId);
-    setIsOpen(false);
+    if (shoutoutContext?.showShoutout) {
+      await shoutoutContext.showShoutout(featureId);
+      setIsOpen(false);
+    }
   };
+
+  // If shoutout context is not available, render a basic button
+  if (!shoutoutContext) {
+    return (
+      <div className={`relative ${className}`}>
+        <button
+          className="relative p-2 text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-lg transition-colors duration-200"
+          title="Shoutouts (Database not set up - Run setup-help-database.sql)"
+          onClick={() => {
+            console.log('Shoutouts button clicked - database setup needed');
+            alert('Shoutouts feature requires database setup. Please run the setup-help-database.sql script in your Supabase SQL editor.');
+          }}
+        >
+          {/* Gift box icon */}
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className={`relative ${className}`} ref={buttonRef}>
