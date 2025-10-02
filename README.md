@@ -1,9 +1,4 @@
 # 🏃‍♂️ Training Management System
-
-<div align="center">
-  <img width="1200" height="475" alt="Training Management System" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
-
 A comprehensive, modern training management system built with React, TypeScript, and Supabase. Features AI-powered assistance, multi-language support, interactive tours, and a complete voucher-based attendance system.
 
 ## 🌟 Key Features
