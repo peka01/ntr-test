@@ -172,6 +172,7 @@ const AppContent: React.FC = () => {
         error,
         createUser,
         updateUser,
+        updateUserVoucherBalance,
         createTraining,
         updateTraining,
         deleteTraining,
@@ -180,6 +181,29 @@ const AppContent: React.FC = () => {
         markAttendance,
         unmarkAttendance
     } = useData();
+
+    // Voucher management functions
+    const handleAddVoucher = async (userId: string) => {
+        try {
+            const user = users.find(u => u.id === userId);
+            if (user) {
+                await updateUserVoucherBalance(userId, user.voucherBalance + 1);
+            }
+        } catch (err) {
+            console.error('Error adding voucher:', err);
+        }
+    };
+
+    const handleRemoveVoucher = async (userId: string) => {
+        try {
+            const user = users.find(u => u.id === userId);
+            if (user && user.voucherBalance > 0) {
+                await updateUserVoucherBalance(userId, user.voucherBalance - 1);
+            }
+        } catch (err) {
+            console.error('Error removing voucher:', err);
+        }
+    };
 
     if (loading) {
         return <LoadingSpinner />;
@@ -335,8 +359,8 @@ const AppContent: React.FC = () => {
                         users={users}
                         onCreateUser={createUser}
                         onUpdateUser={updateUser}
-                        onAddVoucher={() => {}}
-                        onRemoveVoucher={() => {}}
+                        onAddVoucher={handleAddVoucher}
+                        onRemoveVoucher={handleRemoveVoucher}
                     />
                 )}
                 {view === 'tour-management' && isAdmin && (
