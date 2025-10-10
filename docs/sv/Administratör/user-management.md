@@ -2,7 +2,7 @@
 
 ## Översikt
 
-Som administratör har du nu en speciell sida för att hantera alla användare. På sidan **Användare** hittar du allt du behöver för att skapa, redigera och hantera användarkonton på ett enkelt och effektivt sätt.
+Som chef har du nu en speciell sida för att hantera alla användare. På sidan **Användare** hittar du allt du behöver för att skapa, redigera och hantera användarkonton på ett enkelt och effektivt sätt.
 
 ## Komma åt användarhanteringen
 
