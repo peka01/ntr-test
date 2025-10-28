@@ -48,5 +48,18 @@
         <p>Loading...</p>
     </div>
     <script type="module" src="./main.tsx"></script>
+    <script>
+      // Fallback for module loading issues
+      window.addEventListener('error', function(e) {
+        if (e.message.includes('module script') || e.message.includes('MIME type')) {
+          console.error('Module loading error detected:', e.message);
+          // Try to reload the page after a short delay
+          setTimeout(() => {
+            console.log('Attempting to reload page...');
+            window.location.reload();
+          }, 1000);
+        }
+      });
+    </script>
 </body>
 </html>

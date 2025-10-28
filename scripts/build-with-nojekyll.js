@@ -83,8 +83,9 @@ try {
       const stat = fs.statSync(filePath);
       
       if (stat.isFile()) {
-        // Ensure JavaScript files have .js extension
-        if (file.includes('index-') && !file.endsWith('.js')) {
+        // Check if this is a JavaScript file without .js extension
+        const isJavaScript = file.includes('index-') || file.includes('main-') || file.includes('chunk-');
+        if (isJavaScript && !file.endsWith('.js')) {
           const newFileName = file + '.js';
           const newFilePath = path.join(assetsDir, newFileName);
           fs.renameSync(filePath, newFilePath);
@@ -103,10 +104,34 @@ try {
     });
   }
   
+  // Create a .htaccess file for Apache servers (GitHub Pages uses Apache)
+  console.log('🔧 Creating .htaccess file for proper MIME types...');
+  const htaccessContent = `# GitHub Pages MIME type fixes
+AddType application/javascript .js
+AddType text/css .css
+AddType application/json .json
+AddType text/markdown .md
+
+# Ensure proper module type for ES modules
+<FilesMatch "\\.js$">
+    Header set Content-Type "application/javascript; charset=utf-8"
+</FilesMatch>
+
+# Cache control for assets
+<FilesMatch "\\.(js|css)$">
+    Header set Cache-Control "public, max-age=31536000"
+</FilesMatch>
+`;
+  
+  const htaccessPath = path.join(process.cwd(), 'dist', '.htaccess');
+  fs.writeFileSync(htaccessPath, htaccessContent);
+  console.log('📝 Created .htaccess file for MIME type fixes');
+  
   console.log('✅ Build completed with .nojekyll files and MIME type fixes!');
   console.log('📁 Files created:');
   console.log('   - dist/.nojekyll');
   console.log('   - public/.nojekyll');
+  console.log('   - dist/.htaccess (MIME type fixes)');
   console.log('   - dist/docs/ (copied from docs/)');
   console.log('   - Fixed JavaScript file extensions for GitHub Pages');
   console.log('📚 Docs available at production URL: /docs/');

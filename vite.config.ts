@@ -73,20 +73,23 @@ export default defineConfig(({ mode }) => {
         assetsDir: 'assets',
         rollupOptions: {
           output: {
-            // Ensure JavaScript files have .js extension for proper MIME type
+            // Force .js extension for all JavaScript files to ensure proper MIME type
             entryFileNames: 'assets/[name]-[hash].js',
             chunkFileNames: 'assets/[name]-[hash].js',
             assetFileNames: (assetInfo) => {
-              // Ensure proper file extensions for GitHub Pages
+              // Force .js extension for JavaScript files
               if (assetInfo.name && assetInfo.name.endsWith('.js')) {
                 return 'assets/[name]-[hash].js';
               }
+              // Ensure other assets have proper extensions
               return 'assets/[name]-[hash].[ext]';
-            }
+            },
+            // Ensure proper module format
+            format: 'es'
           }
         },
-        // Ensure proper module format for GitHub Pages
-        target: 'es2015',
+        // Use ES modules for better GitHub Pages compatibility
+        target: 'esnext',
         minify: 'terser',
         terserOptions: {
           format: {
@@ -96,7 +99,9 @@ export default defineConfig(({ mode }) => {
         // Ensure compatibility with GitHub Pages
         modulePreload: {
           polyfill: true
-        }
+        },
+        // Force proper MIME types
+        assetsInlineLimit: 0
       },
       server: {
         headers: {
