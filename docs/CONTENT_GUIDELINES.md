@@ -7,6 +7,307 @@
 - **English is secondary** - English versions should be translated from Swedish
 - **Keep both versions in sync** - When updating one language, update the other
 
+## Developer Guidelines for UI Text
+
+### CRITICAL: Never Hardcode UI Text
+
+**The Problem:** Developers often hardcode English text directly in UI components, which creates several issues:
+- Text cannot be easily translated
+- Help documentation becomes outdated when UI text changes
+- Inconsistent user experience across languages
+- Difficult maintenance and updates
+
+**The Solution:** Always use the localization system with Swedish-first approach.
+
+### Step-by-Step Process for Adding New UI Text
+
+#### 1. **Write Text in Swedish First**
+- Think about what the text should say in Swedish
+- Write it naturally, following the tone and voice guidelines
+- Consider the context and user needs
+
+#### 2. **Add to Swedish Locale File**
+- Open `locales/sv.json`
+- Add a new key with descriptive name
+- Use camelCase naming convention
+- Example: `"newFeatureButton": "Skapa ny funktion"`
+
+#### 3. **Translate to English**
+- Open `locales/en.json`
+- Add the same key with English translation
+- Maintain the same meaning and tone
+- Example: `"newFeatureButton": "Create new feature"`
+
+#### 4. **Use in UI Component**
+- Import the translation hook: `import { useTranslations } from '../hooks/useTranslations'`
+- Use the key in your component: `const t = useTranslations(); <button>{t('newFeatureButton')}</button>`
+
+### Examples of Correct vs Incorrect Implementation
+
+#### ❌ INCORRECT - Hardcoded English Text
+```tsx
+// DON'T DO THIS
+function CreateUserButton() {
+  return <button>Create User</button>;
+}
+```
+
+#### ❌ INCORRECT - Hardcoded Swedish Text
+```tsx
+// DON'T DO THIS
+function CreateUserButton() {
+  return <button>Skapa användare</button>;
+}
+```
+
+#### ✅ CORRECT - Using Localization System
+```tsx
+// DO THIS
+function CreateUserButton() {
+  const t = useTranslations();
+  return <button>{t('adminCreateUserBtn')}</button>;
+}
+```
+
+### Key Naming Conventions
+
+**Use descriptive, hierarchical naming:**
+- `adminCreateUserBtn` - Admin panel, create user button
+- `navAttendance` - Navigation, attendance link
+- `subSearchPlaceholder` - Subscription page, search placeholder
+- `attMarkPresentBtn` - Attendance page, mark present button
+
+**Avoid generic names:**
+- ❌ `button1`, `text1`, `label1`
+- ❌ `createBtn`, `saveBtn`, `cancelBtn` (too generic)
+- ✅ `adminCreateTrainingBtn`, `adminSaveTrainingBtn`, `adminCancelBtn`
+
+### Complete Workflow Example
+
+**Scenario:** Adding a new "Delete Training" button to the admin panel
+
+#### Step 1: Write Swedish Text
+Think: "Ta bort träning" (Delete training)
+
+#### Step 2: Add to Swedish Locale
+```json
+// locales/sv.json
+{
+  "adminDeleteTrainingBtn": "Ta bort träning"
+}
+```
+
+#### Step 3: Translate to English
+```json
+// locales/en.json
+{
+  "adminDeleteTrainingBtn": "Delete Training"
+}
+```
+
+#### Step 4: Use in Component
+```tsx
+// components/TrainingManagementPage.tsx
+function TrainingManagementPage() {
+  const t = useTranslations();
+  
+  return (
+    <div>
+      <button onClick={handleDelete}>
+        {t('adminDeleteTrainingBtn')}
+      </button>
+    </div>
+  );
+}
+```
+
+### Verification Checklist for Developers
+
+Before committing any UI changes:
+- [ ] **No hardcoded text** in any UI component
+- [ ] **Swedish text added first** to `locales/sv.json`
+- [ ] **English translation added** to `locales/en.json`
+- [ ] **Key names are descriptive** and follow naming convention
+- [ ] **Component uses translation hook** correctly
+- [ ] **Both languages tested** in the application
+- [ ] **Text follows tone and voice guidelines** (Swedish first)
+
+### Common Mistakes to Avoid
+
+1. **Hardcoding any text** - Always use localization keys
+2. **Writing English first** - Swedish is the master language
+3. **Generic key names** - Use descriptive, hierarchical names
+4. **Missing English translation** - Both languages must be added
+5. **Inconsistent naming** - Follow the established pattern
+6. **Forgetting to test** - Verify both languages work correctly
+
+### Why This Approach Works
+
+- **Consistent translations** - Swedish-first ensures natural language flow
+- **Easy maintenance** - Update text in one place, affects entire application
+- **Help documentation stays current** - Uses same keys as interface
+- **Better user experience** - Proper localization support
+- **Developer efficiency** - Clear process prevents confusion
+
+### Real-World Examples
+
+#### Example 1: Adding a New Button
+
+**Scenario:** Adding a "Save Changes" button to the training edit form
+
+**❌ WRONG WAY:**
+```tsx
+// Component with hardcoded English text
+function TrainingEditForm() {
+  return (
+    <form>
+      <button type="submit">Save Changes</button>
+    </form>
+  );
+}
+```
+
+**✅ CORRECT WAY:**
+```json
+// locales/sv.json (Swedish first)
+{
+  "adminSaveChangesBtn": "Spara ändringar"
+}
+```
+
+```json
+// locales/en.json (English translation)
+{
+  "adminSaveChangesBtn": "Save Changes"
+}
+```
+
+```tsx
+// Component using localization
+function TrainingEditForm() {
+  const t = useTranslations();
+  return (
+    <form>
+      <button type="submit">{t('adminSaveChangesBtn')}</button>
+    </form>
+  );
+}
+```
+
+#### Example 2: Adding Form Labels
+
+**Scenario:** Adding labels for a new user registration form
+
+**❌ WRONG WAY:**
+```tsx
+// Hardcoded Swedish text
+function UserRegistrationForm() {
+  return (
+    <form>
+      <label>Förnamn</label>
+      <input type="text" />
+      <label>Efternamn</label>
+      <input type="text" />
+    </form>
+  );
+}
+```
+
+**✅ CORRECT WAY:**
+```json
+// locales/sv.json
+{
+  "userFirstNameLabel": "Förnamn",
+  "userLastNameLabel": "Efternamn"
+}
+```
+
+```json
+// locales/en.json
+{
+  "userFirstNameLabel": "First Name",
+  "userLastNameLabel": "Last Name"
+}
+```
+
+```tsx
+// Component using localization
+function UserRegistrationForm() {
+  const t = useTranslations();
+  return (
+    <form>
+      <label>{t('userFirstNameLabel')}</label>
+      <input type="text" />
+      <label>{t('userLastNameLabel')}</label>
+      <input type="text" />
+    </form>
+  );
+}
+```
+
+#### Example 3: Adding Error Messages
+
+**Scenario:** Adding validation error messages
+
+**❌ WRONG WAY:**
+```tsx
+// Hardcoded English error message
+function validateEmail(email) {
+  if (!email.includes('@')) {
+    return "Please enter a valid email address";
+  }
+}
+```
+
+**✅ CORRECT WAY:**
+```json
+// locales/sv.json
+{
+  "validationEmailInvalid": "Ange en giltig e-postadress"
+}
+```
+
+```json
+// locales/en.json
+{
+  "validationEmailInvalid": "Please enter a valid email address"
+}
+```
+
+```tsx
+// Using localization for error messages
+function validateEmail(email, t) {
+  if (!email.includes('@')) {
+    return t('validationEmailInvalid');
+  }
+}
+```
+
+### Key Benefits Demonstrated
+
+1. **Automatic Translation:** When you change `adminSaveChangesBtn` from "Spara ändringar" to "Spara alla ändringar", both the UI and help documentation automatically update.
+
+2. **Consistent Experience:** Users see the same terminology across all parts of the application.
+
+3. **Easy Maintenance:** Update text in one place (locale files) instead of searching through multiple components.
+
+4. **Help Documentation Sync:** Help writers can reference `{adminSaveChangesBtn}` and it will always show the current button text.
+
+### Quick Reference for Developers
+
+**Always follow this pattern:**
+1. Think in Swedish first
+2. Add to `locales/sv.json`
+3. Translate to `locales/en.json`
+4. Use `{t('keyName')}` in component
+5. Test both languages
+
+**Never do this:**
+- Hardcode any text in components
+- Write English first, then translate
+- Use generic key names
+- Skip testing both languages
+
 ## Information Types and Structure
 
 ### Different Levels of Information
@@ -175,11 +476,97 @@ When writing help texts, we work with different types of topics/levels of inform
 - Mark interface texts in **bold**
 - Use consistent wording for same actions
 
+**CRITICAL: Use Localization Keys, Not Hardcoded Text**
+
+When referencing interface elements in help documentation, you must use the localization keys from the locales JSON files, not the actual displayed text values. This ensures help documentation stays synchronized when interface texts are updated.
+
+**How to Reference Interface Text Correctly:**
+
+1. **Find the localization key** in `locales/sv.json` or `locales/en.json`
+2. **Use the key format** in your documentation: `{keyName}`
+3. **Include both languages** when documenting: `{keyName}` (Swedish: "Displayed Text", English: "Displayed Text")
+
+**Examples:**
+
+```
+✅ Correct: Click **{adminCreateTrainingBtn}** to create a new training
+   (Swedish: "Skapa träning", English: "Create Training")
+
+✅ Correct: Select **{navAttendance}** from the menu
+   (Swedish: "Incheckning", English: "Attendance")
+
+❌ Incorrect: Click **Skapa träning** to create a new training
+❌ Incorrect: Select **Incheckning** from the menu
+```
+
+**Why This Matters:**
+- When interface texts are updated in the code, help documentation automatically reflects the changes
+- Prevents outdated help content that shows old button names or menu items
+- Ensures consistency between interface and documentation
+- Makes maintenance easier for developers
+
 **Example:**
 ```
-✅ Good: Select **Sales** - **Articles**
+✅ Good: Select **{navPublic}** - **{adminExistingTrainings}**
 ❌ Bad: Go to the sales section and click on articles
 ```
+
+**Comprehensive Examples:**
+
+**Creating a Training:**
+```
+✅ Correct: Click **{adminCreateTrainingBtn}** to start creating a new training
+   (Swedish: "Skapa träning", English: "Create Training")
+
+❌ Incorrect: Click **Skapa träning** to start creating a new training
+❌ Incorrect: Click **Create Training** to start creating a new training
+```
+
+**User Management:**
+```
+✅ Correct: Go to **{adminExistingUsers}** to see all registered users
+   (Swedish: "Befintliga användare", English: "Existing Users")
+
+❌ Incorrect: Go to **Befintliga användare** to see all registered users
+❌ Incorrect: Go to **Existing Users** to see all registered users
+```
+
+**Navigation:**
+```
+✅ Correct: Select **{navAttendance}** from the main menu
+   (Swedish: "Incheckning", English: "Attendance")
+
+❌ Incorrect: Select **Incheckning** from the main menu
+❌ Incorrect: Select **Attendance** from the main menu
+```
+
+**Search Functionality:**
+```
+✅ Correct: Use **{adminSearchPlaceholder}** to find specific users
+   (Swedish: "Sök på namn eller e-post...", English: "Search by name or email...")
+
+❌ Incorrect: Use **Sök på namn eller e-post...** to find specific users
+❌ Incorrect: Use **Search by name or email...** to find specific users
+```
+
+**Multi-step Instructions:**
+```
+✅ Correct: 
+1. Click **{adminCreateTrainingBtn}**
+2. Fill in **{adminUserNameLabel}** field
+3. Click **{adminUpdateTrainingBtn}** to save
+
+❌ Incorrect:
+1. Click **Skapa träning**
+2. Fill in **Visningsnamn** field  
+3. Click **Uppdatera träning** to save
+```
+
+**Why the Correct Approach Works:**
+- When developers update `adminCreateTrainingBtn` from "Skapa träning" to "Skapa ny träning", help documentation automatically reflects the change
+- No need to manually update help files when interface text changes
+- Maintains consistency across all documentation
+- Reduces maintenance overhead and prevents outdated help content
 
 ### Structure and Headers
 

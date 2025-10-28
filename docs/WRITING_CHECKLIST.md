@@ -1,5 +1,30 @@
 # Help Text Writing Checklist
 
+## Developer UI Text Checklist
+
+### Before Adding Any UI Text
+- [ ] **Swedish text written first** - Think about what it should say in Swedish
+- [ ] **Key name chosen** - Descriptive, hierarchical naming (e.g., `adminCreateUserBtn`)
+- [ ] **Swedish locale updated** - Added to `locales/sv.json`
+- [ ] **English translation added** - Added to `locales/en.json`
+- [ ] **Component uses translation hook** - `const t = useTranslations(); {t('keyName')}`
+- [ ] **No hardcoded text** - All text comes from localization files
+- [ ] **Both languages tested** - Verify Swedish and English work correctly
+
+### Common UI Text Mistakes to Avoid
+- [ ] ❌ Hardcoding "Create User" directly in component
+- [ ] ❌ Hardcoding "Skapa användare" directly in component  
+- [ ] ❌ Writing English text first, then translating to Swedish
+- [ ] ❌ Using generic key names like `button1` or `text1`
+- [ ] ❌ Adding only Swedish or only English translation
+- [ ] ❌ Forgetting to test both languages in the application
+
+### Correct UI Text Implementation
+- [ ] ✅ Swedish text: `"adminCreateUserBtn": "Skapa användare"`
+- [ ] ✅ English text: `"adminCreateUserBtn": "Create User"`
+- [ ] ✅ Component: `<button>{t('adminCreateUserBtn')}</button>`
+- [ ] ✅ Both languages tested and working
+
 ## Pre-Writing Checklist
 
 ### Content Planning
@@ -11,6 +36,7 @@
 ### Research
 - [ ] **Test the feature:** Follow the exact steps as a user would
 - [ ] **Note interface text:** Write down exact button names, menu items, field labels
+- [ ] **Find localization keys:** Look up the corresponding keys in `locales/sv.json` and `locales/en.json`
 - [ ] **Identify common issues:** What problems do users typically encounter?
 - [ ] **Check related features:** What other parts of the system are connected?
 
@@ -63,6 +89,11 @@
   - [ ] Interface text in **bold**
   - [ ] Initial letter uppercase
   - [ ] Consistent terminology throughout
+  - [ ] **CRITICAL: Used localization keys, not hardcoded text**
+  - [ ] **Verified all interface references use {keyName} format**
+  - [ ] **Checked that keys exist in both locales/sv.json and locales/en.json**
+  - [ ] **Included both language examples where appropriate: {keyName} (Swedish: "Text", English: "Text")**
+
 
 ### Content Quality
 - [ ] **Instructions are complete:**
@@ -117,6 +148,20 @@
   - [ ] Drop-down menus used if needed (max 2 levels)
   - [ ] Related links included at bottom
 
+### Localization Verification
+- [ ] **All interface references verified:**
+  - [ ] No hardcoded interface text found in documentation
+  - [ ] All interface elements use {keyName} format
+  - [ ] Keys exist in both Swedish and English locale files
+  - [ ] Both language versions included where appropriate
+  - [ ] Examples show both languages: {keyName} (Swedish: "Text", English: "Text")
+
+- [ ] **Key validation:**
+  - [ ] Checked `locales/sv.json` for Swedish keys
+  - [ ] Checked `locales/en.json` for English keys
+  - [ ] Verified keys match exactly (case-sensitive)
+  - [ ] Confirmed keys are still in use in the application
+
 ### Translation Preparation
 - [ ] **Swedish version complete:**
   - [ ] Natural Swedish (not translated from English)
@@ -139,6 +184,15 @@
 - [ ] **Content is up-to-date**
 - [ ] **File names follow convention**
 - [ ] **Both files committed together**
+
+### UI Development Quality Check
+- [ ] **No hardcoded UI text** - All text uses localization keys
+- [ ] **Swedish-first approach** - Swedish text written before English
+- [ ] **Both locale files updated** - `locales/sv.json` and `locales/en.json`
+- [ ] **Descriptive key names** - Following naming convention
+- [ ] **Translation hook used** - Components use `useTranslations()`
+- [ ] **Both languages tested** - Swedish and English work correctly
+- [ ] **Help documentation updated** - Uses same localization keys
 
 ### Content Types Checklist
 
@@ -180,9 +234,10 @@
 - **Troubleshooting:** "I can't mark attendance"
 
 ### Interface Text Examples
-- ✅ "Click **Create User**"
-- ✅ "Select **Admin** - **User Management**"
+- ✅ "Click **{adminCreateTrainingBtn}**" (Swedish: "Skapa träning", English: "Create Training")
+- ✅ "Select **{navAttendance}** - **{adminExistingTrainings}**"
 - ❌ "Go to the admin section and click create user"
+- ❌ "Click **Skapa träning**" (hardcoded text - will become outdated)
 
 ### Imperative Mood Examples
 - ✅ "Click the button"
