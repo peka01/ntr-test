@@ -216,6 +216,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   
   // Help Editor state
   const [isHelpEditorOpen, setIsHelpEditorOpen] = useState(false);
+  const [editorKey, setEditorKey] = useState(0); // Key to force editor remount on open
   
   // AI Chat state
   const [aiInputValue, setAiInputValue] = useState('');
@@ -1529,7 +1530,10 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
               </svg>
             </button>
             <button
-              onClick={() => setIsHelpEditorOpen(true)}
+              onClick={() => {
+                setEditorKey(prev => prev + 1); // Force fresh mount
+                setIsHelpEditorOpen(true);
+              }}
               className="p-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors"
               title={t('helpEditButton')}
               onMouseDown={(e) => e.stopPropagation()}
@@ -1831,6 +1835,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
       
       {/* Help Editor Modal */}
       <HelpEditor
+        key={editorKey}
         isOpen={isHelpEditorOpen}
         onClose={async () => {
           setIsHelpEditorOpen(false);

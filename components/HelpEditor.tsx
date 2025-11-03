@@ -155,12 +155,13 @@ export const HelpEditor: React.FC<HelpEditorProps> = ({
     }
   }, [uiTextVariables, variableSearch]);
 
-  // Load section content
-  const loadSectionContent = async (sectionId: string) => {
+  // Load section content (force refresh from GitHub to get latest)
+  const loadSectionContent = async (sectionId: string, forceRefresh: boolean = true) => {
     setLoading(true);
     setError(null);
     try {
-      const section = await helpService.getSection(sectionId, language);
+      // Always force refresh to get the latest content from GitHub
+      const section = await helpService.getSection(sectionId, language, forceRefresh);
       if (section) {
         setCurrentSection(section);
         setMarkdownContent(section.content);

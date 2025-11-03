@@ -88,23 +88,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         });
       }
     } else if (sourceType === 'github') {
-      // Fetch from GitHub with aggressive cache busting
+      // Use GitHub API instead of raw.githubusercontent.com for instant updates
       const repoOwner = 'peka01';
       const repoName = 'ntr-test';
+      const branch = 'main';
       
-      // Add multiple cache busting parameters to defeat GitHub CDN caching
-      const timestamp = Date.now();
-      const random = Math.random().toString(36).substring(7);
-      const cacheBust = `?raw=true&t=${timestamp}&r=${random}&_=${Date.now()}`;
-      const githubUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/docs/${relativePath}${cacheBust}`;
+      // GitHub API endpoint - returns instant, uncached content
+      const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/docs/${relativePath}?ref=${branch}`;
       
-      const response = await fetch(githubUrl, {
+      const headers: HeadersInit = {
+        'Accept': 'application/vnd.github.v3.raw', // Get raw content directly
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+      };
+      
+      // Add authorization if token is available (increases rate limit)
+      const githubToken = process.env.VITE_GITHUB_TOKEN;
+      if (githubToken) {
+        headers['Authorization'] = `Bearer ${githubToken}`;
+      }
+      
+      const response = await fetch(apiUrl, {
         cache: 'no-store',
-        headers: {
-          'Cache-Control': 'no-cache, no-store, must-revalidate, max-age=0',
-          'Pragma': 'no-cache',
-          'Expires': '0'
-        }
+        headers
       });
       
       if (response.ok) {
@@ -112,13 +117,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         return res.status(200).json({ 
           success: true, 
           content, 
-          source: 'github',
+          source: 'github-api',
           path: relativePath
         });
       } else {
         return res.status(response.status).json({ 
           success: false, 
-          error: `GitHub request failed: ${response.status}`,
+          error: `GitHub API request failed: ${response.status}`,
           path: relativePath
         });
       }

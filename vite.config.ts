@@ -147,13 +147,27 @@ export default defineConfig(({ mode }) => {
                 }));
               }
             } else if (source === 'github') {
-              // Proxy request to GitHub
+              // Use GitHub API for instant, uncached content
               const repoOwner = 'peka01';
               const repoName = 'ntr-test';
-              const githubUrl = `https://raw.githubusercontent.com/${repoOwner}/${repoName}/main/docs/${relativePath}`;
+              const branch = 'main';
+              
+              // GitHub API endpoint - returns instant content
+              const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/docs/${relativePath}?ref=${branch}`;
               
               const fetch = (await import('node-fetch')).default;
-              const response = await fetch(githubUrl);
+              const headers: Record<string, string> = {
+                'Accept': 'application/vnd.github.v3.raw', // Get raw content directly
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+              };
+              
+              // Add authorization if token is available
+              const githubToken = process.env.VITE_GITHUB_TOKEN;
+              if (githubToken) {
+                headers['Authorization'] = `Bearer ${githubToken}`;
+              }
+              
+              const response = await fetch(apiUrl, { headers });
               
               if (response.ok) {
                 const content = await response.text();
@@ -163,7 +177,7 @@ export default defineConfig(({ mode }) => {
                 res.end(JSON.stringify({ 
                   success: true, 
                   content, 
-                  source: 'github',
+                  source: 'github-api',
                   path: relativePath
                 }));
               } else {
@@ -171,7 +185,7 @@ export default defineConfig(({ mode }) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ 
                   success: false, 
-                  error: `GitHub request failed: ${response.status}`,
+                  error: `GitHub API request failed: ${response.status}`,
                   path: relativePath
                 }));
               }
