@@ -1,4 +1,4 @@
-# Anmälan 1
+# Anmälan
 
 ## Översikt
 
