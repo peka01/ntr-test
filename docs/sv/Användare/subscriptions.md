@@ -1,4 +1,4 @@
-# Anmälan 1
+# Anmälan
 
 ## Översikt
 
@@ -108,3 +108,8 @@ Det beror på plattformsinställningarna - fråga administratören om detta.
 **Registreringen visas inte**
 - Uppdatera sidan för att se de senaste ändringarna
 - Kontakta administratören om problemet kvarstår
+
+
+---
+
+<div style="background: #e3f2fd; padding: 8px 12px; border-radius: 4px; font-size: 12px; color: #1976d2; margin-top: 20px;">📡 <strong>Live from GitHub</strong> - This content was fetched directly from the repository.</div>
