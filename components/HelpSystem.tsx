@@ -5,6 +5,7 @@ import { helpService, type HelpSection } from '../services/helpService';
 import { useUserInteraction } from '../contexts/UserInteractionContext';
 import { TourLauncher } from './TourLauncher';
 import { useTour } from '../contexts/TourContext';
+import { HelpEditor } from './HelpEditor';
 
 interface HelpSystemProps {
   isOpen: boolean;
@@ -212,6 +213,9 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
   // Removed contentSource state as we only use local docs now
+  
+  // Help Editor state
+  const [isHelpEditorOpen, setIsHelpEditorOpen] = useState(false);
   
   // AI Chat state
   const [aiInputValue, setAiInputValue] = useState('');
@@ -1524,10 +1528,8 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
             </button>
-            <a
-              href={`https://github.com/peka01/ntr-test/edit/main/docs/${language}/${selectedSection}.md`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              onClick={() => setIsHelpEditorOpen(true)}
               className="p-2 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 rounded-lg transition-colors"
               title={t('helpEditButton')}
               onMouseDown={(e) => e.stopPropagation()}
@@ -1535,7 +1537,7 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-            </a>
+            </button>
             <button
               onClick={onClose}
               className="text-slate-400 hover:text-slate-600 transition-colors"
@@ -1826,6 +1828,44 @@ export const HelpSystem: React.FC<HelpSystemProps> = ({ isOpen, onClose, isAdmin
           onMouseDown={(e) => handleResizeStart(e, 'se')}
         />
       </div>
+      
+      {/* Help Editor Modal */}
+      <HelpEditor
+        isOpen={isHelpEditorOpen}
+        onClose={async () => {
+          setIsHelpEditorOpen(false);
+          // Refresh help content when editor closes - now reading directly from GitHub!
+          try {
+            setLoading(true);
+            console.log('🔄 Refreshing help content from GitHub after commit...');
+            
+            // Clear browser caches first
+            await helpService.clearAllCaches();
+            
+            // Since we're now reading from GitHub directly, content should be instantly available
+            const sections = await helpService.getAllSections(language, true); // Force refresh from GitHub
+            setHelpSections(sections);
+            
+            console.log(`✅ Help content refreshed from GitHub with ${sections.length} sections`);
+            
+          } catch (error) {
+            console.error('Error refreshing help content after edit:', error);
+            // Try one more time without forcing
+            try {
+              console.log('🔄 Attempting fallback refresh...');
+              const fallbackSections = await helpService.getAllSections(language, false);
+              setHelpSections(fallbackSections);
+              console.log('✅ Fallback refresh completed');
+            } catch (fallbackError) {
+              console.error('❌ Fallback refresh also failed:', fallbackError);
+            }
+          } finally {
+            setLoading(false);
+          }
+        }}
+        selectedSection={selectedSection}
+        isAdmin={isAdmin}
+      />
     </>
   );
 };

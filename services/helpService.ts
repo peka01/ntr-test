@@ -191,40 +191,24 @@ export const helpService = {
 
   // Get all help sections for a specific language
   async getAllSections(language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection[]> {
-    console.log(`Loading help sections for language: ${language}${forceRefresh ? ' (forced refresh)' : ''}`);
     let sections: HelpSection[] = [];
     
     try {
-      // Try to load structure map first
-      const structureMap = await this.loadStructureMap();
-      
-      // First try to discover docs from the repository docs folder at build-time
-      const discovered = this.discoverDocs(language);
-      if (Object.keys(discovered).length > 0) {
-        sections = await this.buildSectionsFromStructure(discovered, language, structureMap);
-      } else {
-        // Fallback to configured sections using fetch from docs folder
-        for (const sectionConfig of helpConfig.sections) {
-          try {
-            const content = await this.loadMarkdownContent(sectionConfig.id, language, forceRefresh);
-            const extractedTitle = this.extractMarkdownTitle(content);
-            const title = extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title] || sectionConfig.id;
-            const keywords = sectionConfig.keywords || [];
-            const category = this.deriveCategoryFromId(sectionConfig.id) || sectionConfig.category || 'general';
-            const pathSegments = this.splitPathSegments(sectionConfig.id);
-            sections.push({ id: sectionConfig.id, title, content, keywords, category, pathSegments });
-          } catch (error) {
-            console.error(`Error loading help content for section ${sectionConfig.id}:`, error);
-            // Skip sections that cannot be loaded
-          }
-        }
+      for (const sectionConfig of helpConfig.sections) {
+        // loadMarkdownContentFromGitHub now returns error content instead of throwing
+        const content = await this.loadMarkdownContentFromGitHub(sectionConfig.id, language, forceRefresh);
+        const extractedTitle = this.extractMarkdownTitle(content);
+        const title = extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title] || sectionConfig.id;
+        const keywords = sectionConfig.keywords || [];
+        const category = this.deriveCategoryFromId(sectionConfig.id) || sectionConfig.category || 'general';
+        const pathSegments = this.splitPathSegments(sectionConfig.id);
+        sections.push({ id: sectionConfig.id, title, content, keywords, category, pathSegments });
       }
     } catch (error) {
       console.error('Error loading help sections:', error);
       throw new Error(`Failed to load help sections: ${error instanceof Error ? error.message : String(error)}`);
     }
     
-    console.log(`Loaded ${sections.length} help sections`);
     return sections;
   },
 
@@ -310,38 +294,26 @@ export const helpService = {
 
   // Get a specific help section
   async getSection(sectionId: string, language: string = 'sv', forceRefresh: boolean = false): Promise<HelpSection | null> {
-    try {
-      // Prefer discovered docs
-      const discovered = this.discoverDocs(language);
-      if (discovered[sectionId]) {
-        const content = discovered[sectionId];
-        const title = this.extractMarkdownTitle(content) || sectionId.split('/').pop() || sectionId;
-        const category = this.deriveCategoryFromId(sectionId) || 'general';
-        const pathSegments = this.splitPathSegments(sectionId);
-        return { id: sectionId, title, content, keywords: [], category, pathSegments };
-      }
-
-      // Fallback to configured sections and public fetch
-      const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
-      if (!sectionConfig) return null;
-
-      const content = await this.loadMarkdownContent(sectionId, language, forceRefresh);
-      const extractedTitle = this.extractMarkdownTitle(content);
-      const derivedCategory = this.deriveCategoryFromId(sectionConfig.id) || sectionConfig.category;
-      const pathSegments = this.splitPathSegments(sectionConfig.id);
-      return {
-        id: sectionConfig.id,
-        title: extractedTitle || sectionConfig.title[language as keyof typeof sectionConfig.title],
-        content: content,
-        keywords: sectionConfig.keywords,
-        category: derivedCategory || 'general',
-        pathSegments
-      };
-    } catch (error) {
-      console.error(`Error loading help content for section ${sectionId}:`, error);
-    }
+    // Always fetch from GitHub for consistency
+    // loadMarkdownContentFromGitHub now returns error content instead of throwing
+    const content = await this.loadMarkdownContentFromGitHub(sectionId, language, forceRefresh);
+    const extractedTitle = this.extractMarkdownTitle(content);
     
-    return null;
+    // Find section config for metadata
+    const sectionConfig = helpConfig.sections.find(s => s.id === sectionId);
+    const title = extractedTitle || (sectionConfig ? sectionConfig.title[language as keyof typeof sectionConfig.title] : sectionId);
+    const keywords = sectionConfig ? sectionConfig.keywords : [];
+    const category = this.deriveCategoryFromId(sectionId) || (sectionConfig ? sectionConfig.category : 'general');
+    const pathSegments = this.splitPathSegments(sectionId);
+    
+    return {
+      id: sectionId,
+      title: title || sectionId,
+      content: content,
+      keywords,
+      category: category || 'general',
+      pathSegments
+    };
   },
 
   // Extract the first-level heading (H1) from markdown content
@@ -412,89 +384,284 @@ export const helpService = {
       .filter(Boolean);
   },
 
-  // Load markdown content from local docs folder
-  async loadMarkdownContent(sectionId: string, language: string, forceRefresh: boolean = false): Promise<string> {
+  // Map section IDs to their actual file paths in the GitHub repository
+  getActualFilePath(sectionId: string, language: string): string {
+    const langFolder = language === 'sv' ? 'sv' : 'en';
+    
+    // Mapping of section IDs to their actual folder structure
+    const pathMapping: Record<string, Record<string, string>> = {
+      sv: {
+        'overview': 'overview',
+        'troubleshooting': 'troubleshooting',
+        'vouchers': 'Användare/vouchers',
+        'subscriptions': 'Användare/subscriptions',
+        'attendance': 'Användare/attendance',
+        'guided-tours': 'Användare/guided-tours',
+        'news-announcements': 'Användare/news-announcements',
+        'user-management': 'Administratör/user-management',
+        'training-management': 'Administratör/training-management',
+        'tour-management': 'Administratör/tour-management',
+        'shoutout-management': 'Administratör/shoutout-management'
+      },
+      en: {
+        'overview': 'overview',
+        'troubleshooting': 'troubleshooting',
+        'vouchers': 'User/vouchers',
+        'subscriptions': 'User/subscriptions',
+        'attendance': 'User/attendance',
+        'guided-tours': 'User/guided-tours',
+        'news-announcements': 'User/news-announcements',
+        'user-management': 'Admin/user-management',
+        'training-management': 'Admin/training-management',
+        'tour-management': 'Admin/tour-management',
+        'shoutout-management': 'Admin/shoutout-management'
+      }
+    };
+    
+    const mappedPath = pathMapping[langFolder]?.[sectionId];
+    if (mappedPath) {
+      return `docs/${langFolder}/${mappedPath}.md`;
+    }
+    
+    // Fallback to direct path if no mapping found
+    return `docs/${langFolder}/${sectionId}.md`;
+  },
+
+  // Load markdown content directly from GitHub repository
+  async loadMarkdownContentFromGitHub(sectionId: string, language: string, forceRefresh: boolean = false): Promise<string> {
     try {
-      // Always use aggressive cache busting to ensure fresh content
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      
+      // Try GitHub first (for updated content) - ALWAYS, even in development
+      const githubApiUrl = `/api/help/content?section=${encodeURIComponent(sectionId)}&lang=${encodeURIComponent(language)}&source=github`;
+      const cacheBuster = `&_t=${Date.now()}&_r=${Math.random()}`;
+      const githubUrl = githubApiUrl + cacheBuster;
+      
+      try {
+        const githubResponse = await fetch(githubUrl, {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache'
+          }
+        });
+        
+        if (githubResponse.ok) {
+          const githubData = await githubResponse.json();
+          if (githubData.success && githubData.content) {
+            return githubData.content;
+          }
+        }
+      } catch (githubError) {
+        // Silently fall back to local
+      }
+      
+      // Fallback to local files via API
+      const localApiUrl = `/api/help/content?section=${encodeURIComponent(sectionId)}&lang=${encodeURIComponent(language)}&source=local`;
+      const localUrl = localApiUrl + cacheBuster;
+      
+      const localResponse = await fetch(localUrl, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+      
+      if (localResponse.ok) {
+        const localData = await localResponse.json();
+        if (localData.success && localData.content) {
+          return localData.content;
+        }
+      }
+      
+      // If both failed
+      if (localResponse.status === 404) {
+        return this.generateNotFoundContent(sectionId, language);
+      }
+      
+      const errorData = await localResponse.json().catch(() => ({ error: localResponse.statusText }));
+      return this.generateErrorContent(sectionId, language, errorData.error || localResponse.statusText, isLocal);
+      
+    } catch (error) {
+      console.error(`❌ Error loading content for ${sectionId} in ${language}:`, error);
+      
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      return this.generateErrorContent(
+        sectionId, 
+        language, 
+        error instanceof Error ? error.message : String(error),
+        isLocal
+      );
+    }
+  },
+
+  // Generate error content message
+  generateErrorContent(sectionId: string, language: string, errorMessage: string, isLocal: boolean): string {
+    return `# Content Loading Error
+
+This help content could not be loaded.
+
+**Error:** ${errorMessage}
+
+**Possible causes:**
+- File doesn't exist in the repository yet
+- Network connectivity issues  
+- API server error
+${isLocal ? '- Local file not found in docs folder' : '- GitHub API rate limiting or access issues'}
+
+**Solutions:**
+1. **${isLocal ? 'Check local files' : 'Check repository'}**: Verify the file exists at \`docs/${language === 'sv' ? 'sv' : 'en'}/${sectionId}.md\`
+2. **Refresh**: Try refreshing the help system
+3. **Create content**: Use the help editor to create this section
+4. **Contact support**: If the issue persists
+
+**Debug Info:**
+- Section: ${sectionId}
+- Language: ${language}
+- Time: ${new Date().toISOString()}
+- Environment: ${isLocal ? 'Local Development' : 'Production'}
+
+---
+*${isLocal ? 'Loading from local docs folder via internal API.' : 'Loading from GitHub via internal API.'}*`;
+  },
+
+  // Generate not found content message
+  generateNotFoundContent(sectionId: string, language: string): string {
+    return `# Help Content Not Found
+
+This help section does not exist yet.
+
+**Section:** ${sectionId}
+
+**What you can do:**
+1. **Create new content**: Use the "Edit" button to create this help section
+2. **Check spelling**: Verify the section ID is correct
+3. **Browse available topics**: Return to the help overview to see available sections
+
+**Debug Info:**
+- Section: ${sectionId}
+- Language: ${language}
+- Time: ${new Date().toISOString()}
+
+---
+*This section can be created using the help editor.*`;
+  },
+
+  // Load markdown content from local docs folder (used in development and as fallback)
+  async loadMarkdownContentLocal(sectionId: string, language: string, forceRefresh: boolean = false): Promise<string> {
+    try {
+      // Super aggressive cache busting for instant updates
       const timestamp = Date.now();
       const randomId = Math.random().toString(36).substr(2, 15);
       const sessionId = Math.random().toString(36).substr(2, 10);
-      const cacheParams = `?t=${timestamp}&v=${randomId}&_fresh=${Date.now()}&_session=${sessionId}&_bust=${Math.random()}`;
+      const microTime = performance.now().toString().replace('.', '');
+      const nanoSeed = Math.random().toString(36).substr(2, 20);
+      
+      // Multiple cache busting parameters to defeat all caching layers
+      const cacheBusters = [
+        `t=${timestamp}`,
+        `v=${randomId}`,
+        `_fresh=${Date.now()}`,
+        `_session=${sessionId}`,
+        `_bust=${Math.random()}`,
+        `_micro=${microTime}`,
+        `_nano=${nanoSeed}`,
+        `_force=${forceRefresh ? '1' : '0'}`,
+        `_r=${Math.floor(Math.random() * 999999)}`,
+        `_ts=${new Date().getTime()}`
+      ];
+      const cacheParams = `?${cacheBusters.join('&')}`;
+      
       const langFolder = language === 'sv' ? 'sv' : 'en';
       
       // Try to fetch from local docs folder (served directly by Vite)
       const base = (import.meta as any).env?.BASE_URL || '/';
       const localUrl = `${base}docs/${langFolder}/${sectionId}.md${cacheParams}`;
       
-      console.log(`Loading help content from: ${localUrl}`);
+      console.log(`🔄 Loading content from: ${localUrl.substring(0, 100)}...`);
+      
+      // Super aggressive headers to prevent any caching
+      const headers = {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'If-Modified-Since': '0',
+        'If-None-Match': '*',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-Cache-Buster': `${timestamp}-${randomId}-${sessionId}`,
+        'X-Force-Refresh': forceRefresh.toString(),
+        'X-Timestamp': timestamp.toString(),
+        'X-Random': Math.random().toString()
+      };
       
       const response = await fetch(localUrl, { 
         cache: 'no-store',
         method: 'GET',
-        headers: {
-          'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
-          'Pragma': 'no-cache',
-          'Expires': '0',
-          'If-Modified-Since': '0',
-          'If-None-Match': '*',
-          'X-Requested-With': 'XMLHttpRequest',
-          'X-Cache-Buster': `${timestamp}-${randomId}-${sessionId}`
-        }
+        headers
       });
       
       if (response.ok) {
         const content = await response.text();
-        console.log(`✅ Content loaded for ${sectionId} (${language}) from local docs.`);
+        console.log(`✅ Fresh content loaded for ${sectionId} (${language}), length: ${content.length}`);
         return content;
       }
       
-      // Handle 304 Not Modified - this means the content is cached but we want fresh content
-      if (response.status === 304) {
-        console.warn(`⚠️ Got 304 Not Modified for ${sectionId}, retrying with different cache buster...`);
-        // Retry with a completely different cache buster
-        const newTimestamp = Date.now() + Math.random() * 1000;
-        const newRandomId = Math.random().toString(36).substr(2, 15);
-        const newCacheParams = `?t=${newTimestamp}&v=${newRandomId}&_fresh=${Date.now()}&_retry=${Math.random()}`;
-        const retryUrl = `${base}docs/${langFolder}/${sectionId}.md${newCacheParams}`;
-        
-        console.log(`🔄 Retrying with new URL: ${retryUrl}`);
-        
-        const retryResponse = await fetch(retryUrl, {
-          cache: 'no-store',
-          method: 'GET',
-          headers: {
-            'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, private',
-            'Pragma': 'no-cache',
-            'Expires': '0',
-            'If-Modified-Since': '0',
-            'If-None-Match': '*'
-          }
-        });
-        
-        if (retryResponse.ok) {
-          const content = await retryResponse.text();
-          console.log(`✅ Content loaded for ${sectionId} (${language}) on retry.`);
-          return content;
+      // Handle any non-200 response - try multiple fallbacks with different strategies
+      console.warn(`⚠️ Response ${response.status} for ${sectionId}, trying fallbacks...`);
+      
+      // Fallback 1: Try without any cache params but with timestamp in URL path
+      const pathTimestamp = Date.now();
+      const fallback1Url = `${base}docs/${langFolder}/${sectionId}.md?_=${pathTimestamp}`;
+      console.log(`🔄 Fallback 1: ${fallback1Url}`);
+      
+      const fallback1Response = await fetch(fallback1Url, {
+        cache: 'no-store',
+        method: 'GET',
+        headers: {
+          'Cache-Control': 'no-cache',
+          'Pragma': 'no-cache'
         }
+      });
+      
+      if (fallback1Response.ok) {
+        const content = await fallback1Response.text();
+        console.log(`✅ Content loaded for ${sectionId} (${language}) via fallback 1.`);
+        return content;
       }
       
-      // Final fallback: try without any cache busting at all
-      console.warn(`⚠️ All cache busting attempts failed, trying simple request...`);
-      const simpleUrl = `${base}docs/${langFolder}/${sectionId}.md`;
-      const simpleResponse = await fetch(simpleUrl, {
+      // Fallback 2: Try with minimal cache busting
+      const fallback2Url = `${base}docs/${langFolder}/${sectionId}.md?v=${Math.random()}`;
+      console.log(`🔄 Fallback 2: ${fallback2Url}`);
+      
+      const fallback2Response = await fetch(fallback2Url, {
         cache: 'no-store',
         method: 'GET'
       });
       
-      if (simpleResponse.ok) {
-        const content = await simpleResponse.text();
-        console.log(`✅ Content loaded for ${sectionId} (${language}) with simple request.`);
+      if (fallback2Response.ok) {
+        const content = await fallback2Response.text();
+        console.log(`✅ Content loaded for ${sectionId} (${language}) via fallback 2.`);
         return content;
       }
       
-      throw new Error(`Failed to load content: ${response.status} ${response.statusText}`);
+      // Fallback 3: Try plain request as last resort
+      const fallback3Url = `${base}docs/${langFolder}/${sectionId}.md`;
+      console.log(`🔄 Fallback 3: ${fallback3Url}`);
+      
+      const fallback3Response = await fetch(fallback3Url, {
+        cache: 'no-store'
+      });
+      
+      if (fallback3Response.ok) {
+        const content = await fallback3Response.text();
+        console.log(`✅ Content loaded for ${sectionId} (${language}) via fallback 3.`);
+        return content;
+      }
+      
+      throw new Error(`All fetch attempts failed. Last status: ${response.status} ${response.statusText}`);
     } catch (error) {
-      console.error(`Error loading content for ${sectionId} in ${language}:`, error);
+      console.error(`❌ Error loading content for ${sectionId} in ${language}:`, error);
       
       // Return error message when content cannot be loaded
       const errorMessage = `# Content not available
@@ -505,23 +672,26 @@ This help content is currently not available.
 
 **Possible causes:**
 - Documentation file not found
-- Network connectivity issues
+- Network connectivity issues  
 - File path configuration error
+- Caching issues
 
 **Solutions:**
 1. **Check file exists**: Verify the file exists at \`docs/${language === 'sv' ? 'sv' : 'en'}/${sectionId}.md\`
 2. **Check connection**: Verify internet connectivity
-3. **Refresh**: Try refreshing the page
-4. **Contact support**: If the issue persists
+3. **Hard refresh**: Try Ctrl+F5 to bypass all caches
+4. **Wait and retry**: File changes may take a moment to propagate
+5. **Contact support**: If the issue persists
 
 **Debug Info:**
 - Section: ${sectionId}
 - Language: ${language}
 - Time: ${new Date().toISOString()}
 - Mode: Local Documentation
+- Force Refresh: ${forceRefresh}
 
 ---
-*Local documentation is required and unavailable.*`;
+*Attempting to load fresh content...*`;
       
       return errorMessage;
     }
@@ -537,16 +707,53 @@ This help content is currently not available.
     return helpConfig.sections.map(s => s.id);
   },
 
-  // Clear all caches (no-op for local docs, but kept for compatibility)
+  // Clear all caches (enhanced for instant refresh)
   async clearAllCaches(): Promise<void> {
-    console.log('🗑️ Clearing help system caches...');
-    // For local docs, we don't need to clear caches as we use cache-busting URLs
-    console.log('✅ Caches cleared (local docs mode)');
+    // Clear browser caches programmatically where possible
+    if ('caches' in window) {
+      try {
+        const cacheNames = await caches.keys();
+        await Promise.all(
+          cacheNames.map(cacheName => caches.delete(cacheName))
+        );
+      } catch (error) {
+        // Silently fail
+      }
+    }
+    
+    // Force reload any cached modules (Vite specific)
+    try {
+      if ((import.meta as any).hot) {
+        (import.meta as any).hot.invalidate();
+      }
+    } catch (error) {
+      // Silently fail
+    }
   },
 
-  // Force reload by fetching fresh content
+  // Verify if content has actually changed (for debugging cache issues)
+  async verifyContentChange(sectionId: string, language: string, oldContent: string): Promise<{ changed: boolean, newContent: string, contentLength: number }> {
+    try {
+      // Always use GitHub for verification to match our source of truth
+      const newContent = await this.loadMarkdownContentFromGitHub(sectionId, language, true);
+      const changed = newContent !== oldContent;
+      
+      return {
+        changed,
+        newContent,
+        contentLength: newContent.length
+      };
+    } catch (error) {
+      return {
+        changed: false,
+        newContent: oldContent,
+        contentLength: oldContent.length
+      };
+    }
+  },
+
+  // Force reload by fetching fresh content from GitHub
   async forceReload(language: string = 'sv'): Promise<HelpSection[]> {
-    console.log(`🔄 Force reloading help content for language: ${language}`);
     // Always force refresh when manually reloading
     return this.getAllSections(language, true);
   }
