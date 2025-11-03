@@ -1,124 +1,147 @@
-# Register for trainings
+# Register for Trainings
 
 ## Overview
 
-Easily register for trainings that interest you. That's the first step - registering is free and allows you to participate when the time comes.
+Easily register for trainings that interest you. Registration is the first step and allows you to participate when the time comes. Think of it as showing your interest and 'reserving a seat'!
 
-### Visual design
-**Anmälan** (Public Subscription Page) is the open page in the system and has a special visual design to make it clear that it's accessible to everyone:
-- **Blue color scheme**: Uses blue colors to indicate openness and accessibility
-- **Minimalistic design**: Clean and modern design without unnecessary elements
-- **Enhanced navigation**: Navigation element has special blue styling when active
-- **Visual indicators**: Small blue dot next to the page title to mark it as an open page
-- **Consistent design**: All elements use the same blue color scheme for unity
+### Visual Design
 
-## How things work
+The **{{navPublic}}** page is the public-facing page of the system and features a distinct visual design:
 
-### What is a registration?
-A registration means that you show interest in joining. It's like 'reserving a seat' - you show interest but don't commit to actually attending.
+-   **Blue Color Scheme**: Uses blue tones to signify openness and easy access.
+-   **Minimalistic Design**: A clean, modern look without unnecessary clutter.
+-   **Enhanced Navigation**: The active navigation element has special blue styling.
+-   **Visual Indicators**: A small blue dot appears next to the page title to highlight it as a public page.
+-   **Consistent Design**: A unified experience, with all elements using the same blue color palette.
 
-### Benefits of registering
-- **Free**: There is no cost to register for a training session with us
-- **Flexibility**: You can unsubscribe at any time
-- **Overview**: You see all the trainings you are interested in
-- **Reminders**: You remember which trainings are available
+## How Things Work
 
-## Register for trainings
+### What is a Registration?
 
-### Here's how you do it
-1. Go to **{{navPublic}}**
-2. Browse the available trainings
-3. Read the description of each training
-4. Click **{{subSubscribeBtn}}** next to the training you want to attend
-5. Confirm your registration
+A registration signals your interest in joining a training. It's akin to 'reserving a spot' – you express interest without committing to attending.
 
-### What you see for each training
-- **Title and description**: What the training is about
-- **Date and time**: When the training takes place
-- **Location**: Where the training is held
-- **Available seats**: How many people can attend
-- **Registration status**: Whether you are already registered or not
+### Benefits of Registering
 
-## Manage your registrations
+-   **Free**: No cost to register for a training session.
+-   **Flexibility**: Unsubscribe anytime, no strings attached.
+-   **Overview**: Keep track of all the trainings you're interested in.
+-   **Reminders**: Get notified about upcoming trainings you’ve registered for.
 
-### View your subscriptions
-- **{{navPublic}}**: Shows all trainings you are registered for
-- **{{navAttendance}}**: Shows the registration status of each training
-- **Overview**: You can clearly see which trainings you plan to attend
+## Register for Trainings
 
-### Unsubscribe from trainings
-The unsubscription process is simple and can be done by any user on the platform, including administrators.
+### Here's How You Do It
+
+1.  Go to **{{navPublic}}**.
+2.  Browse the available trainings.
+3.  Read the training description.
+4.  Click **{{subSubscribeBtn}}** next to the desired training.
+5.  Confirm your registration.
+
+### Information Displayed for Each Training
+
+-   **Title and Description**: Overview of the training content.
+-   **Date and Time**: When the training will occur.
+-   **Location**: Where the training is held.
+-   **Available Seats**: Number of slots available.
+-   **Registration Status**: Indicates if you're already registered.
+
+## Manage Your Registrations
+
+### View Your Subscriptions
+
+-   **{{navPublic}}**: Displays all trainings you are registered for.
+-   **{{navAttendance}}**: Shows your registration status for each training.
+-   **Overview**: Provides a clear view of the trainings you plan to attend.
+
+### Unsubscribe from Trainings
+
+Unsubscribing is straightforward and can be done by any user, including admins.
 
 **How to Unsubscribe a User:**
-1. Go to the **{{navPublic}}**.
-2. Find the training you wish to manage.
-3. In the **{{subSubscribedUsers}}** list, locate the user you want to remove.
-4. Click the **trashcan icon** next to the user's name. A tooltip with the text "{{unsubscribeTooltip}}" will appear on hover.
 
-The user is immediately removed from the subscription list. This action does not affect voucher balances and the spot becomes available for other users.
+1.  Navigate to **{{navPublic}}**.
+2.  Locate the training you want to manage.
+3.  In the **{{subSubscribedUsers}}** list, find the user you wish to remove.
+4.  Click the **trashcan icon** next to the user's name. A tooltip saying "{{unsubscribeTooltip}}" will appear.
 
-### What happens when you unsubscribe?
-- You will be removed from the participant list
-- The balance of your voucher will not be affected
-- You can re-register if you wish
-- The place becomes available to others
+The user is instantly removed. This doesn't affect voucher balances, and their spot opens up for others.
 
-## Rules that we want you to be aware of
+### What Happens When You Unsubscribe?
 
-### Registration vs check-in
-- **Registration is free**: You can register for as many trainings as you want
-- **Check-in costs**: Clip cards are only drawn when you mark check-in
-- **No obligation**: Registration does not mean you have to attend
+-   You're removed from the participant list.
+-   Your voucher balance remains unchanged.
+-   You can re-register if you change your mind.
+-   Your spot becomes available to other users.
+
+## Important Rules
+
+### Registration vs. Check-in
+
+-   **Registration is Free**: Register for as many trainings as you like.
+-   **Check-in Uses Credits**: Clip cards are only deducted upon check-in.
+-   **No Obligation**: Registration doesn't commit you to attending.
 
 ### Timeframes
-- **Register in advance**: Register as soon as you know you are interested
-- **Cancel in time**: Cancel your registration if you know you cannot attend
-- **No time limit**: You can withdraw at any time
 
-## Tips for smart registration management
+-   **Register Early**: Sign up as soon as you're interested.
+-   **Cancel in Advance**: Cancel if you know you can't make it.
+-   **No Time Limit**: You can withdraw your registration at any time.
 
-### Plan your training sessions
-1. **Sign up for interesting trainings**: Sign up for trainings that seem interesting
-2. **Keep an eye on your schedule**: Make sure your workouts don't clash with other activities
-3. **Be realistic**: Don't sign up for more workouts than you can handle
+## Tips for Effective Registration Management
 
-### Manage changes
-1. **Cancel in time**: If you know you can't attend, cancel as soon as possible
-2. **Communicate**: Inform the trainer if you cannot attend
-3. **Reschedule**: Use your time for other trainings instead
+### Plan Your Training Sessions
 
-### Organize your registrations
-1. **Prioritize**: Focus on the trainings that are most important to you
-2. **Balance**: Mix different types of training
-3. **Update regularly**: Review your registrations regularly
+1.  **Sign Up for Interesting Trainings**: Enroll in any trainings that pique your interest.
+2.  **Check Your Schedule**: Avoid conflicts with other commitments.
+3.  **Be Realistic**: Don't overcommit – sign up for a manageable number of trainings.
 
-## Frequently asked questions and answers
+### Manage Changes
 
-**Can I sign up for several trainings at the same time?
+1.  **Cancel Promptly**: If you can't attend, cancel ASAP.
+2.  **Communicate**: Inform the trainer if possible.
+3.  **Reschedule**: Reallocate your time to other trainings.
+
+### Organize Your Registrations
+
+1.  **Prioritize**: Focus on the most important trainings.
+2.  **Balance**: Include a variety of training types.
+3.  **Update Regularly**: Review your registrations frequently.
+
+## Frequently Asked Questions
+
+**Can I register for multiple trainings simultaneously?**
+
 Yes, you can register for as many trainings as you want.
 
-**What happens if I sign up for a training that is full?
-You will be notified that the training is full and you will not be able to register.
+**What happens if a training is full?**
 
-**Can I register for trainings that have already started?
-No, you can only register for future trainings.
+You'll be notified that the training is at capacity, and you won't be able to register.
 
-**Do I have to register in order to participate in a training session?
-Yes, you need to register first and then mark check-in when the time comes.
+**Can I register for trainings that have already started?**
 
-**What happens if I forget to deregister?
-Nothing serious - you can still unregister later and no trainings will be consumed until you are marked as checked-in.
+No, registration is only available for upcoming trainings.
 
-**Can I see who is registered for a training?
-It depends on the platform settings - ask the administrator about this.
+**Is registration required to participate?**
+
+Yes, you must register first and then check in when you arrive.
+
+**What if I forget to unsubscribe?**
+
+No problem! You can unsubscribe later, and no credits will be used until you check in.
+
+**Can I see who else is registered?**
+
+It depends on the platform's settings. Check with the administrator.
 
 ## Troubleshooting
 
-**Cannot register**
-- Check that the training is not full
-- Check that the training has not already started
-- Refresh the page and try again
+**Cannot Register**
 
-**Registration is not displayed**
-- Refresh the page to see the latest changes
-- Contact the administrator if the problem persists
+-   Verify that the training isn't full.
+-   Ensure the training hasn't started yet.
+-   Refresh the page and try again.
+
+**Registration Not Displayed**
+
+-   Refresh the page to see the latest updates.
+-   Contact the administrator if the problem persists.
