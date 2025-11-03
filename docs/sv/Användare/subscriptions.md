@@ -1,6 +1,6 @@
-# Anmälan
+# Anmälan 1
 
-## Översikten
+## Översikt
 
 Anmäl dig enkelt för träningar som intresserar dig. Detta är det första steget - att anmäla sig är gratis och gör att du kan delta när det är dags.
 
