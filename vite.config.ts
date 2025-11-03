@@ -13,16 +13,18 @@ export default defineConfig(({ mode }) => {
     const supabaseUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
     const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
     
-    // Determine base URL: Vercel uses root, GitHub Pages uses /ntr-test/
+    // Determine base URL: Use root for Vercel (default)
+    // Only use /ntr-test/ if explicitly building for GitHub Pages
+    const isGitHubPages = process.env.GITHUB_PAGES === 'true';
     const isVercel = process.env.VERCEL === '1';
-    const baseUrl = isVercel ? '/' : '/ntr-test/';
+    const baseUrl = isGitHubPages ? '/ntr-test/' : '/';
     
     console.log('🔧 Vite config environment variables:', {
       mode,
       geminiApiKey: geminiApiKey ? `${geminiApiKey.substring(0, 4)}...` : 'not set',
       supabaseUrl: supabaseUrl ? 'set' : 'not set',
       supabaseAnonKey: supabaseAnonKey ? 'set' : 'not set',
-      platform: isVercel ? 'Vercel' : 'GitHub Pages',
+      platform: isVercel ? 'Vercel' : isGitHubPages ? 'GitHub Pages' : 'Local/Other',
       baseUrl
     });
     
