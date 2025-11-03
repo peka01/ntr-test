@@ -652,14 +652,25 @@ export const HelpEditor: React.FC<HelpEditorProps> = ({
   // Mock AI response (replace with actual AI integration)
   const mockAIResponse = async (message: string, content: string, appContext: string): Promise<string> => {
     try {
+      console.log('🤖 AI Request started...');
       const apiKey = (import.meta as any).env?.VITE_GEMINI_API_KEY;
       
       if (!apiKey) {
-        throw new Error('Gemini API key not configured');
+        console.error('❌ Gemini API key not found');
+        throw new Error('Gemini API key not configured. Please add VITE_GEMINI_API_KEY to your .env file');
       }
 
+      console.log('✅ API key found, importing GoogleGenAI...');
       // Import GoogleGenAI dynamically to avoid build issues
-      const { GoogleGenAI } = await import('@google/genai');
+      const genaiModule = await import('@google/genai');
+      console.log('✅ Module imported:', Object.keys(genaiModule));
+      
+      const { GoogleGenAI } = genaiModule;
+      if (!GoogleGenAI) {
+        throw new Error('GoogleGenAI class not found in @google/genai package');
+      }
+      
+      console.log('✅ Creating GoogleGenAI instance...');
       const ai = new GoogleGenAI({ apiKey });
 
       // Create comprehensive context for the AI
@@ -708,20 +719,24 @@ ALWAYS use action markers - never just provide suggestions without them!`;
         { role: 'user', parts: [{ text: message }] }
       ];
 
+      console.log('✅ Sending request to Gemini API...');
       const result = await ai.models.generateContent({
         model: "gemini-2.0-flash-exp",
         contents: conversationContents,
       });
 
+      console.log('✅ Received response from Gemini');
       const response = result.text.trim();
+      console.log('Response length:', response.length);
       
       // Auto-execute actions when using real AI
       // executeAIActions(response);
       
       return response;
     } catch (error) {
-      console.error('Error with AI service:', error);
-      throw new Error(`AI service error: ${error.message || 'Unknown error'}`);
+      console.error('❌ Error with AI service:', error);
+      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack');
+      throw new Error(`AI service error: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   };
 

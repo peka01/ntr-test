@@ -12,6 +12,7 @@ export default defineConfig(({ mode }) => {
     const geminiApiKey = process.env.VITE_GEMINI_API_KEY || env.VITE_GEMINI_API_KEY || '';
     const supabaseUrl = process.env.VITE_SUPABASE_URL || env.VITE_SUPABASE_URL;
     const supabaseAnonKey = process.env.VITE_SUPABASE_ANON_KEY || env.VITE_SUPABASE_ANON_KEY;
+    const githubToken = process.env.VITE_GITHUB_TOKEN || env.VITE_GITHUB_TOKEN;
     
     // Determine base URL: Use root for Vercel (default)
     // Only use /ntr-test/ if explicitly building for GitHub Pages
@@ -58,8 +59,8 @@ export default defineConfig(({ mode }) => {
       }
     });
 
-    // Internal API plugin for help content operations
-    const helpApiPlugin = () => ({
+    // Internal API plugin for help content operations - pass token from env
+    const helpApiPlugin = (token?: string) => ({
       name: 'help-api',
       configureServer(server) {
         // API endpoint to get help content from local or GitHub
@@ -161,10 +162,13 @@ export default defineConfig(({ mode }) => {
                 'Cache-Control': 'no-cache, no-store, must-revalidate',
               };
               
-              // Add authorization if token is available
-              const githubToken = process.env.VITE_GITHUB_TOKEN;
-              if (githubToken) {
-                headers['Authorization'] = `Bearer ${githubToken}`;
+              // Add authorization if token is available (from env or param)
+              const authToken = token || process.env.VITE_GITHUB_TOKEN;
+              if (authToken) {
+                headers['Authorization'] = `Bearer ${authToken}`;
+                console.log('✅ Using GitHub token for API request');
+              } else {
+                console.warn('⚠️ No GitHub token available - rate limit is 60 requests/hour');
               }
               
               const response = await fetch(apiUrl, { headers });
@@ -181,11 +185,14 @@ export default defineConfig(({ mode }) => {
                   path: relativePath
                 }));
               } else {
+                const errorText = await response.text();
+                console.error(`❌ GitHub API error ${response.status}:`, errorText);
                 res.statusCode = response.status;
                 res.setHeader('Content-Type', 'application/json');
                 res.end(JSON.stringify({ 
                   success: false, 
                   error: `GitHub API request failed: ${response.status}`,
+                  details: errorText,
                   path: relativePath
                 }));
               }
@@ -352,7 +359,7 @@ export default defineConfig(({ mode }) => {
 
     return {
       base: baseUrl,
-      plugins: [react(), serveDocsPlugin(), helpApiPlugin()],
+      plugins: [react(), serveDocsPlugin(), helpApiPlugin(githubToken)],
       // Ensure proper module resolution for GitHub Pages
       resolve: {
         alias: {
