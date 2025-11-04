@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslations } from '../hooks/useTranslations';
 import { useLanguage } from '../contexts/LanguageContext';
 import { helpService, type HelpSection } from '../services/helpService';
+import { translationService } from '../services/translationService';
 import sv from '../locales/sv.json';
 import en from '../locales/en.json';
 
@@ -76,6 +77,8 @@ export const HelpEditor: React.FC<HelpEditorProps> = ({
   });
   const [syncMode, setSyncMode] = useState<boolean>(false); // When true, changes apply to all languages
   const [showComparison, setShowComparison] = useState<boolean>(false); // Side-by-side view
+  const [isTranslating, setIsTranslating] = useState<boolean>(false); // Translation in progress
+  const [translationProgress, setTranslationProgress] = useState<number>(0); // Translation progress (0-100)
   
   // Editor state
   const [cursorPosition, setCursorPosition] = useState<number>(0);
@@ -254,18 +257,88 @@ export const HelpEditor: React.FC<HelpEditorProps> = ({
   };
   
   // Copy content from one language to another
-  const copyToLanguage = (fromLang: 'sv' | 'en', toLang: 'sv' | 'en') => {
-    const newContents = { ...languageContents, [toLang]: languageContents[fromLang] };
-    setLanguageContents(newContents);
-    setLanguageChanges({
-      ...languageChanges,
-      [toLang]: newContents[toLang] !== languageOriginalContents[toLang]
-    });
+  // Copy content from one language to another with translation
+  const copyToLanguage = async (fromLang: 'sv' | 'en', toLang: 'sv' | 'en') => {
+    const sourceContent = languageContents[fromLang];
     
-    // If we're copying to the active tab, update the editor
-    if (toLang === activeLanguageTab) {
-      setMarkdownContent(newContents[toLang]);
-      setHasUnsavedChanges(true);
+    if (!sourceContent || sourceContent.trim() === '') {
+      alert('Source language has no content to copy.');
+      return;
+    }
+
+    // Check if DeepL is available
+    if (!translationService.isAvailable()) {
+      // Fallback to direct copy without translation
+      const confirmed = confirm(
+        'DeepL API key not configured. Content will be copied without translation.\n\n' +
+        'To enable automatic translation:\n' +
+        '1. Get a free API key from https://www.deepl.com/pro-api\n' +
+        '2. Add VITE_DEEPL_API_KEY to your .env file\n\n' +
+        'Copy without translation?'
+      );
+      
+      if (!confirmed) return;
+      
+      const newContents = { ...languageContents, [toLang]: sourceContent };
+      setLanguageContents(newContents);
+      setLanguageChanges({
+        ...languageChanges,
+        [toLang]: newContents[toLang] !== languageOriginalContents[toLang]
+      });
+      
+      if (toLang === activeLanguageTab) {
+        setMarkdownContent(newContents[toLang]);
+        setHasUnsavedChanges(true);
+      }
+      return;
+    }
+
+    // Confirm translation
+    const langNames = { sv: 'Swedish', en: 'English' };
+    const confirmed = confirm(
+      `Translate content from ${langNames[fromLang]} to ${langNames[toLang]} using DeepL?\n\n` +
+      `This will translate ${sourceContent.length} characters.`
+    );
+    
+    if (!confirmed) return;
+
+    try {
+      setIsTranslating(true);
+      setTranslationProgress(0);
+      
+      console.log(`Translating from ${fromLang} to ${toLang}...`);
+      
+      // Translate the content
+      const translatedContent = await translationService.translateMarkdown(
+        sourceContent,
+        fromLang,
+        toLang,
+        (progress) => setTranslationProgress(progress)
+      );
+      
+      console.log('Translation complete!');
+      
+      // Update the target language content
+      const newContents = { ...languageContents, [toLang]: translatedContent };
+      setLanguageContents(newContents);
+      setLanguageChanges({
+        ...languageChanges,
+        [toLang]: newContents[toLang] !== languageOriginalContents[toLang]
+      });
+      
+      // If we're copying to the active tab, update the editor
+      if (toLang === activeLanguageTab) {
+        setMarkdownContent(newContents[toLang]);
+        setHasUnsavedChanges(true);
+      }
+      
+      alert(`Translation complete! Content translated from ${langNames[fromLang]} to ${langNames[toLang]}.`);
+    } catch (error) {
+      console.error('Translation failed:', error);
+      alert(`Translation failed: ${error instanceof Error ? error.message : 'Unknown error'}\n\nThe content was not copied.`);
+    } finally {
+      setIsTranslating(false);
+      setTranslationProgress(0);
     }
   };
 
@@ -1248,27 +1321,48 @@ ALWAYS use action markers - never just provide suggestions without them!`;
                 Sync Mode {syncMode ? 'ON' : 'OFF'}
               </button>
 
-              {/* Copy Buttons */}
+              {/* Copy Buttons with Translation */}
               <div className="flex items-center space-x-1">
                 <button
                   onClick={() => copyToLanguage('sv', 'en')}
                   className="px-2 py-1.5 bg-white text-slate-600 border border-slate-300 rounded text-xs hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Copy Swedish content to English"
-                  disabled={activeLanguageTab !== 'sv'}
+                  title="Translate and copy Swedish content to English using DeepL"
+                  disabled={activeLanguageTab !== 'sv' || isTranslating}
                 >
-                  SV → EN
+                  {isTranslating ? '⏳' : '🌐'} SV → EN
                 </button>
                 <button
                   onClick={() => copyToLanguage('en', 'sv')}
                   className="px-2 py-1.5 bg-white text-slate-600 border border-slate-300 rounded text-xs hover:bg-slate-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  title="Copy English content to Swedish"
-                  disabled={activeLanguageTab !== 'en'}
+                  title="Translate and copy English content to Swedish using DeepL"
+                  disabled={activeLanguageTab !== 'en' || isTranslating}
                 >
-                  EN → SV
+                  {isTranslating ? '⏳' : '🌐'} EN → SV
                 </button>
               </div>
             </div>
           </div>
+
+          {/* Translation Progress Banner */}
+          {isTranslating && (
+            <div className="mt-2 px-3 py-2 bg-blue-50 border border-blue-200 rounded text-sm text-blue-700">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <svg className="w-4 h-4 inline mr-2 animate-spin" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                  </svg>
+                  <strong>Translating content...</strong>
+                </div>
+                <span>{translationProgress}%</span>
+              </div>
+              <div className="mt-2 w-full bg-blue-200 rounded-full h-2">
+                <div 
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${translationProgress}%` }}
+                ></div>
+              </div>
+            </div>
+          )}
 
           {/* Sync Mode Info Banner */}
           {syncMode && (
