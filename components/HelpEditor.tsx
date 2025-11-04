@@ -60,6 +60,23 @@ export const HelpEditor: React.FC<HelpEditorProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
+  // Multi-language editing state
+  const [activeLanguageTab, setActiveLanguageTab] = useState<'sv' | 'en'>(language as 'sv' | 'en');
+  const [languageContents, setLanguageContents] = useState<Record<'sv' | 'en', string>>({
+    sv: '',
+    en: ''
+  });
+  const [languageOriginalContents, setLanguageOriginalContents] = useState<Record<'sv' | 'en', string>>({
+    sv: '',
+    en: ''
+  });
+  const [languageChanges, setLanguageChanges] = useState<Record<'sv' | 'en', boolean>>({
+    sv: false,
+    en: false
+  });
+  const [syncMode, setSyncMode] = useState<boolean>(false); // When true, changes apply to all languages
+  const [showComparison, setShowComparison] = useState<boolean>(false); // Side-by-side view
+  
   // Editor state
   const [cursorPosition, setCursorPosition] = useState<number>(0);
   const [isPreviewVisible, setIsPreviewVisible] = useState(true);
@@ -160,17 +177,35 @@ export const HelpEditor: React.FC<HelpEditorProps> = ({
     setLoading(true);
     setError(null);
     try {
-      // Always force refresh to get the latest content from GitHub
-      const section = await helpService.getSection(sectionId, language, forceRefresh);
-      if (section) {
-        setCurrentSection(section);
-        setMarkdownContent(section.content);
-        setOriginalContent(section.content); // Store original for diff comparison
+      // Load both language versions
+      const [svSection, enSection] = await Promise.all([
+        helpService.getSection(sectionId, 'sv', forceRefresh),
+        helpService.getSection(sectionId, 'en', forceRefresh)
+      ]);
+      
+      if (svSection && enSection) {
+        setCurrentSection(language === 'sv' ? svSection : enSection);
+        
+        // Store content for both languages
+        const newLanguageContents = {
+          sv: svSection.content,
+          en: enSection.content
+        };
+        setLanguageContents(newLanguageContents);
+        setLanguageOriginalContents(newLanguageContents);
+        
+        // Set active content based on current active tab
+        setMarkdownContent(newLanguageContents[activeLanguageTab]);
+        setOriginalContent(newLanguageContents[activeLanguageTab]);
+        
+        // Reset change tracking
+        setLanguageChanges({ sv: false, en: false });
         setHasUnsavedChanges(false);
-        setNewFileName(section.title);
-        setNewFilePath(section.id);
+        
+        setNewFileName(svSection.title);
+        setNewFilePath(svSection.id);
       } else {
-        setError(`Section ${sectionId} not found`);
+        setError(`Section ${sectionId} not found in one or both languages`);
       }
     } catch (err) {
       console.error('Error loading section:', err);
@@ -183,7 +218,55 @@ export const HelpEditor: React.FC<HelpEditorProps> = ({
   // Track content changes
   const updateContent = (newContent: string) => {
     setMarkdownContent(newContent);
-    setHasUnsavedChanges(newContent !== originalContent);
+    
+    if (syncMode) {
+      // Apply changes to all languages
+      const newContents = {
+        sv: newContent,
+        en: newContent
+      };
+      setLanguageContents(newContents);
+      setLanguageChanges({
+        sv: newContent !== languageOriginalContents.sv,
+        en: newContent !== languageOriginalContents.en
+      });
+      setHasUnsavedChanges(true);
+    } else {
+      // Apply only to active language
+      const newContents = { ...languageContents, [activeLanguageTab]: newContent };
+      setLanguageContents(newContents);
+      setLanguageChanges({
+        ...languageChanges,
+        [activeLanguageTab]: newContent !== languageOriginalContents[activeLanguageTab]
+      });
+      setHasUnsavedChanges(newContent !== languageOriginalContents[activeLanguageTab]);
+    }
+    
+    setOriginalContent(languageOriginalContents[activeLanguageTab]);
+  };
+  
+  // Switch language tab
+  const switchLanguageTab = (lang: 'sv' | 'en') => {
+    setActiveLanguageTab(lang);
+    setMarkdownContent(languageContents[lang]);
+    setOriginalContent(languageOriginalContents[lang]);
+    setHasUnsavedChanges(languageChanges[lang]);
+  };
+  
+  // Copy content from one language to another
+  const copyToLanguage = (fromLang: 'sv' | 'en', toLang: 'sv' | 'en') => {
+    const newContents = { ...languageContents, [toLang]: languageContents[fromLang] };
+    setLanguageContents(newContents);
+    setLanguageChanges({
+      ...languageChanges,
+      [toLang]: newContents[toLang] !== languageOriginalContents[toLang]
+    });
+    
+    // If we're copying to the active tab, update the editor
+    if (toLang === activeLanguageTab) {
+      setMarkdownContent(newContents[toLang]);
+      setHasUnsavedChanges(true);
+    }
   };
 
   // Load UI text variables from locale files
