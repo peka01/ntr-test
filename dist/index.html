@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com; connect-src 'self' https://raw.githubusercontent.com https://api.github.com https://*.supabase.co https://peka01.github.io https://*.githubusercontent.com https://generativelanguage.googleapis.com; img-src 'self' data: https:; font-src 'self' https:; frame-src 'self' https://raw.githubusercontent.com;">
+    <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
+    <meta http-equiv="Cross-Origin-Embedder-Policy" content="unsafe-none">
+    <title>Loading...</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* Basic fallback styles for production */
+      .bg-slate-100 { background-color: #f1f5f9; }
+      .text-center { text-align: center; }
+      .p-4 { padding: 1rem; }
+      .m-4 { margin: 1rem; }
+      .rounded { border-radius: 0.25rem; }
+      .shadow { box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06); }
+      
+      /* Debug styles - ensure body and html are interactive */
+      html, body {
+        pointer-events: auto !important;
+        overflow: auto !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 1 !important;
+      }
+      
+      /* Ensure no invisible overlays are blocking interaction */
+      * {
+        pointer-events: auto !important;
+      }
+      
+      /* Tour element highlighting */
+      .tour-highlight {
+        outline: 3px solid #3b82f6 !important;
+        outline-offset: 2px !important;
+        background-color: rgba(59, 130, 246, 0.1) !important;
+        transition: all 0.2s ease !important;
+        z-index: 9999 !important;
+        position: relative !important;
+      }
+    </style>
+  <script type="module" crossorigin src="/assets/index-Begf1mlF.js"></script>
+</head>
+<body class="bg-slate-100">
+    <div id="root">
+        <p>Loading...</p>
+    </div>
+    <script>
+      // Fallback for module loading issues
+      window.addEventListener('error', function(e) {
+        if (e.message.includes('module script') || e.message.includes('MIME type')) {
+          console.error('Module loading error detected:', e.message);
+          // Try to reload the page after a short delay
+          setTimeout(() => {
+            console.log('Attempting to reload page...');
+            window.location.reload();
+          }, 1000);
+        }
+      });
+    </script>
+</body>
+</html>
