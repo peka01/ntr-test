@@ -5,7 +5,7 @@
 Vill du vara med på en träning? Här kan du enkelt anmäla dig! Det är helt gratis att anmäla sig och det ger dig chansen att delta när det väl är dags. Tänk på det som att du visar intresse och reserverar en plats.
 
 ## Hur det funkar
-
+weddwe
 ### Vad innebär en anmälan?
 När du anmäler dig visar du att du är intresserad av att delta i träningen. Det är som att "hålla en plats" åt dig, utan att du behöver lova något. Du bekräftar bara att du troligen kommer.
 
