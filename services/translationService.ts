@@ -55,26 +55,23 @@ class TranslationService {
       const sourceCode = sourceLang.toUpperCase();
       const targetCode = targetLang === 'en' ? 'EN-US' : 'SV'; // DeepL uses EN-US or EN-GB for English
 
-      const formData = new URLSearchParams();
-      formData.append('auth_key', this.apiKey!);
-      formData.append('text', text);
-      formData.append('source_lang', sourceCode);
-      formData.append('target_lang', targetCode);
-      formData.append('preserve_formatting', '1'); // Preserve markdown formatting
-      formData.append('tag_handling', 'html'); // Better handling of markdown syntax
-
-      const response = await fetch(`${this.baseUrl}/translate`, {
+      // Use our API proxy to avoid CORS issues
+      const response = await fetch('/api/translate', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Type': 'application/json',
         },
-        body: formData.toString()
+        body: JSON.stringify({
+          text: text,
+          source_lang: sourceCode,
+          target_lang: targetCode
+        })
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('DeepL API error:', response.status, errorText);
-        throw new Error(`DeepL translation failed: ${response.status} - ${errorText}`);
+        const errorData = await response.json().catch(() => ({}));
+        console.error('Translation API error:', response.status, errorData);
+        throw new Error(errorData.message || `Translation failed: ${response.status}`);
       }
 
       const data: DeepLTranslationResponse = await response.json();
@@ -83,7 +80,7 @@ class TranslationService {
         return data.translations[0].text;
       }
 
-      throw new Error('No translation returned from DeepL');
+      throw new Error('No translation returned from API');
     } catch (error) {
       console.error('Translation error:', error);
       throw error;

@@ -11,6 +11,10 @@
     {
       "source": "/api/help/commit",
       "destination": "/api/help/commit"
+    },
+    {
+      "source": "/api/translate",
+      "destination": "/api/translate"
     }
   ],
   "headers": [
