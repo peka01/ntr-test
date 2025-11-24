@@ -1,6 +1,6 @@
 # Anmälan
 
-## Översikt
+## Översikten
 
 Vill du vara med på en träning? Här kan du enkelt anmäla dig! Det är helt gratis att anmäla sig och det ger dig chansen att delta när det väl är dags. Tänk på det som att du visar intresse och reserverar en plats.
 
