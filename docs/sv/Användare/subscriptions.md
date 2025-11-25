@@ -1,110 +1,126 @@
-# Anmälan
+# Notification
 
-## Översikt
+## Overview
 
-Vill du vara med på en träning? Här kan du enkelt anmäla dig! Det är helt gratis att anmäla sig och det ger dig chansen att delta när det väl är dags. Tänk på det som att du visar intresse och reserverar en plats.
+Want to join a training session? You can easily sign up here! It's completely free to sign up and gives you the chance to join when the time comes. Think of it as showing interest and booking your place.
 
-## Hur det funkar
-weddwe
-### Vad innebär en anmälan?
-När du anmäler dig visar du att du är intresserad av att delta i träningen. Det är som att "hålla en plats" åt dig, utan att du behöver lova något. Du bekräftar bara att du troligen kommer.
+## How it works
 
-## Anmäl dig till träningar
+### What does a registration mean?
+When you sign up, you show that you want to join the training. It's like 'holding a place' for you, without you having to promise anything. You just confirm that you are likely to come.
 
-### Så här gör du
-1. Gå till **{{navPublic}}**
-2. Titta igenom listan med träningar
-3. Läs beskrivningen av varje träning och se om den passar dig
-4. Klicka på **{{subSubscribeBtn}}** bredvid den träning du vill vara med på
-5. Bekräfta att du vill anmäla dig
+## Sign up for training sessions
 
-### Vad du ser för varje träning
-- **Titel och beskrivning**: Vad träningen handlar om
-- **Datum och tid**: När träningen är
-- **Plats**: Var träningen hålls
-- **Antal platser kvar**: Hur många som får plats
-- **Din status**: Om du redan är anmäld eller inte
+### Here's how you do it
+1. Go to **{{navPublic}}**
+2. Look through the list of trainings
+3. Read the description of each training and see if it is suitable for you
+4. Click on **{{subSubscribeBtn}}** next to the training you want to join
+5. Confirm that you want to sign up
 
-## Hantera dina anmälningar
+### What you see for each training
+- **Title and description**: What the training is about
+- **Date and time**: When the training is
+- **Location**: Where the training is held
+- **Number of places left**: How many people can attend
+- **Your status**: Whether you are already enrolled or not
 
-### Se dina anmälningar
-- **{{navPublic}}**: Här ser du alla träningar du är anmäld till
-- **{{navAttendance}}**: Här ser du statusen för varje träning
-- **Översikt**: Du får en tydlig bild av vilka träningar du planerar att gå på
+## Manage your registrations
 
-### Avanmäl dig från träningar
-Det är superenkelt att avboka sig från en träning. Du kan göra det direkt i plattformen.
+### See your registrations
+- **{{navPublic}}**: Here you can see all trainings you are registered for
+- **{{navAttendance}}**: Here you can see the status of each training
+- **Overview**: You get a clear picture of which trainings you plan to attend
 
-**Så här avbokar du någon (som administratör):**
-1. Gå till **{{navPublic}}**.
-2. Leta upp träningen det gäller.
-3. Under **{{subSubscribedUsers}}**, hitta personen du vill avanmäla.
-4. Klicka på **papperskorgsikonen** bredvid personens namn. Du kommer att se "{{unsubscribeTooltip}}" när du håller musen över ikonen.
+### Unsubscribe from trainings
+It is very easy to cancel a training session. You can do it directly in the platform.
 
-Personen tas bort från listan direkt. Inga klipp förbrukas och platsen blir ledig för någon annan.
+**How to cancel someone (as an administrator):**
+1. Go to **{{navPublic}}**.
+2. Locate the training in question.
+3. Under **{{subSubscribedUsers}}**, find the person you want to unsubscribe.
+4. Click on the **Trashcan icon** next to the person's name. You will see "{{unsubscribeTooltip}}" when you hover over the icon.
 
-### Vad händer när du avanmäler dig?
-- Du tas bort från deltagarlistan
-- Du behåller alla dina klipp
-- Du kan anmäla dig igen om du vill
-- Platsen blir ledig för andra
+The person will be removed from the list immediately. No clips are consumed and the spot becomes available for someone else.
 
-## Bra saker att veta
+### What happens when you unsubscribe?
+- You are removed from the participant list
+- You keep all your clips
+- You can sign up again if you want
+- The place becomes available for others
 
-### Anmälan och incheckning
-- **Anmälan är kostnadsfri**: Du kan anmäla dig till hur många träningar du vill
-- **Incheckning använder dina klipp**: Dina klipp används först när du checkar in
-- **Inga krav**: Du behöver inte gå på en träning bara för att du anmält dig
+## Good things to know
 
-### Viktiga tider
-- **Anmäl dig tidigt**: Anmäl dig så fort du vet att du är intresserad
-- **Avanmäl i god tid**: Avanmäl dig om du vet att du inte kan komma
-- **Ingen stress**: Du kan avanmäla dig när som helst
+### Registration and check-in
+- **Registration is free**: You can register for as many sessions as you want
+- **Check-in uses your clips**: Your clips are only used when you check in
+- **No requirements**: You don't have to attend a training just because you signed up
 
-## Tips för att hålla koll på dina anmälningar
+### Important times
+- **Sign up early**: Sign up as soon as you know you're interested
+- **Cancel well in advance**: Cancel if you know you can't make it
+- **No stress**: You can cancel at any time
 
-### Planera dina träningar
-1. **Anmäl dig till det som låter kul**: Välj de träningar som lockar dig
-2. **Kolla ditt schema**: Se till att träningarna passar in i din kalender
-3. **Var realistisk**: Anmäl dig inte till för många träningar samtidigt
+## Tips to keep track of your registrations
 
-### Om något ändras
-1. **Avanmäl dig i tid**: Om du vet att du inte kan komma, avboka så snart du kan
-2. **Säg till**: Informera tränaren om du inte kan delta
-3. **Hitta en annan träning**: Använd din tid till något annat
+### Plan your training sessions
+1. **Sign up for what sounds fun**: Choose the trainings that appeal to you
+2. **Check your schedule**: make sure the trainings fit into your calendar
+3. **Be realistic**: Don't sign up for too many trainings at once
 
-### Håll ordning på dina anmälningar
-1. **Prioritera**: Fokusera på de träningar som är viktigast för dig
-2. **Variera**: Blanda olika typer av träningar
-3. **Se över dina anmälningar**: Gå igenom dina anmälningar regelbundet
+### If something changes
+1. **Cancel in time**: If you know you can't come, cancel as soon as you can
+2. **Tell us**: Inform the trainer if you cannot attend
+3. **Find another training**: Use your time for something else
 
-## Frågor och svar
+### Keep track of your registrations
+1. **Prioritize**: Focus on the trainings that are most important to you
+2. **Vary**: Mix up different types of training
+3. **Review your registrations**: Review your registrations regularly
 
-**Kan jag anmäla mig till flera träningar samtidigt?**
-Ja, du kan anmäla dig till hur många träningar du vill.
+## Questions and answers
 
-**Vad händer om en träning är fullbokad?**
-Då får du ett meddelande om att den är full och du kan inte anmäla dig.
+**Can I sign up for several trainings at the same time?
+Yes, you can sign up for as many trainings as you want.
 
-**Kan jag anmäla mig till träningar som redan har börjat?**
-Nej, du kan bara anmäla dig till träningar som ligger framåt i tiden.
+**What happens if a training is fully booked?
+You will be notified that the training is full and you will not be able to register.
 
-**Måste jag anmäla mig för att vara med på en träning?**
-Ja, du behöver anmäla dig först och sedan checka in när det är dags.
+**Can I sign up for training sessions that have already started?
+No, you can only sign up for training sessions that are in the future.
 
-**Vad händer om jag glömmer att avanmäla mig?**
-Ingen fara, du kan avanmäla dig senare. Du betalar inget förrän du checkar in.
+**Do I need to register to attend a training session?
+Yes, you need to register first and then check in when the time comes.
 
-**Kan jag se vilka andra som är anmälda till en träning?**
-Det beror på inställningarna i plattformen. Fråga din administratör om du vill veta.
+**What happens if I forget to cancel my registration?
+Don't worry, you can cancel later. You don't pay anything until you check in.
 
-## Problem och lösningar
+**Can I see who else is registered for a training session?
+It depends on the settings in the platform. Ask your administrator if you want to know.
 
-**Jag kan inte anmäla mig**
-- Kolla om träningen är fullbokad
-- Kolla om träningen redan har börjat
-- Ladda om sidan och försök igen
+## Problems and solutions
 
-**Min anmälan syns inte**
-- Ladda om sidan för att se de senaste ändringarna
-- Kontakta administratören om det inte funkar
+**I can't sign up**
+- Check if the training is fully booked
+- Check if the training has already started
+- Reload the page and try again
+
+**My registration is not visible**
+- Reload the page to see the latest changes
+- Contact the administrator if it doesn't work
+
+## AI Test Addition
+
+This section was added by the AI diff test.
+
+- Feature A
+- Feature B
+- Feature C
+
+## AI Test Addition
+
+This section was added by the AI diff test.
+
+- Feature A
+- Feature B
+- Feature C
