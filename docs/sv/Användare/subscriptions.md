@@ -1,126 +1,147 @@
-# Notification
+# Registrera dig för utbildningar
 
-## Overview
+## Översikt
 
-Want to join a training session? You can easily sign up here! It's completely free to sign up and gives you the chance to join when the time comes. Think of it as showing interest and booking your place.
+Registrera dig enkelt för utbildningar som intresserar dig. Registreringen är det första steget och gör att du kan delta när det är dags. Tänk på det som att visa ditt intresse och "reservera en plats"!
 
-## How it works
+### Visuell design
 
-### What does a registration mean?
-When you sign up, you show that you want to join the training. It's like 'holding a place' for you, without you having to promise anything. You just confirm that you are likely to come.
+Sidan **{navPublic}}** är den sida i systemet som vänder sig till allmänheten och har en distinkt visuell design:
 
-## Sign up for training sessions
+-   **Blått färgschema**: Använder blå toner för att signalera öppenhet och enkel åtkomst.
+-   **Minimalistisk design**: Ett rent, modernt utseende utan onödig röran.
+-   **Förbättrad navigering**: Det aktiva navigeringselementet har en speciell blå styling.
+-   **Visuella indikatorer**: En liten blå prick visas bredvid sidans titel för att markera att det är en offentlig sida.
+-   **Konsistent design**: En enhetlig upplevelse, där alla element använder samma blå färgpalett.
 
-### Here's how you do it
-1. Go to **{{navPublic}}**
-2. Look through the list of trainings
-3. Read the description of each training and see if it is suitable for you
-4. Click on **{{subSubscribeBtn}}** next to the training you want to join
-5. Confirm that you want to sign up
+## Hur saker och ting fungerar
 
-### What you see for each training
-- **Title and description**: What the training is about
-- **Date and time**: When the training is
-- **Location**: Where the training is held
-- **Number of places left**: How many people can attend
-- **Your status**: Whether you are already enrolled or not
+### Vad är en registrering?
 
-## Manage your registrations
+En registrering signalerar ditt intresse av att delta i en utbildning. Det kan liknas vid att "reservera en plats" - du uttrycker intresse utan att förbinda dig att delta.
 
-### See your registrations
-- **{{navPublic}}**: Here you can see all trainings you are registered for
-- **{{navAttendance}}**: Here you can see the status of each training
-- **Overview**: You get a clear picture of which trainings you plan to attend
+### Fördelarna med att registrera sig
 
-### Unsubscribe from trainings
-It is very easy to cancel a training session. You can do it directly in the platform.
+-   **Gratis**: Ingen kostnad för att registrera sig för en utbildning.
+-   **Flexibilitet**: Avsluta prenumerationen när som helst, utan några förpliktelser.
+-   **Överblick**: Håll koll på alla utbildningar du är intresserad av.
+-   **Påminnelser**: Få meddelanden om kommande utbildningar som du har registrerat dig för.
 
-**How to cancel someone (as an administrator):**
-1. Go to **{{navPublic}}**.
-2. Locate the training in question.
-3. Under **{{subSubscribedUsers}}**, find the person you want to unsubscribe.
-4. Click on the **Trashcan icon** next to the person's name. You will see "{{unsubscribeTooltip}}" when you hover over the icon.
+## Registrera dig för utbildningar
 
-The person will be removed from the list immediately. No clips are consumed and the spot becomes available for someone else.
+### Så här gör du
 
-### What happens when you unsubscribe?
-- You are removed from the participant list
-- You keep all your clips
-- You can sign up again if you want
-- The place becomes available for others
+1.  Gå till **{{navPublic}}**.
+2.  Bläddra bland de tillgängliga utbildningarna.
+3.  Läs beskrivningen av utbildningen.
+4.  Klicka på **{subSubSubscribeBtn}}** bredvid önskad utbildning.
+5.  Bekräfta din registrering.
 
-## Good things to know
+### Information som visas för varje utbildning
 
-### Registration and check-in
-- **Registration is free**: You can register for as many sessions as you want
-- **Check-in uses your clips**: Your clips are only used when you check in
-- **No requirements**: You don't have to attend a training just because you signed up
+-   **Titel och beskrivning**: Översikt över utbildningens innehåll.
+-   **Datum och tid**: När utbildningen kommer att äga rum.
+-   **Lokal**: Var utbildningen hålls.
+-   **Tillgängliga platser**: Antal tillgängliga platser.
+-   **Registreringsstatus**: Anger om du redan är registrerad.
 
-### Important times
-- **Sign up early**: Sign up as soon as you know you're interested
-- **Cancel well in advance**: Cancel if you know you can't make it
-- **No stress**: You can cancel at any time
+## Hantera dina registreringar
 
-## Tips to keep track of your registrations
+### Visa dina prenumerationer
 
-### Plan your training sessions
-1. **Sign up for what sounds fun**: Choose the trainings that appeal to you
-2. **Check your schedule**: make sure the trainings fit into your calendar
-3. **Be realistic**: Don't sign up for too many trainings at once
+-   **{{navPublic}}**: Visar alla utbildningar som du är registrerad för.
+-   **{{navAttendance}}**: Visar din registreringsstatus för varje utbildning.
+-   **Översikt**: Ger en tydlig bild av de utbildningar du planerar att delta i.
 
-### If something changes
-1. **Cancel in time**: If you know you can't come, cancel as soon as you can
-2. **Tell us**: Inform the trainer if you cannot attend
-3. **Find another training**: Use your time for something else
+### Avregistrera dig från utbildningar
 
-### Keep track of your registrations
-1. **Prioritize**: Focus on the trainings that are most important to you
-2. **Vary**: Mix up different types of training
-3. **Review your registrations**: Review your registrations regularly
+Att avsluta prenumerationen är enkelt och kan göras av alla användare, inklusive administratörer.
 
-## Questions and answers
+**Hur man avregistrerar en användare:**
 
-**Can I sign up for several trainings at the same time?
-Yes, you can sign up for as many trainings as you want.
+1.  Navigera till **{{navPublic}}**.
+2.  Leta reda på den utbildning du vill hantera.
+3.  I listan **{{subSubscribedUsers}}** hittar du den användare du vill ta bort.
+4.  Klicka på **papperskorgsikonen** bredvid användarens namn. Ett verktygstips som säger "{{unsubscribeTooltip}}" visas.
 
-**What happens if a training is fully booked?
-You will be notified that the training is full and you will not be able to register.
+Användaren tas bort direkt. Detta påverkar inte vouchersaldot, och deras plats öppnas upp för andra.
 
-**Can I sign up for training sessions that have already started?
-No, you can only sign up for training sessions that are in the future.
+### Vad händer när du avslutar din prenumeration?
 
-**Do I need to register to attend a training session?
-Yes, you need to register first and then check in when the time comes.
+-   Du tas bort från deltagarlistan.
+-   Saldot på din kupong förblir oförändrat.
+-   Du kan registrera dig på nytt om du ändrar dig.
+-   Din plats blir tillgänglig för andra användare.
 
-**What happens if I forget to cancel my registration?
-Don't worry, you can cancel later. You don't pay anything until you check in.
+## Viktiga regler
 
-**Can I see who else is registered for a training session?
-It depends on the settings in the platform. Ask your administrator if you want to know.
+### Registrering vs. incheckning
 
-## Problems and solutions
+-   **Registrering är gratis**: Registrera dig för så många utbildningar som du vill.
+-   **Check-in använder krediter**: Klippkort dras endast av vid incheckning.
+-   **Ingen förpliktelse**: Registrering förbinder dig inte att delta.
 
-**I can't sign up**
-- Check if the training is fully booked
-- Check if the training has already started
-- Reload the page and try again
+### Tidsramar
 
-**My registration is not visible**
-- Reload the page to see the latest changes
-- Contact the administrator if it doesn't work
+-   **Registrera dig tidigt**: Registrera dig så snart du är intresserad.
+-   **Avboka i förväg**: Avboka om du vet att du inte kan komma.
+-   **Ingen tidsbegränsning**: Du kan dra tillbaka din anmälan när som helst.
 
-## AI Test Addition
+## Tips för effektiv hantering av registreringar
 
-This section was added by the AI diff test.
+### Planera dina utbildningstillfällen
 
-- Feature A
-- Feature B
-- Feature C
+1.  **Anmäl dig till intressanta utbildningar**: Anmäl dig till alla utbildningar som väcker ditt intresse.
+2.  **Kolla ditt schema**: Undvik konflikter med andra åtaganden.
+3.  **Var realistisk**: Gör inte för många åtaganden - anmäl dig till ett hanterbart antal utbildningar.
 
-## AI Test Addition
+### Hantera förändringar
 
-This section was added by the AI diff test.
+1.  **Avboka i god tid**: Om du inte kan delta, avboka så snart som möjligt.
+2.  **Kommunicera**: Informera utbildaren om möjligt.
+3.  **Omplanera**: Omfördela din tid till andra utbildningar.
 
-- Feature A
-- Feature B
-- Feature C
+### Organisera dina registreringar
+
+1.  **Prioritera**: Fokusera på de viktigaste utbildningarna.
+2.  **Balansera**: Inkludera en mängd olika typer av utbildningar.
+3.  **Uppdatera regelbundet**: Se över dina registreringar ofta.
+
+## Vanliga frågor och svar
+
+**Kan jag registrera mig för flera utbildningar samtidigt?
+
+Ja, du kan anmäla dig till så många utbildningar som du vill.
+
+**Vad händer om en utbildning är full?
+
+Du kommer att meddelas att utbildningen är full och att du inte kan registrera dig.
+
+**Kan jag anmäla mig till utbildningar som redan har startat?**
+
+Nej, registrering är endast tillgänglig för kommande utbildningar.
+
+**Krävs registrering för att delta?
+
+Ja, du måste registrera dig först och sedan checka in när du anländer.
+
+**Vad händer om jag glömmer att avregistrera mig?**
+
+Det är inget problem! Du kan avregistrera dig senare, och inga krediter kommer att användas förrän du checkar in.
+
+**Kan jag se vilka andra som är registrerade?**
+
+Det beror på plattformens inställningar. Kontrollera med administratören.
+
+## Felsökning
+
+**Kan inte registrera**
+
+-   Kontrollera att utbildningen inte är full.
+-   Kontrollera att utbildningen inte har startat än.
+-   Uppdatera sidan och försök igen.
+
+**Registrering visas inte**
+
+-   Uppdatera sidan för att se de senaste uppdateringarna.
+-   Kontakta administratören om problemet kvarstår.
